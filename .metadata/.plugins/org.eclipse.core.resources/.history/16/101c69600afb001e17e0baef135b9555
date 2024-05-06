@@ -1,0 +1,9 @@
+package constants;
+
+public class PropertyConfigs {
+	
+	
+	    public static final String SELENIUM_DRIVER = "selenium.driver";
+	    
+	    
+}

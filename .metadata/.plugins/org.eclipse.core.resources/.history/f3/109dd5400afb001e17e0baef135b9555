@@ -1,0 +1,54 @@
+package commonPages;
+
+import java.util.Properties;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Reporter;
+
+import com.codoid.products.fillo.Connection;
+
+import util.CustomAssert;
+import util.ExcelDatabase;
+import util.ExcelRead;
+import util.GenericMethods;
+
+public class SearchEntityPolicyPage extends GenericMethods{
+	
+	private By searchEntityTab = By.xpath("//a[contains(text(),'Search Entity')]");
+	private By quoteNumberORPolicyNumber = By.xpath("//input[@id='Policy No.']");
+	private By searchBtn = By.xpath("//button[@id='Search']");
+	private By selectQuoteAndPolicyNo;
+	
+	WebDriverWait wait;
+
+	public SearchEntityPolicyPage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		wait = new WebDriverWait(driver, 30);
+		
+	}
+	
+	public void  searchQuoteNumber(WebDriver driver, String qouteNumber) throws Exception{
+		
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "head");
+		waitForPageLoader();
+		click(searchEntityTab, "Search Entity Tab");
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "display");
+		Reporter.log("<B><Font color=\"Yellow\">Quote/Policy Search Entity Page is Displayed</Font></B>");
+		
+		clearAndSenKeys(quoteNumberORPolicyNumber, qouteNumber, "Quote Number OR Policy Number");
+		click(searchBtn, "Search Button");
+		waitForPageLoader();
+		selectQuoteAndPolicyNo = By.xpath("(//tbody/tr/td[2]/a[normalize-space(text()='"+qouteNumber+"')])[2]");
+		
+		click(selectQuoteAndPolicyNo, "Selected Quote Or Policy Number --> " + qouteNumber);
+		
+	}
+
+}

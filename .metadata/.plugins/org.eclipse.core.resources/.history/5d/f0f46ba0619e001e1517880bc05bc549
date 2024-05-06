@@ -1,0 +1,57 @@
+package com.aqm;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import com.github.javafaker.Faker;
+
+import constants.ExecutionSpeed;
+import util.ConfigReader;
+
+public class Demo {
+
+	public static void main(String[] args) throws InterruptedException {/*
+		
+	      System.setProperty("webdriver.chrome.driver", "D:\\SBIG_Automation\\SBIGAutomationFramwork\\drivers\\chromedriver.exe");
+	      WebDriver driver = new ChromeDriver();
+	      driver.get("https://www.tutorialspoint.com/about/about_careers.htm");
+	      
+	      driver.manage().timeouts().implicitlyWait(5, TimeUnit.SECONDS);
+	     
+	      String clickl = Keys.chord(Keys.CONTROL,Keys.ENTER);
+	      
+	      driver.findElement(
+	      By.xpath("//*[text()='Terms of Use']")).sendKeys(clickl);
+	      Thread.sleep(1000);
+	      // hold all window handles in array list
+	      ArrayList<String> newTb = new ArrayList<String>(driver.getWindowHandles());
+	      //switch to new tab
+	      driver.switchTo().window(newTb.get(1));
+	      System.out.println("Page title of new tab: " + driver.getTitle());
+	      //switch to parent window
+	      
+	      driver.close();
+	      
+	      driver.switchTo().window(newTb.get(0));
+	      System.out.println("Page title of parent window: " + driver.getTitle());
+	      driver.findElement(By.xpath("//li/a[text()='Company']")).click();
+	      System.out.println("Done");
+	      
+//	      driver.quit();
+	   */
+		
+	System.out.println("2000".substring(2));
+	
+	}
+
+}

@@ -1,0 +1,140 @@
+package motorPages;
+
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.By.ByXPath;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindAll;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import com.codoid.products.fillo.Connection;
+
+import HealthPages.PartyDetails;
+import HealthPages.PolicyRelationPage;
+import HealthPages.PolicySummaryPage;
+import util.CustomAssert;
+import util.ExcelDatabase;
+import util.ExcelRead;
+import util.GenericMethods;
+import util.WaitTime;
+
+public class MotorQuickQuoteInformationPage extends GenericMethods {
+	WebDriverWait wait;
+	public MotorQuickQuoteInformationPage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		wait = new WebDriverWait(driver, 30);
+	}
+	
+	private By policyRelationTab = By.xpath("//a[@name='Policy Relations']/i");
+	
+	//For Basic Details tab
+	private By basicDetailsTab = By.xpath("//a[@name=\"Basic Details\"]/i");
+	private By riskDetailsTab = By.xpath("//a[@name='Risk Details']/i");
+	
+	//For Policy Summary tab
+	//private By policySummaryTab = By.xpath("//a[@name='Summary']/i");
+	
+	@FindAll({
+		@FindBy(xpath="//a[@name='Summary']/i"),
+		@FindBy(xpath="//a[@name='Policy Summary']/i")
+	}) WebElement policySummaryTab;
+	
+	//For Policy Summary tab
+	private By policyChangeButton = By.id("polChngID");
+	
+	public void FillMotorQuickQuoteInformation(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, String referenceStepKeywordSheetName, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,
+			ConcurrentHashMap<String, String> vPAssertFlagForScenarios, 
+			ConcurrentHashMap<String, String> scenariosFailureReason, ConcurrentHashMap<String, String> assignRoleToScenariosID) throws Exception {
+			// TODO Auto-generated method stub
+		
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "display");
+		switchtoframe(driver, "containerFrame");
+		
+		String sheetName = referenceStepKeywordSheetName;
+		Properties dataRow = ExcelRead.readRowDataInProperties(workbook, sheetName, testScenarioID, stepGroup);
+		
+		if((dataRow.getProperty("ExecuteType").equalsIgnoreCase("add") || dataRow.getProperty("ExecuteType").equalsIgnoreCase("edit")) && stepGroup.equalsIgnoreCase(dataRow.getProperty("GroupName")))
+		{
+			if(dataRow.getProperty("FillBasicDetails")!=null)
+			{
+				
+				if(dataRow.getProperty("FillBasicDetails").equalsIgnoreCase("Yes"))
+				{
+					switchtodefaultframe(driver);
+					switchtoframe(driver, "display");
+					
+					
+					click(basicDetailsTab, "Basic Details Page");
+					switchtoframe(driver, "containerFrame");
+					
+					MotorBasicDetailsPage motorBasicDetailsPage = new MotorBasicDetailsPage(driver);
+					motorBasicDetailsPage.FillMotorBasicDetails(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);
+				}
+			}
+			
+			// Policy Relation Tab
+			if(dataRow.getProperty("FillPolicyRelation")!=null)
+			{
+				
+				if(dataRow.getProperty("FillPolicyRelation").equalsIgnoreCase("Yes"))
+				{
+					switchtodefaultframe(driver);
+					switchtoframe(driver, "display");
+					
+					click(policyRelationTab, "Policy Relation Page");
+					switchtoframe(driver, "containerFrame");
+					waitForPageLoader();
+					
+					PolicyRelationPage policyRelationPage = new PolicyRelationPage(driver);
+					policyRelationPage.fillAndSubmitPolicyRelationDetails(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);
+				
+				}
+			}
+			// Risk Details
+			
+ 			if(dataRow.getProperty("FillRiskDetails")!=null)
+			{
+				if(dataRow.getProperty("FillRiskDetails").equalsIgnoreCase("Yes"))
+				{
+				  	switchtodefaultframe(driver);
+				  	switchtoframe(driver, "display");
+					
+					click(riskDetailsTab, "Risk Details Page");
+					switchtoframe(driver, "containerFrame");
+					
+				  	RiskDetailsPage riskDetailsPage = new RiskDetailsPage(driver);
+					riskDetailsPage.FillRiskDetailsPage(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);
+				}
+			}
+			
+			//Policy Summary Page
+			if(dataRow.getProperty("FillPolicySummary")!=null)
+			{
+				if(dataRow.getProperty("FillPolicySummary").equalsIgnoreCase("Yes"))
+				{
+					switchtodefaultframe(driver);
+					switchtoframe(driver, "display");
+					
+					
+					clickOnWebElement(policySummaryTab, "policy Summary Page");
+				
+					switchtoframe(driver, "containerFrame");
+					
+					MotorPolicySummaryPage policySummaryPage = new MotorPolicySummaryPage(driver);
+					policySummaryPage.FillPolicySummaryPageDetails(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason,assignRoleToScenariosID);
+				}
+			}
+		}
+	}
+}

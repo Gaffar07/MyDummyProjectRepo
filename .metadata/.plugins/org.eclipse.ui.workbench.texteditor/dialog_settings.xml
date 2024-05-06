@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.GotoLineAction$GotoLineDialog_dialogBounds">
+		<item value="652" key="DIALOG_X_ORIGIN"/>
+		<item value="371" key="DIALOG_Y_ORIGIN"/>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item value="false" key="isRegEx"/>
+		<item value="riskDetailsTab" key="selection"/>
+		<item value="false" key="casesensitive"/>
+		<item value="false" key="incremental"/>
+		<item value="true" key="wrap"/>
+		<item value="false" key="wholeword"/>
+		<list key="findhistory">
+			<item value="riskDetailsTab"/>
+			<item value="PolicyInceptionDate"/>
+			<item value="2"/>
+			<item value="FillAllRiskDetailsInfo"/>
+			<item value="Fill"/>
+			<item value="fill"/>
+			<item value="fillde"/>
+			<item value="filldetail"/>
+			<item value="filldetails"/>
+			<item value="pinmo"/>
+			<item value="cal"/>
+			<item value="Submit"/>
+			<item value="submit"/>
+			<item value="setupDriver"/>
+			<item value="CalculatePremium"/>
+		</list>
+		<list key="replacehistory">
+			<item value="uat2"/>
+			<item value="70353"/>
+			<item value="70367_"/>
+			<item value="Inspection Pending"/>
+			<item value="SECONDS"/>
+			<item value="&quot;&quot;"/>
+			<item value="&quot; &quot;"/>
+			<item value="ShortfallAmount"/>
+			<item value="ExternallyFittedCNGLPGkitinbifuelsystemOD"/>
+			<item value="InbuiltCNGLPGkitinbifuelsystemOD"/>
+			<item value="Fire"/>
+			<item value="Theft"/>
+			<item value="FireAndTheft"/>
+			<item value="AdditionalRoadsideAssistance"/>
+			<item value="Electricalorelectronicaccessories"/>
+		</list>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="336" key="DIALOG_WIDTH"/>
+		<item value="1|Segoe UI|9.0|0|WINDOWS|1|-15|0|0|0|400|0|0|0|1|0|0|5|0|Segoe UI" key="DIALOG_FONT_NAME"/>
+		<item value="454" key="DIALOG_HEIGHT"/>
+		<item value="777" key="DIALOG_X_ORIGIN"/>
+		<item value="448" key="DIALOG_Y_ORIGIN"/>
+	</section>
+</section>

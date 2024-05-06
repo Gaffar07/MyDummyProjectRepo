@@ -1,0 +1,494 @@
+package HealthPages;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+//import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import com.codoid.products.fillo.Connection;
+
+import constants.PropertyConfigs;
+//import constants.WaitType;
+import testRunner.TestEngine;
+
+import org.testng.Reporter;
+
+import util.ConfigReader;
+import util.CustomAssert;
+import util.ExcelDatabase;
+import util.ExcelRead;
+import util.GenericMethods;
+import util.SetUpWebdriver;
+import util.WaitTime;
+
+public class PartyDetails extends GenericMethods{
+	
+	//private By createPartyBtn = By.xpath("//i[@title='Create Party']") ;
+	
+	//Xpath for policy Holder Details Tab
+	private By policyHolderDetails = By.xpath("//a[@name=\"Policy Holder Details\"]/span");
+	private By PartyTypeDropDown = By.id("Party Links");
+	private By firstNameTextField = By.id("First Name");
+	private By NationalityDropDown = By.xpath("//select[@id='Nationality']");
+	private By OrganizationNameTextField = By.xpath("//input[@id='Business Name']");
+	private By dateOfRegistrationTextField = By.xpath("//input[@id='Business Name']");
+	
+	private By saveBtnForPolicyHolder = By.xpath("//button[@title='Save']");
+	
+	//Xpath for Roles Tab
+	private By RolesDetails = By.xpath("//a[@name=\"Roles\"]/span");
+	//private By stakeholderRoleCodeDropDown = By.xpath("//select[@id='Stakeholder Role Code']");
+	private By selectStackCode;
+	
+//	Xpath For Policy Holder Stack Code
+	private By createdForHealthLOBDropDown = By.xpath("//select[@id=\"YesNoIndicator\"]");
+	private By HNICustomerDropDown = By.xpath("//select[@id=\"HNI Customer\"]");
+	private By priorityCustomerDropDown = By.xpath("//select[@id='Priority Customer']");
+	private By priorityCustomerRemarksTextField = By.xpath("//input[@id='Priority Customer Remarks1']");
+	private By sensitiveCustomerDropDown = By.xpath("//select[@id='Sensitive Customer']");
+	private By OccupationDropDown = By.xpath("//select[@id='Actual Occupation - Field in Member Details']");
+	
+//	Xpath For Default Stack Code
+	private By DOB = By.xpath("//input[@id='Date of Birth']");
+	private By gender = By.xpath("//select[@id='Gender']");
+	private By MmritalStatusDropDown = By.xpath("//select[@id='Marital Status']");
+	private By panNumber = By.xpath("//input[@id='PANNo']");
+	private By IsCKYCAvailable = By.xpath("//select[@id='IsCKYCAvailable']");
+	private By Profile = By.xpath("//select[@id='ProfileDefault']");
+	private By saveBtnForRoles = By.xpath("//a[@id='Save']");
+	private By closeBtn = By.xpath("//a[@id='Close']");
+	
+	//Xpath for Contact Detail Tab
+	private By contactDetailTab = By.xpath("//a[@name='Contacts']/span");
+	private By addNewContactBtn = By.xpath("//button[@id='addContact']");
+	private By ContactType = By.xpath("//select[@id='Type of Contact']");
+	private By WhetherMailingAddressIsSameAsPermanentAddress = By.xpath("//select[@id='WhetherMailingAddressissameasPermanentAddress']");
+	private By country = By.xpath("//select[@id='CountryNew']");
+	private By HouseNoORPlotNo = By.xpath("//input[@id='Address Pty 1']");
+	private By localityTextField = By.xpath("//input[@id=\"Address Pty 2\"]");
+	private By pinCode = By.xpath("//input[@id='Zip CodeParty']");
+	//private By searchPinCode = By.xpath("//i[@title='Search Pin Code']");
+	//private By selectPinCode ;
+	private By area = By.xpath("//input[@id='Address Line 3']");
+	private By searchArea = By.xpath("//i[@title='Search Area']");
+	private By selectAreaCode;
+	private By emailIDTextField = By.xpath("//input[@id='Email ID']");
+	private By DoyouhaveMobileNumberTextField = By.xpath("//select[@id='Do you have Mobile number']");
+	private By mobileNumberTextField = By.xpath("//input[@id='MobileNumber']");
+	
+	private By activatePartyBtn = By.xpath("//button[@title='Activate Party']");
+	//private By fetchPartyCode = By.id("PartyCode");
+	private By fetchPartyStatus = By.xpath("//label[@id='partyStatus']");
+
+	
+	WebDriverWait wait;
+
+	public PartyDetails(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		wait = new WebDriverWait(driver, 30);
+	}
+	
+	public void fillPartyDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception {
+				
+//		click(createPartyBtn, "Party Details Btn");
+		waitForPageLoader();
+		
+		if (!dataRow.getProperty("LOB").equalsIgnoreCase("Motor")) {
+			
+			switchToWindow(driver);
+		}
+        
+        click(policyHolderDetails, " Policy Holder Details Tab ");
+        switchtoframe(driver, "containerFrame");
+        
+        if (!dataRow.getProperty("PartyType").equalsIgnoreCase("")) {
+        	
+        	selectFromDropdownByVisibleText(PartyTypeDropDown, dataRow.getProperty("PartyType"), " Selected Party Type ");
+        	driver.findElement(PartyTypeDropDown).sendKeys(Keys.TAB);
+        	waitForPageLoader();
+		}
+        
+		if (!dataRow.getProperty("FirstName").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(firstNameTextField, dataRow.getProperty("FirstName"), "First Party Name");
+		}
+		
+		if (!dataRow.getProperty("Nationality").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(NationalityDropDown, dataRow.getProperty("Nationality"), " Nationality ");
+		}
+		
+		if (!dataRow.getProperty("OrganizationName").equalsIgnoreCase("") && dataRow.getProperty("OrganizationName")!=null) {
+			
+			clearAndSenKeys(OrganizationNameTextField, dataRow.getProperty("OrganizationName"), " Organization Name ");
+		}
+		
+		if (!dataRow.getProperty("DateOfRegistration").equalsIgnoreCase("") && dataRow.getProperty("DateOfRegistration")!=null) {
+
+			clearAndSenKeys(dateOfRegistrationTextField, getCalculatedAged(dataRow.getProperty("DateOfRegistration")), "Date Of Registration");
+            Thread.sleep(2000);
+            driver.findElement(DOB).sendKeys(Keys.TAB);
+		}
+		
+		if (!dataRow.getProperty("SaveButton").equalsIgnoreCase("") && dataRow.getProperty("SaveButton").equalsIgnoreCase("Yes")) {
+			
+			click(saveBtnForPolicyHolder, " Save Btn For Policy Holder ");
+			waitForPageLoader();
+			FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+		}
+        
+	}
+	
+	public void fillRolesDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception {
+
+		driver.switchTo().defaultContent();
+		click(RolesDetails, " Roles Details Tab");
+		switchtoframe(driver, "containerFrame");
+		
+		/*if (IsDisableOrNot(stakeholderRoleCodeDropDown)) {
+			
+            selectFromDropdownByVisibleText(stakeholderRoleCodeDropDown, dataRow.getProperty("StakeholderRoleCode")," Stake holder Role Code ");
+            click(saveBtnForPolicyHolder, " Save Btn ");
+		}*/
+		
+//		For filling Policy Holder Stack Code Details
+		if (dataRow.getProperty("PolicyHolderStackCode")!=null) {
+			
+			if (dataRow.getProperty("PolicyHolderStackCode")!="" && dataRow.getProperty("PolicyHolderStackCode").equalsIgnoreCase("Yes")) {
+				
+				selectStackCode = By.xpath("//table[@id='tblmember']//following::a[normalize-space(text())='POLICY-HOL']");
+				click(selectStackCode, " Selected Stack Code is Policy Holder");
+				switchToWindow(driver, "General Information");
+				Thread.sleep(WaitTime.medium);
+				
+				try {
+					
+					driver.findElement(By.xpath("//select[@id='YesNoIndicator']")).isDisplayed();
+					
+				} catch (Exception e) {
+					// TODO: handle exception
+					TimeUnit.MINUTES.sleep(1);
+					driver.navigate().refresh();
+					waitForPageLoader();
+				}
+				
+				if (dataRow.getProperty("CreatedForHealthLOB")!=null) {
+					
+					if (dataRow.getProperty("CreatedForHealthLOB")!="") {
+						
+						selectFromDropdownByVisibleText(createdForHealthLOBDropDown, dataRow.getProperty("CreatedForHealthLOB"), " Created For Health LOB");
+					}
+				}
+				
+				if (dataRow.getProperty("HNICustomer")!=null) {
+					
+					if (dataRow.getProperty("HNICustomer")!="") {
+						
+						selectFromDropdownByVisibleText(HNICustomerDropDown, dataRow.getProperty("HNICustomer"), " HNI Customer");
+					}
+				}
+				
+				if (dataRow.getProperty("PriorityCustomer")!=null) {
+					
+					boolean checkPriorityCustomer = false;
+					
+					if (dataRow.getProperty("PriorityCustomer")!="" && dataRow.getProperty("PriorityCustomer").equalsIgnoreCase("Yes")) {
+						
+						checkPriorityCustomer = true;
+					}
+					
+					if (checkPriorityCustomer) {
+						
+						selectFromDropdownByVisibleText(priorityCustomerDropDown, dataRow.getProperty("PriorityCustomer"), " Priority Customer");
+						clearAndSenKeys(priorityCustomerRemarksTextField, "Priority Customer Remarks", "Priority Customer Remarks");
+					
+					}else {
+						
+						selectFromDropdownByVisibleText(priorityCustomerDropDown, dataRow.getProperty("PriorityCustomer"), " Priority Customer");
+
+					}
+				}
+				
+				if (dataRow.getProperty("SensitiveCustomer")!=null) {
+					
+					if (dataRow.getProperty("SensitiveCustomer")!="") {
+						
+						selectFromDropdownByVisibleText(sensitiveCustomerDropDown, dataRow.getProperty("SensitiveCustomer"), " Sensitive Customer");
+					}
+				}
+				
+				if (dataRow.getProperty("Occupation")!=null) {
+					
+					if (dataRow.getProperty("Occupation")!="") {
+						Thread.sleep(2000);
+						selectFromDropdownByVisibleText(OccupationDropDown, dataRow.getProperty("Occupation"), " Occupation");
+					}
+				}
+				
+				click(saveBtnForRoles, " Save Btn For Policy Holder Stack Code");
+				waitForPageLoader();
+				FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+				
+				SetUpWebdriver.completeScreenShot(driver,TestEngine.excutionFolder + ConfigReader.getInstance().getValue(PropertyConfigs.screenShotFolder),
+						new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date()));
+				
+				Thread.sleep(2000);
+				click(closeBtn, " Close Btn ");
+				Thread.sleep(3000);
+				
+				Set<String> windowHandles = driver.getWindowHandles();
+				List<String> windowHandlesList = new ArrayList<>(windowHandles);
+				driver.switchTo().window(windowHandlesList.get(1));
+				
+				driver.switchTo().defaultContent();
+				switchtoframe(driver, "containerFrame");
+			}
+		}
+		
+//		For filling Default Stack Code Details
+		if (dataRow.getProperty("DEFAULTStackCode")!=null) {
+			
+			if (dataRow.getProperty("DEFAULTStackCode")!="" && dataRow.getProperty("DEFAULTStackCode").equalsIgnoreCase("Yes")) {
+				
+				selectStackCode = By.xpath("//table[@id='tblmember']//following::a[normalize-space(text())='DEFAULT']");
+				click(selectStackCode, " Selected Stack Code Default");
+				switchToWindow(driver, "General Information");
+				Thread.sleep(WaitTime.medium);
+				
+//				For handling Null pointer exception
+				boolean nullPointer=false;
+				WebElement clickButton;
+				
+				try {
+					if(driver.findElement(By.xpath("//div[text()='java.lang.NullPointerException']//following::button")).isDisplayed())
+					{
+						nullPointer=true;
+					}
+					
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				
+				if(nullPointer) {
+					
+					clickButton=driver.findElement(By.xpath("//div[text()='java.lang.NullPointerException']//following::button"));
+					clickButton.click();
+				}
+				
+				try {
+					
+					driver.findElement(By.xpath("//input[@id='Date of Birth']")).isDisplayed();
+					
+				} catch (Exception e) {
+					// TODO: handle exception
+					TimeUnit.MINUTES.sleep(1);
+					driver.navigate().refresh();
+					waitForPageLoader();
+				}
+				
+				if (!dataRow.getProperty("DOB").equalsIgnoreCase("")) {
+					
+		            clearAndSenKeys(DOB, getCalculatedAged(dataRow.getProperty("DOB")), "DOB");
+		            Thread.sleep(2000);
+		            driver.findElement(DOB).sendKeys(Keys.TAB);
+				}
+				
+				if (!dataRow.getProperty("Gender").equalsIgnoreCase("")) {
+					
+					selectFromDropdownByVisibleText(gender, dataRow.getProperty("Gender"), "Gender");
+				}
+				
+				if (!dataRow.getProperty("MaritalStatus").equalsIgnoreCase("")) {
+					
+					selectFromDropdownByVisibleText(MmritalStatusDropDown, dataRow.getProperty("MaritalStatus"), "Marital Status");
+				}
+				
+				if (!dataRow.getProperty("PanNumber").equalsIgnoreCase("") && dataRow.getProperty("PanNumber").equalsIgnoreCase("Yes")) {
+					clearAndSenKeys(panNumber, panNoGenerator(), "Pan Number");
+				}
+				
+				if (!dataRow.getProperty("IsCKYCAvailable").equalsIgnoreCase("")) {
+					selectFromDropdownByVisibleText(IsCKYCAvailable, dataRow.getProperty("IsCKYCAvailable"), " Is CKYC Available ");
+				}
+				
+				if (!dataRow.getProperty("Profile").equalsIgnoreCase("")) {
+					selectFromDropdownByVisibleText(Profile, dataRow.getProperty("Profile"), " Profile ");
+				}
+				
+				click(saveBtnForRoles, " Save Btn For Default Stack Code ");
+				waitForPageLoader();
+				FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+				
+				click(closeBtn, " Close Btn ");
+				Thread.sleep(3000);
+				
+				Set<String> windowHandles = driver.getWindowHandles();
+				List<String> windowHandlesList = new ArrayList<>(windowHandles);
+				driver.switchTo().window(windowHandlesList.get(1));
+			}
+		}
+		
+	}
+	
+	public void FillContactDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception {
+		// TODO Auto-generated method stub
+		
+		driver.switchTo().defaultContent();
+		click(contactDetailTab, " Contact Detail Tab ");
+		switchtoframe(driver, "containerFrame");
+		
+		if (!dataRow.getProperty("AddNewContact").equalsIgnoreCase("") && dataRow.getProperty("AddNewContact").equalsIgnoreCase("Yes")) {
+			click(addNewContactBtn, " Add New Contact ");
+		}
+		
+		if (!dataRow.getProperty("ContactType").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(ContactType, dataRow.getProperty("ContactType"), " Contact Type ");
+		}
+		
+		if (!dataRow.getProperty("WhetherMailingAddressissameasPermanentAddress").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(WhetherMailingAddressIsSameAsPermanentAddress, dataRow.getProperty("WhetherMailingAddressissameasPermanentAddress"), " Whether Mailing Address is same as Permanent Address ");
+		}
+		if (!dataRow.getProperty("Country").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(country, dataRow.getProperty("Country"), " Country ");
+		}
+		
+		if (!dataRow.getProperty("HouseNoORPlotNo").equalsIgnoreCase("")) {
+			
+            clearAndSenKeys(HouseNoORPlotNo, dataRow.getProperty("HouseNoORPlotNo"), "House No OR Plot No");
+		}
+		
+		if (dataRow.getProperty("Locality")!=null) {
+			
+			if (!dataRow.getProperty("Locality").equalsIgnoreCase("")) {
+				
+	            clearAndSenKeys(localityTextField, dataRow.getProperty("Locality"), "Locality");
+			}
+		}
+		
+		if (!dataRow.getProperty("PinCode").equalsIgnoreCase("")) {
+			
+            clearAndSenKeys(pinCode, dataRow.getProperty("PinCode"), "House No OR Plot No");
+            driver.findElement(pinCode).sendKeys(Keys.TAB);
+            Thread.sleep(2000);
+		}
+		
+		if (!dataRow.getProperty("Area").equalsIgnoreCase("")) {
+			
+            clearAndSenKeys(area, dataRow.getProperty("Area"), " Area ");
+            click(searchArea, " Search Area ");
+            switchToWindow(driver, "Area Code");
+            Thread.sleep(2000);
+            selectAreaCode = By.xpath("//table[@id='tblmember']//a[normalize-space(text()='"+getUppercaseLetter(dataRow.getProperty("Area")).trim()+"')]");
+            click(selectAreaCode, "selected Area Code" );
+            
+            Set<String> windowHandles = driver.getWindowHandles();
+    		List<String> windowHandlesList = new ArrayList<>(windowHandles);
+    		driver.switchTo().window(windowHandlesList.get(1));
+            driver.switchTo().defaultContent();
+            switchtoframe(driver, "containerFrame");
+            
+		}
+		
+		if (!dataRow.getProperty("EmailID").equalsIgnoreCase("") && dataRow.getProperty("EmailID").equalsIgnoreCase("Yes")) {
+			
+            clearAndSenKeys(emailIDTextField, generateRandomEmail(), " EmailID ");
+		}
+		
+		if (!dataRow.getProperty("DoyouhaveMobileNumber").equalsIgnoreCase("") && dataRow.getProperty("DoyouhaveMobileNumber").equalsIgnoreCase("Yes")) {
+			
+			selectFromDropdownByVisibleText(DoyouhaveMobileNumberTextField, dataRow.getProperty("DoyouhaveMobileNumber"), " Do you have Mobile Number ");
+			clearAndSenKeys(mobileNumberTextField, getRandomMobileNum(), " Mobile Number ");
+		}else {
+			
+			selectFromDropdownByVisibleText(DoyouhaveMobileNumberTextField, dataRow.getProperty("DoyouhaveMobileNumber"), " Do you have Mobile Number ");
+		}
+		
+		click(saveBtnForPolicyHolder, " Save Btn For Roles");
+		waitForPageLoader();
+		FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+		
+	}
+	
+	public void saveAndactivatePartyCode(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> vPAssertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception {
+		// TODO Auto-generated method stub
+		
+		driver.switchTo().defaultContent();
+		click(policyHolderDetails, " Policy Holder Details Tab ");
+		switchtoframe(driver, "containerFrame");
+		
+		if (!dataRow.getProperty("GeneratePartyCode").equalsIgnoreCase("") && dataRow.getProperty("GeneratePartyCode").equalsIgnoreCase("Yes")) {
+			
+			click(activatePartyBtn, " Activate Party Btn");
+			waitForPageLoader();
+			FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+			Thread.sleep(2000);
+			String PartyCode = getTextFromField("PartyCode");
+			String partyStatus = fetchTextFromApp(fetchPartyStatus);
+			Reporter.log("Fetch from <B> <Font Color='yellow'>" + PartyCode + " </Font></B>");
+			
+			ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("UpdatePartyCode").trim(),(PartyCode!=""?PartyCode:"Record NO Found"),vPAssertFlagForScenarios);
+			ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("UpdatePartyCodeStatus").trim(),(partyStatus!=""?partyStatus:"Record NO Found"),vPAssertFlagForScenarios);
+
+			SetUpWebdriver.completeScreenShot(driver,TestEngine.excutionFolder + ConfigReader.getInstance().getValue(PropertyConfigs.screenShotFolder),
+					new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date()));
+			Thread.sleep(2000);
+			driver.close();
+			switchToWindow(driver, "TCS BαNCS Insurance");
+			switchtodefaultframe(driver);
+			switchtoframe(driver, "display");
+			
+		}
+	}
+	
+	public void CreatePartyCode(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> assertFlagForScenarios, ConcurrentHashMap<String, String> vPAssertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception
+	{
+		String sheetName = dataRow.getProperty("PartySheetName");
+		Properties PartyData = ExcelRead.readRowDataInProperties(workbook, sheetName, testScenarioID, stepGroup);
+		Reporter.log("<B><Font color=\"Yellow\">Create Party Page is Displayed</Font></B>");
+		
+		if((PartyData.getProperty("ExecuteType").equalsIgnoreCase("add") || PartyData.getProperty("ExecuteType").equalsIgnoreCase("edit")) && stepGroup.equalsIgnoreCase(PartyData.getProperty("GroupName")))
+		{
+			if(!PartyData.getProperty("FillPolicyHolderDetailsTab").equalsIgnoreCase("") && PartyData.getProperty("FillPolicyHolderDetailsTab").equalsIgnoreCase("Yes"))
+			{
+				fillPartyDetails(driver, testScenarioID, workbook, conn, stepGroup, PartyData,customAssert,scenariosFailureReason);
+			}
+			
+			if(!PartyData.getProperty("FillRolesTab").equalsIgnoreCase("") && PartyData.getProperty("FillRolesTab").equalsIgnoreCase("Yes"))
+			{
+				fillRolesDetails(driver, testScenarioID, workbook, conn, stepGroup, PartyData,customAssert,scenariosFailureReason);
+			}
+			if(!PartyData.getProperty("FillContactDetailsTab").equalsIgnoreCase("") && PartyData.getProperty("FillContactDetailsTab").equalsIgnoreCase("Yes"))
+			{
+				FillContactDetails(driver, testScenarioID, workbook, conn, stepGroup, PartyData,customAssert,scenariosFailureReason);
+			}
+			
+			if(!PartyData.getProperty("ActivatePartyCode").equalsIgnoreCase("") && PartyData.getProperty("ActivatePartyCode").equalsIgnoreCase("Yes"))
+			{
+				saveAndactivatePartyCode(driver, testScenarioID, workbook, conn, stepGroup, PartyData,customAssert,vPAssertFlagForScenarios,scenariosFailureReason);
+			}
+		}
+	}
+
+}

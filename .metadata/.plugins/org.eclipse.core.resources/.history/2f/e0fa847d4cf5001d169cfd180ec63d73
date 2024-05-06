@@ -1,0 +1,1656 @@
+package motorPages;
+
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Reporter;
+
+import com.codoid.products.fillo.Connection;
+//import com.spire.ms.imagecodecs.tiff.spi.TiffImageWriterSpi;
+
+import HealthPages.CollectionDetails;
+import commonPages.CreateAccounting;
+import commonPages.SearchEntityPolicyPage;
+import constants.PropertyConfigs;
+import edu.emory.mathcs.backport.java.util.Arrays;
+import testRunner.TestEngine;
+import util.ConfigReader;
+import util.CustomAssert;
+import util.ExcelDatabase;
+import util.ExcelRead;
+import util.GenericMethods;
+import util.SetUpWebdriver;
+import util.WaitTime;
+
+public class MotorPolicySummaryPage extends GenericMethods {
+
+	private By createCollectionBtn = By.xpath("//button[@id='createColBtn']");
+	private By fetchPageName = By.xpath("//div[text()='Collection/Collection Cum Adjustment/Adjustment Screen/Payment']");
+	private By submitBtn = By.xpath("//button[@name='Submit']");
+	private By BindButton = By.xpath("//button[@id='ApproveBtn']");
+	private By issuePolicy = By.xpath("//button[@id='issuePolicyBtn']");
+	
+//	For Fetching Application data
+	private By fetchstatusForActivePolicy = By.xpath("//label[normalize-space(text()='Status')]/following::div/label[@id='Status']");
+	private By fetchSubstatus = By.xpath("//label[normalize-space(text()='Sub-Status')]/following::div/label[@id='Sub-Status']");
+	private By fetchUTGSTAmount = By.id("UTGST Amount");
+	private By fetchCGSTAmount = By.id("CGST Amount");
+	private By fetchIGSTAmount = By.id("IGST Amount");
+	private By fetchSGSTAmount = By.id("SGST Amount");
+	
+	//For Policy Summary tab
+	private By policyChangeButton = By.id("polChngID");
+	private By mergeEndorsementBtn = By.xpath("//button[@id='mergeEndrID']");
+	
+	WebDriverWait wait;
+	
+	String statusForActivePolicy;
+	
+	//For Policy Summary tab
+	private By policySummaryTab = By.xpath("//a[@name='Summary']/i");
+	
+	//For Policy Summary tab
+	private By followUpTab = By.xpath("//a[@title='Follow-up']");
+	private By inFollowUpAssignTeamName=By.xpath("//table[@class='qqtableStyle']//following::tbody/tr/td//div[contains(text(),'Underwriting Queue')]//following::td[1]");
+	String inFollowUpAssignTeamNamevalue="";
+		
+	// For UWR Reason.
+	private By UWRReason;
+	private By premiumSummaryButton=By.id("preSum");
+	
+	//OD/TP Value
+	private By netOD=By.xpath("//table[@name='NETODTP Premium']/tbody/tr/td/b[text()='OD']//following::td[2]");
+	private By netTP=By.xpath("//table[@name='NETODTP Premium']/tbody/tr/td/b[text()='TP']//following::td[2]");
+	private By netPremium=By.xpath("//*[contains(text(),'Net Premium')]//following::td[2]");
+	
+	//Endorsement Type and Sub Type
+	private By fetchEndorsementNumber = By.xpath("//label[normalize-space(text()='Number')]/following::label[@id='Number']");
+	private By fetchstatusForEndorsement = By.xpath("//label[normalize-space(text()='Status')]/following::label[@id='Status']");
+	private By fetchSubStatusEndorsement = By.xpath("//label[normalize-space(text()='Sub Status')]/following::label[@id='Sub-Status']");
+	
+	public MotorPolicySummaryPage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		wait = new WebDriverWait(driver, 30);
+	}
+
+	public void FillPolicySummaryPageDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> assertFlagForScenarios, ConcurrentHashMap<String, String> vPAssertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason ,ConcurrentHashMap<String, String> assignRoleToScenariosID) throws Exception {
+		// TODO Auto-generated method stub
+
+		if ((dataRow.getProperty("ExecuteType").equalsIgnoreCase("add")
+				|| dataRow.getProperty("ExecuteType").equalsIgnoreCase("edit"))
+				&& stepGroup.equalsIgnoreCase(dataRow.getProperty("GroupName"))) 
+		{
+			
+			switchToWindow(driver, "TCS BαNCS Insurance");
+			switchtodefaultframe(driver);
+			switchtoframe(driver, "display");
+			switchtoframe(driver, "containerFrame");
+			
+			Properties collectionData = ExcelRead.readRowDataInProperties(workbook, dataRow.getProperty("CollectionSheetName"), testScenarioID, stepGroup);
+
+			if(collectionData!=null)
+			{
+				if (!collectionData.isEmpty()) {
+					
+					if(collectionData.getProperty("Mode").equalsIgnoreCase("BG") || collectionData.getProperty("Mode").equalsIgnoreCase("CD-Customer"))
+					{
+						
+					CreateAccounting createAccounting = new CreateAccounting(driver);
+					createAccounting.fillAndSubmitAccounting(driver, testScenarioID, workbook, conn, stepGroup, collectionData, customAssert, assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason,assignRoleToScenariosID);
+					}
+				}	
+			}
+			
+			//Click On Calculate Premium
+			if (dataRow.getProperty("CalculatePremium")!=null) {
+
+				if (dataRow.getProperty("CalculatePremium")!="" && dataRow.getProperty("CalculatePremium").equalsIgnoreCase("Yes")) 
+				{
+
+				    click(By.id("CalPrmBtn"), "Calculate Premium");
+					FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+					waitForPageLoader();
+				}
+			}
+			
+			//Click On Submit Aftre Premium Calculated
+			if (dataRow.getProperty("SubmitButton")!=null) {
+
+				if (dataRow.getProperty("SubmitButton")!="" && dataRow.getProperty("SubmitButton").equalsIgnoreCase("Yes")) 
+				{
+
+					click(submitBtn, "Submit Button");
+				    FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+					waitForPageLoader();
+				}
+			}
+			
+			//Get the Bind Sub status for the Endorsement
+			if(dataRow.getProperty("IsEndorsement")!=null)
+		    {
+	    	    if(!dataRow.getProperty("IsEndorsement").equalsIgnoreCase("") && dataRow.getProperty("IsEndorsement").equalsIgnoreCase("Yes"))
+			    {
+	    	    	String EndorsementNumber = fetchTextFromApp(fetchEndorsementNumber);
+	    			String statusForEndorsement = fetchTextFromApp(fetchstatusForEndorsement);
+	    			String subStatusForEndorsement = fetchTextFromApp(fetchSubStatusEndorsement);
+	    	    	
+	    			if(dataRow.getProperty("VerifyEndorsementNumber")!=null)
+	    		    {
+	    	    	    if(!dataRow.getProperty("VerifyEndorsementNumber").equalsIgnoreCase(""))
+	    			    {
+	    	    	    	ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyEndorsementNumber").trim(), (EndorsementNumber!=""?EndorsementNumber:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+	    			    }
+	    		    }
+	    			
+	    			if(dataRow.getProperty("VerifyStatusForEndorsement")!=null)
+	    		    {
+	    	    	    if(!dataRow.getProperty("VerifyStatusForEndorsement").equalsIgnoreCase(""))
+	    			    {
+	    	    	    	ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyStatusForEndorsement").trim(), (statusForEndorsement!=""?statusForEndorsement:"Record NO Found"),stepGroup);
+	    	    	    	customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedStatusForEndorsement"), statusForEndorsement, "Endorsement Status",testScenarioID,assertFlagForScenarios);
+	    			    }
+	    		    }
+	    			
+	    			if(dataRow.getProperty("VerifySubStatusForEndorsement")!=null)
+	    		    {
+	    	    	    if(!dataRow.getProperty("VerifySubStatusForEndorsement").equalsIgnoreCase(""))
+	    			    {
+	    	    	    	ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifySubStatusForEndorsement").trim(), (subStatusForEndorsement!=""?subStatusForEndorsement:"Record NO Found"),stepGroup);
+	    	    	    	customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedSubStatusForEndorsement"), subStatusForEndorsement, "Endorsement Sub Status",testScenarioID,assertFlagForScenarios);
+	    			    }
+	    		    }
+			    }
+			}
+			
+			
+			
+			//Click On Submit Aftre Premium Calculated
+			String UWRStatusFlag="";
+			if (dataRow.getProperty("UWRApproveButton")!=null) {
+
+				if (dataRow.getProperty("UWRApproveButton")!="" && dataRow.getProperty("UWRApproveButton").equalsIgnoreCase("Yes")) 
+				{
+					click(By.id("ApproveBtn"), " UWR Approved ");
+					waitForPageLoader();
+					UWRStatusFlag="Approve";
+					
+					//update In Assert Test Data For UWR Approval Or Reject
+					ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("UWRDecisionStatus").trim(), (UWRStatusFlag!=""?UWRStatusFlag:"Record No Found"),stepGroup);
+				}
+				
+			}
+
+			// Added For collection
+			if (!dataRow.getProperty("FillCollection").equalsIgnoreCase("Yes")) {
+
+				if (dataRow.getProperty("CreateCollectionButton").equalsIgnoreCase("Yes")) 
+				{
+					
+					//Close and Again click Create collection button
+					if (!dataRow.getProperty("AccountingCreateCollection").equalsIgnoreCase("") && dataRow.getProperty("AccountingCreateCollection").equalsIgnoreCase("Yes")) {
+						Thread.sleep(2000);
+						
+						Set<String> windowHandles = driver.getWindowHandles();
+				        List<String> windowHandlesList = new ArrayList<>(windowHandles);
+				        System.out.println("List of window :"+windowHandlesList.size());
+				        driver.switchTo().window(windowHandlesList.get(1));
+				        
+						driver.close();
+						
+						switchToWindow(driver, "TCS BαNCS Insurance");
+						switchtodefaultframe(driver);
+						switchtoframe(driver, "display");
+						switchtoframe(driver, "containerFrame");
+						click(createCollectionBtn, "Create Collection Button");
+					}
+				}
+			}
+			
+			// Bind and Issue Policy
+			boolean Bindflag=false;
+			boolean IssuePolicyflag=false;
+			boolean mergeEndorsementFlag=false;
+			
+			if(dataRow.getProperty("Bind")!=null)
+			{
+				if(dataRow.getProperty("Bind")!="" && dataRow.getProperty("Bind").equalsIgnoreCase("Yes"))
+				{
+					Bindflag=true;
+				}
+			}
+			
+			if(dataRow.getProperty("IssuePolicy")!=null)
+			{
+				if(dataRow.getProperty("IssuePolicy")!="" && dataRow.getProperty("IssuePolicy").equalsIgnoreCase("Yes"))
+				{
+					IssuePolicyflag=true;
+				}
+			}
+			
+			if(dataRow.getProperty("MergeEndorsement")!=null)
+			{
+				if(dataRow.getProperty("MergeEndorsement")!="" && dataRow.getProperty("MergeEndorsement").equalsIgnoreCase("Yes"))
+				{
+					mergeEndorsementFlag=true;
+				}
+			}
+			
+			if((Bindflag || mergeEndorsementFlag) && IssuePolicyflag)
+			{
+				if(Bindflag || mergeEndorsementFlag)
+				{
+					if(Bindflag)
+					{
+						//click(BindButton, "Bind Policy");
+					}
+					else if(mergeEndorsementFlag)
+					{
+						click(mergeEndorsementBtn, "Merge Endorsement ");
+					}
+					
+					click(createCollectionBtn, "Create Collection Button");
+					waitForPageLoader();
+					
+					Thread.sleep(WaitTime.high);
+					
+					String isSecurityWindowAppear=CollectionswitchToWindow(createCollectionBtn);
+					System.out.println("Is Security Window Appear  "+isSecurityWindowAppear);
+					
+					if(isSecurityWindowAppear.equalsIgnoreCase("yes"))
+					{
+						String qouteNumber = ExcelDatabase.getValueFromSheet(conn,dataRow.getProperty("GetQuoteNumber") , "Quote Number", testScenarioID, "VPActualData");
+						
+						switchToWindow(driver, "TCS BαNCS Insurance");
+						
+						SearchEntityPolicyPage searchEntityPolicyPage = new SearchEntityPolicyPage(driver);
+						searchEntityPolicyPage.searchQuoteNumber(driver, qouteNumber);
+						
+						switchToWindow(driver, "TCS BαNCS Insurance");
+						switchtodefaultframe(driver);
+						switchtoframe(driver, "display");
+						switchtoframe(driver, "containerFrame");
+						click(createCollectionBtn, "Create Collection Button");
+						waitForPageLoader();
+						switchToWindow(driver);
+					}
+					
+					String PageName = fetchTextFromApp(fetchPageName);
+					System.out.println("Page title is " + PageName);
+
+					
+					CollectionDetails collectionDetails = new CollectionDetails(driver);
+					collectionDetails.fillAndSubmitCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup,
+							dataRow, customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+				}
+				if(IssuePolicyflag)
+				{
+					click(issuePolicy, "Issue Policy");
+					waitForPageLoader();
+					FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+				}
+				
+//				For Searching Quote number 
+				if (dataRow.getProperty("QuoteSearch")!=null) {
+					
+					if (dataRow.getProperty("QuoteSearch")!="" && dataRow.getProperty("QuoteSearch").equalsIgnoreCase("Yes")) {
+						
+						String qouteNumber = ExcelDatabase.getValueFromSheet(conn,dataRow.getProperty("GetQuoteNumber") , "Quote Number", testScenarioID, "VPActualData");
+						SearchEntityPolicyPage searchEntityPolicyPage = new SearchEntityPolicyPage(driver);
+						searchEntityPolicyPage.searchQuoteNumber(driver, qouteNumber);
+						
+						switchtodefaultframe(driver);
+						switchtoframe(driver, "display");
+						
+						click(policySummaryTab, "policy Summary Page");
+						switchtoframe(driver, "containerFrame");
+						waitForPageLoader();
+					}
+					
+				}
+				
+				//For Searching Endorsement number 
+				if (dataRow.getProperty("EndorsementNumberSearch")!=null) {
+					
+					if (dataRow.getProperty("EndorsementNumberSearch")!="" && dataRow.getProperty("EndorsementNumberSearch").equalsIgnoreCase("Yes")) {
+						
+						String endorsementNumber = ExcelDatabase.getValueFromSheet(conn,dataRow.getProperty("GetQuoteNumber") , "Endorsement Number", testScenarioID, "VPActualData");
+						SearchEntityPolicyPage searchEntityPolicyPage = new SearchEntityPolicyPage(driver);
+						searchEntityPolicyPage.searchQuoteNumber(driver, endorsementNumber);
+						
+						switchtodefaultframe(driver);
+						switchtoframe(driver, "display");
+						
+						click(policySummaryTab, "policy Summary Page");
+						switchtoframe(driver, "containerFrame");
+						waitForPageLoader();
+					}
+					
+				}
+				
+				
+				
+				//For Active Policy Get the Policy Number
+				statusForActivePolicy = fetchTextFromApp(fetchstatusForActivePolicy);
+				
+				String QuoteORPolicyNumber="";
+				if(statusForActivePolicy.equalsIgnoreCase("ACTIVE"))
+				{
+					try {
+							if(isDisplayed(By.xpath("//label[contains(text(),'Quote/Policy Number')]//following::label[1]")))
+							{
+								QuoteORPolicyNumber = getDataFor("policy number");
+							}
+							
+					}catch (Exception e) 
+					{
+						if(isDisplayed(By.xpath("//label[contains(text(),'Quote/Policy Number')]//following::label[1]")))
+						{
+							QuoteORPolicyNumber = fetchTextFromApp(By.xpath("//label[contains(text(),'Quote/Policy Number')]//following::label[1]")).trim();
+						}
+						
+					}
+				}
+			
+				if(statusForActivePolicy.equalsIgnoreCase("ACTIVE") || statusForActivePolicy.equalsIgnoreCase("Rejected") || statusForActivePolicy.equalsIgnoreCase("Active Endorsement") ) {
+				
+					//Click On Premium Summary
+					driver.findElement(premiumSummaryButton).click();
+					Thread.sleep(3000);
+					
+					switchToWindow(driver, "Data Discrepancy Details");
+					
+					String netODvalue = fetchTextFromApp(netOD);
+					String netTPvalue = fetchTextFromApp(netTP);
+					String netPremiumvalue = fetchTextFromApp(netPremium);
+					
+					//For AllODCover
+					ForAllODCover(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);
+					
+					//For AllODLoadingAndDiscount
+					ForAllODLoadingAndDiscount(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);					
+
+					//For AllTPCover
+					ForAllTPCover(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);
+					
+					//For AllTPLoadingAndDiscount
+					ForAllTPLoadingAndDiscount(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);
+
+					//Taking Complete Screenshot Of the Page
+					
+					/*SetUpWebdriver.completeScreenShot(driver,TestEngine.excutionFolder + ConfigReader.getInstance().getValue(PropertyConfigs.screenShotFolder),
+							new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date()));*/
+					
+					//Closing Data Discrepancy Details Page
+					driver.close();
+					waitForPageLoader();
+					
+					//Back To Main Page
+					switchToWindow(driver, "TCS BαNCS Insurance");
+					switchtodefaultframe(driver);
+					switchtoframe(driver, "display");
+					switchtoframe(driver, "containerFrame");
+					
+					String GSTAmount = getTextFromField("GST Amount");
+					String stampDuty =getTextFromField("Stamp duty");
+					
+					System.out.println("Quote/PolicyNumber :" + QuoteORPolicyNumber);
+					System.out.println("Status For Active Policy :" + statusForActivePolicy);
+					
+	//				For Updation in sheet 19-08-2022
+					if(dataRow.getProperty("VerifyPolicyNumber")!=null)
+	    		    {
+	    	    	    if(!dataRow.getProperty("VerifyPolicyNumber").equalsIgnoreCase(""))
+	    			    {
+	    	    	    	ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyPolicyNumber").trim(), (QuoteORPolicyNumber!=""?QuoteORPolicyNumber:"Record NO Found"),vPAssertFlagForScenarios);	    			   
+	    	    	    }
+	    		    }
+	    			
+	    			/*if(dataRow.getProperty("VerifyActivePolicy")!=null)
+	    		    {
+	    	    	    if(!dataRow.getProperty("VerifyActivePolicy").equalsIgnoreCase(""))
+	    			    {
+	    					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyActivePolicy").trim(), (statusForActivePolicy!=""?statusForActivePolicy:"Record NO Found"),vPAssertFlagForScenarios);
+	    	    	    	customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedActivePolicyStatus"), statusForActivePolicy, "Policy Status",testScenarioID,assertFlagForScenarios);
+	    			    }
+	    		    }*/
+	    			
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyActivePolicy").trim(), (statusForActivePolicy!=""?statusForActivePolicy:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyNetOD").trim(), (netODvalue!=""?netODvalue:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyNetTP").trim(), (netTPvalue!=""?netTPvalue:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyNetPremium").trim(), (netPremiumvalue!=""?netPremiumvalue:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyGSTAmount").trim(), (GSTAmount!=""?GSTAmount:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyStampduty").trim(), (stampDuty!=""?stampDuty:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+	
+					//For CGST And SGST
+					if (dataRow.getProperty("FetchCGSTAndSGST")!=null) {
+						
+						if (!dataRow.getProperty("FetchCGSTAndSGST").equalsIgnoreCase("") && dataRow.getProperty("FetchCGSTAndSGST").equalsIgnoreCase("Yes")) {
+							
+							System.out.println("CGST Value :-" +fetchTextFromAngularApplication(fetchCGSTAmount,"CGST") );
+							System.out.println("SGST Value :-" +fetchTextFromAngularApplication(fetchSGSTAmount,"SGST"));
+							
+							ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyCGSTAmount").trim(), (fetchTextFromAngularApplication(fetchCGSTAmount,"CGST")!=""?fetchTextFromAngularApplication(fetchCGSTAmount,"CGST"):"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+							ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifySGSTAmount").trim(), (fetchTextFromAngularApplication(fetchSGSTAmount,"SGST")!=""?fetchTextFromAngularApplication(fetchSGSTAmount,"SGST"):"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+						
+						}
+					}
+					
+					//For Fetching UGST amount
+					if (dataRow.getProperty("FetchUGSTAmount")!=null) {
+						
+						if (!dataRow.getProperty("FetchUGSTAmount").equalsIgnoreCase("") && dataRow.getProperty("FetchUGSTAmount").equalsIgnoreCase("Yes")) {
+							
+							System.out.println("UGST Value :-" +fetchTextFromAngularApplication(fetchUTGSTAmount,"UGST") );
+							System.out.println("CGST Value :-" +fetchTextFromAngularApplication(fetchCGSTAmount,"CGST"));
+							
+							ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyUTGSTAmount").trim(), (fetchTextFromAngularApplication(fetchUTGSTAmount,"UGST")!=""?fetchTextFromAngularApplication(fetchUTGSTAmount,"UGST"):"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+							ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyCGSTAmount").trim(), (fetchTextFromAngularApplication(fetchCGSTAmount,"CGST")!=""?fetchTextFromAngularApplication(fetchCGSTAmount,"CGST"):"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+						
+						}
+					}
+					
+					//For Fetching IGST Amount
+					if (dataRow.getProperty("FetchIGSTAmount")!=null) {
+						
+						if (!dataRow.getProperty("FetchIGSTAmount").equalsIgnoreCase("") && dataRow.getProperty("FetchIGSTAmount").equalsIgnoreCase("Yes")) {
+							System.out.println("IGST Value :-" +fetchTextFromApp(fetchIGSTAmount) );
+							System.out.println("IGST Value :-" +fetchTextFromAngularApplication(fetchIGSTAmount,"IGST"));
+							ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyIGSTAmount").trim(), (fetchTextFromAngularApplication(fetchIGSTAmount,"IGST")!=""?fetchTextFromAngularApplication(fetchIGSTAmount,"IGST"):"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+						
+						}
+					}
+					
+					// SetUpWebdriver.completeScreenShot(driver,TestEngine.excutionFolder + ConfigReader.getInstance().getValue(PropertyConfigs.screenShotFolder),
+					//		new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date()));
+					
+					//For Assertion verification
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedNetOD"),netODvalue , "Net OD",testScenarioID,assertFlagForScenarios);
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedNetTP"),netTPvalue , "Net TP",testScenarioID,assertFlagForScenarios);
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedNetPremium"),netPremiumvalue , "Net Premium",testScenarioID,assertFlagForScenarios);
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedGSTAmount"), GSTAmount, "GST Amount",testScenarioID,assertFlagForScenarios);
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedStampduty"),stampDuty, "stamp Duty",testScenarioID,assertFlagForScenarios);
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedActivePolicyStatus"),statusForActivePolicy, "Active Policy",testScenarioID,assertFlagForScenarios);
+				
+					//Change Policy For Endorsement
+					if(dataRow.getProperty("FillPolicyChange")!=null)
+					{
+						if(dataRow.getProperty("FillPolicyChange").equalsIgnoreCase("Yes") && statusForActivePolicy.equalsIgnoreCase("ACTIVE"))
+						{
+							//Back To Main Page
+							switchToWindow(driver, "TCS BαNCS Insurance");
+							switchtodefaultframe(driver);
+							switchtoframe(driver, "display");
+							switchtoframe(driver, "containerFrame");
+							
+							click(policyChangeButton, " Policy Changes Button");
+							Thread.sleep(2000);
+							switchToWindow(driver, "Endrorsement Initiation");
+							
+							MotorPolicyChangesPage motorPolicyChangesPage = new MotorPolicyChangesPage(driver);
+							motorPolicyChangesPage.fillAndSubmitPolicyChangeDetails(driver, testScenarioID, workbook, conn, stepGroup, dataRow, customAssert, assertFlagForScenarios, vPAssertFlagForScenarios, scenariosFailureReason,assignRoleToScenariosID);
+						}
+					}
+				
+				}
+				else
+				{
+					String Substatus = fetchTextFromApp(fetchSubstatus);
+					String allReason="",UWRallReason="",comma="";
+					
+					if(Substatus.equalsIgnoreCase("Refer to Underwriter"))
+					{
+						//click On UWR Approval Button
+						click(By.id("uwrRules"), "UWR Rules Button");
+						switchToWindow(driver);
+						
+						//fetch Reason gone For UWR
+						
+						int reasonSize=driver.findElements(By.xpath("//table[@id='tblmember']/tbody/tr/td[2]/p/label")).size();
+						for(int i=1;i<=reasonSize;i++)
+						{
+							UWRReason=By.xpath("//table[@id='tblmember']/tbody/tr["+(i+1)+"]/td[2]/p/label");
+							allReason=fetchTextFromApp(UWRReason);
+							
+							if(i<reasonSize)
+							{
+								comma=",";
+							}else comma="";
+							
+							//Get UWR Reason and Append It all.
+							UWRallReason += allReason+comma;
+						}
+						
+						System.out.println("UWR Reason "+UWRallReason);
+						
+						//Close Window
+						driver.close();
+						
+						//Back To Main Page
+						switchToWindow(driver, "TCS BαNCS Insurance");
+						switchtodefaultframe(driver);
+						switchtoframe(driver, "display");
+						
+						//Click On Follow Up And Check Assigned Team Name 
+						click(followUpTab,"Follow Up");
+						switchtoframe(driver, "containerFrame");
+						
+						//Fetch Case Assign Team Name
+						if(driver.findElements(inFollowUpAssignTeamName).size()!=0)
+						{
+							inFollowUpAssignTeamNamevalue=fetchTextFromApp(inFollowUpAssignTeamName).trim();
+							if(inFollowUpAssignTeamNamevalue!="" && inFollowUpAssignTeamNamevalue!=null)
+							{
+								ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("AssigneUnderwritter").trim(), (inFollowUpAssignTeamNamevalue!=""?inFollowUpAssignTeamNamevalue:"Record NO Found"),stepGroup);
+							}
+						}
+					}
+					
+					switch (Substatus) {
+					
+					case "Refer to Underwriter":
+						ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifySubStatus").trim(), (Substatus!=""?Substatus:"Record NO Found"),stepGroup);
+						ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("FetchUWReason").trim(), (UWRallReason!=""?UWRallReason:"Record NO Found"),stepGroup);
+						break;
+						
+					case "Quote Issued":
+						ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifySubStatus").trim(), (Substatus!=""?Substatus:"Record NO Found"),stepGroup);
+						break;
+						
+					default:
+						break;
+					}
+					
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedActivePolicyStatus"),getDataFor("Sub Status"), "Policy Status "+Substatus ,testScenarioID,assertFlagForScenarios);
+					Reporter.log("Policy Is not Active");
+				
+				}
+			}
+			else 
+			{
+				
+				String QuoteORPolicyNumber="";
+				try {
+						QuoteORPolicyNumber = getDataFor("policy number");
+				}catch (Exception e) 
+				{
+					QuoteORPolicyNumber = fetchTextFromApp(By.xpath("//label[contains(text(),'Quote/Policy Number')]//following::label[1]")).trim();
+				}
+				
+				String statusForActivePolicy = fetchTextFromApp(fetchstatusForActivePolicy);
+				
+				if (statusForActivePolicy.equalsIgnoreCase("ACTIVE") || statusForActivePolicy.equalsIgnoreCase("Rejected")) {
+				
+					//Click On Premium Summary
+					driver.findElement(premiumSummaryButton).click();
+					Thread.sleep(3000);
+					
+					switchToWindow(driver, "Data Discrepancy Details");
+					
+					String netODvalue = fetchTextFromApp(netOD);
+					String netTPvalue = fetchTextFromApp(netTP);
+					String netPremiumvalue = fetchTextFromApp(netPremium);
+					
+					//For AllODCover
+					ForAllODCover(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);
+					
+					//For AllODLoadingAndDiscount
+					ForAllODLoadingAndDiscount(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);					
+
+					//For AllTPCover
+					ForAllTPCover(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);
+					
+					//For AllTPLoadingAndDiscount
+					ForAllTPLoadingAndDiscount(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);
+
+					//Closing Data Discrepancy Details Page
+					driver.close();
+					waitForPageLoader();
+					
+					//Back To Main Page
+					switchToWindow(driver, "TCS BαNCS Insurance");
+					switchtodefaultframe(driver);
+					switchtoframe(driver, "display");
+					switchtoframe(driver, "containerFrame");
+					
+					String GSTAmount = getTextFromField("GST Amount");
+					String stampDuty =getTextFromField("Stamp duty");
+					
+					System.out.println("Quote/PolicyNumber :" + QuoteORPolicyNumber);
+					System.out.println("Status For Active Policy :" + statusForActivePolicy);
+					
+	//				For Updation in sheet 19-08-2022
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyPolicyNumber").trim(), (QuoteORPolicyNumber!=""?QuoteORPolicyNumber:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyActivePolicy").trim(), (statusForActivePolicy!=""?statusForActivePolicy:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyNetOD").trim(), (netODvalue!=""?netODvalue:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyNetTP").trim(), (netTPvalue!=""?netTPvalue:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyNetPremium").trim(), (netPremiumvalue!=""?netPremiumvalue:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyGSTAmount").trim(), (GSTAmount!=""?GSTAmount:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyStampduty").trim(), (stampDuty!=""?stampDuty:"Record NO Found"),vPAssertFlagForScenarios,stepGroup);
+	
+					//For CGST And SGST
+					if (dataRow.getProperty("FetchCGSTAndSGST")!=null) {
+						
+						if (!dataRow.getProperty("FetchCGSTAndSGST").equalsIgnoreCase("") && dataRow.getProperty("FetchCGSTAndSGST").equalsIgnoreCase("Yes")) {
+							
+							System.out.println("CGST Value :-" +fetchTextFromAngularApplication(fetchCGSTAmount,"CGST") );
+							System.out.println("SGST Value :-" +fetchTextFromAngularApplication(fetchSGSTAmount,"SGST"));
+							
+							ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyCGSTAmount").trim(), (fetchTextFromAngularApplication(fetchCGSTAmount,"CGST")!=""?fetchTextFromAngularApplication(fetchCGSTAmount,"CGST"):"Record NO Found"),vPAssertFlagForScenarios);
+							ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifySGSTAmount").trim(), (fetchTextFromAngularApplication(fetchSGSTAmount,"SGST")!=""?fetchTextFromAngularApplication(fetchSGSTAmount,"SGST"):"Record NO Found"),vPAssertFlagForScenarios);
+						
+						}
+					}
+					
+					//For Fetching UGST amount
+					if (dataRow.getProperty("FetchUGSTAmount")!=null) {
+						
+						if (!dataRow.getProperty("FetchUGSTAmount").equalsIgnoreCase("") && dataRow.getProperty("FetchUGSTAmount").equalsIgnoreCase("Yes")) {
+							
+							System.out.println("UGST Value :-" +fetchTextFromAngularApplication(fetchUTGSTAmount,"UGST") );
+							System.out.println("UGST Value :-" +fetchTextFromAngularApplication(fetchCGSTAmount,"CGST"));
+							
+							ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyUTGSTAmount").trim(), (fetchTextFromAngularApplication(fetchUTGSTAmount,"UGST")!=""?fetchTextFromAngularApplication(fetchUTGSTAmount,"UGST"):"Record NO Found"),vPAssertFlagForScenarios);
+							ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyCGSTAmount").trim(), (fetchTextFromAngularApplication(fetchCGSTAmount,"CGST")!=""?fetchTextFromAngularApplication(fetchCGSTAmount,"CGST"):"Record NO Found"),vPAssertFlagForScenarios);
+						
+						}
+					}
+					
+					//For Fetching IGST amount
+					if (dataRow.getProperty("FetchIGSTAmount")!=null) {
+						
+						if (!dataRow.getProperty("FetchIGSTAmount").equalsIgnoreCase("") && dataRow.getProperty("FetchIGSTAmount").equalsIgnoreCase("Yes")) {
+							System.out.println("IGST Value :-" +fetchTextFromApp(fetchIGSTAmount) );
+							System.out.println("IGST Value :-" +fetchTextFromAngularApplication(fetchIGSTAmount,"IGST"));
+							ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyIGSTAmount").trim(), (fetchTextFromAngularApplication(fetchIGSTAmount,"IGST")!=""?fetchTextFromAngularApplication(fetchIGSTAmount,"IGST"):"Record NO Found"),vPAssertFlagForScenarios);
+						
+						}
+					}
+					
+				//	SetUpWebdriver.completeScreenShot(driver,TestEngine.excutionFolder + ConfigReader.getInstance().getValue(PropertyConfigs.screenShotFolder),
+							//new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date()));
+					
+					//For Assertion verification
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedNetOD"),netODvalue , "Net OD",testScenarioID,assertFlagForScenarios);
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedNetTP"),netTPvalue , "Net TP",testScenarioID,assertFlagForScenarios);
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedNetPremium"),netPremiumvalue , "Net Premium",testScenarioID,assertFlagForScenarios);
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedGSTAmount"), GSTAmount, "GST Amount",testScenarioID,assertFlagForScenarios);
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedStampduty"),stampDuty, "stamp Duty",testScenarioID,assertFlagForScenarios);
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedActivePolicyStatus"),statusForActivePolicy, "Active Policy",testScenarioID,assertFlagForScenarios);
+					
+					//Change Policy For Endorsement
+					if(dataRow.getProperty("FillPolicyChange")!=null)
+					{
+						if(dataRow.getProperty("FillPolicyChange").equalsIgnoreCase("Yes") && statusForActivePolicy.equalsIgnoreCase("ACTIVE"))
+						{
+							//Back To Main Page
+							switchToWindow(driver, "TCS BαNCS Insurance");
+							switchtodefaultframe(driver);
+							switchtoframe(driver, "display");
+							switchtoframe(driver, "containerFrame");
+							
+							click(policyChangeButton, " Policy Changes Button");
+							Thread.sleep(2000);
+							switchToWindow(driver, "Endrorsement Initiation");
+							
+							MotorPolicyChangesPage motorPolicyChangesPage = new MotorPolicyChangesPage(driver);
+							motorPolicyChangesPage.fillAndSubmitPolicyChangeDetails(driver, testScenarioID, workbook, conn, stepGroup, dataRow, customAssert, assertFlagForScenarios, vPAssertFlagForScenarios, scenariosFailureReason,assignRoleToScenariosID);
+						}
+					}
+				}
+				else {
+					String Substatus = fetchTextFromApp(fetchSubstatus);
+					String allReason="",UWRallReason="",comma="";
+					
+					if(Substatus.equalsIgnoreCase("Refer to Underwriter"))
+					{
+						//click On UWR Approval Button
+						click(By.id("uwrRules"), "UWR Approval");
+						switchToWindow(driver);
+						
+						//fetch Reason gone For UWR
+						
+						int reasonSize=driver.findElements(By.xpath("//table[@id='tblmember']/tbody/tr/td[2]/p/label")).size();
+						for(int i=1;i<=reasonSize;i++)
+						{
+							UWRReason=By.xpath("//table[@id='tblmember']/tbody/tr["+(i+1)+"]/td[2]/p/label");
+							allReason=fetchTextFromApp(UWRReason);
+							
+							if(i<reasonSize)
+							{
+								comma=",";
+							}else comma="";
+							
+							//Get UWR Reason and Append It all.
+							UWRallReason += allReason+comma;
+						}
+						
+						System.out.println("UWR Reason "+UWRallReason);
+						
+						//Close Window
+						driver.close();
+						
+						//Back To Main Page
+						switchToWindow(driver, "TCS BαNCS Insurance");
+						switchtodefaultframe(driver);
+						switchtoframe(driver, "display");
+						
+						//Click On Follow Up And Check Assigned Team Name 
+						click(followUpTab,"Follow Up");
+						switchtoframe(driver, "containerFrame");
+						
+						//Fetch Case Assign Team Name
+						if(driver.findElements(inFollowUpAssignTeamName).size()!=0)
+						{
+							inFollowUpAssignTeamNamevalue=fetchTextFromApp(inFollowUpAssignTeamName).trim();
+							if(inFollowUpAssignTeamNamevalue!="" && inFollowUpAssignTeamNamevalue!=null)
+							{
+								ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("AssigneUnderwritter").trim(), (inFollowUpAssignTeamNamevalue!=""?inFollowUpAssignTeamNamevalue:"Record NO Found"),stepGroup);
+							}
+						}
+					}
+					
+					switch (Substatus) {
+					
+					case "Refer to Underwriter":
+						ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifySubStatus").trim(), (Substatus!=""?Substatus:"Record NO Found"),stepGroup);
+						ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("FetchUWReason").trim(), (UWRallReason!=""?UWRallReason:"Record NO Found"),stepGroup);
+						break;
+						
+					case "Quote Issued":
+						ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifySubStatus").trim(), (Substatus!=""?Substatus:"Record NO Found"),stepGroup);
+						break;
+						
+					default:
+						break;
+					}
+					
+					customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedActivePolicyStatus"),getDataFor("Sub Status"), "Policy Status "+Substatus ,testScenarioID,assertFlagForScenarios);
+					Reporter.log("Policy Is not Active");
+				
+				}					
+			}
+			
+	 }
+  }
+
+	public void ForAllODCover(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,
+			ConcurrentHashMap<String, String> vPAssertFlagForScenarios,
+			ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception 
+	{
+		//Get The Index number for the CoverName And its amount value
+		
+		List<WebElement> indexValue = driver.findElements(By.xpath("//table[@name='OD Cover Premium']/tbody/tr/td/b"));
+		int counterValue=1;
+		String covernameXpath="", GWTXpath="";
+		
+		for (WebElement webElement : indexValue) 
+		{
+			if(webElement.getText().trim().equalsIgnoreCase("Cover Name"))
+			{
+				covernameXpath="//table[@name='OD Cover Premium']/tbody/tr/td["+counterValue+"]";
+			}
+			if(webElement.getText().trim().equalsIgnoreCase("GWP"))
+			{
+				GWTXpath="//table[@name='OD Cover Premium']/tbody/tr/td["+counterValue+"]";
+			}
+			counterValue++;
+		}
+		
+		List<WebElement> ODCoverName = driver.findElements(By.xpath(covernameXpath));
+		List<WebElement> ODCoverNameValue = driver.findElements(By.xpath(GWTXpath));
+		
+		//Creating MAP For Storing OD AND TP Cover, Discount Values
+		Map<String, String> ODCoverNameAndValueMap = new HashMap<>();
+		
+		for(int i=0;i<ODCoverName.size();i++)
+		{
+			String odCoverName=ODCoverName.get(i).getText().trim();
+			String odCoverNameValue=ODCoverNameValue.get(i).getText().trim();
+			
+			ODCoverNameAndValueMap.put(odCoverName.trim(), odCoverNameValue.trim());
+		}
+		System.out.println("Size Of OD COver Name Map :- "+ODCoverNameAndValueMap.size());
+		
+		// Cover Enhanced PA Cover - Un-named Passengers
+		if (dataRow.getProperty("EnhancedPACoverUnnamedPassengers")!=null) 
+		{
+			if (dataRow.getProperty("EnhancedPACoverUnnamedPassengers")!="") 
+			{	
+				String EnhancedPACoverUnnamedPassengersAmount= ODCoverNameAndValueMap.get(dataRow.getProperty("EnhancedPACoverUnnamedPassengers"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("EnhancedPACoverUnnamedPassengers").trim(), (EnhancedPACoverUnnamedPassengersAmount!=null?EnhancedPACoverUnnamedPassengersAmount:"Record No Found"),stepGroup);
+		    }
+		}
+		//Cover Emergency Medical Expenses
+		if (dataRow.getProperty("EmergencyMedicalExpenses")!=null) 
+		{
+			if (dataRow.getProperty("EmergencyMedicalExpenses")!="") 
+			{	
+				String EmergencyMedicalExpensesAmount= ODCoverNameAndValueMap.get(dataRow.getProperty("EmergencyMedicalExpenses"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("EmergencyMedicalExpenses").trim(), (EmergencyMedicalExpensesAmount!=null?EmergencyMedicalExpensesAmount:"Record No Found"),stepGroup);
+		    }
+		}
+		
+		//Cover Protection of NCB
+		if (dataRow.getProperty("ProtectionofNCB")!=null) 
+		{
+			if (dataRow.getProperty("ProtectionofNCB")!="") 
+			{	
+				String ProtectionofNCBAmount= ODCoverNameAndValueMap.get(dataRow.getProperty("ProtectionofNCB"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("ProtectionofNCB").trim(), (ProtectionofNCBAmount!=null?ProtectionofNCBAmount:"Record No Found"),stepGroup);
+		    }
+		}
+		
+		//Cover Driving Tuitions
+		if (dataRow.getProperty("DrivingTuitions")!=null) 
+		{
+			if (dataRow.getProperty("DrivingTuitions")!="") 
+			{	
+				String DrivingTuitionsAmount= ODCoverNameAndValueMap.get(dataRow.getProperty("DrivingTuitions"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("DrivingTuitions").trim(), (DrivingTuitionsAmount!=null?DrivingTuitionsAmount:"Record No Found"),stepGroup);
+		    }
+		}
+		
+		//Cover Depreciation Reimbursement
+		if (dataRow.getProperty("DepreciationReimbursement")!=null) 
+		{
+			if (dataRow.getProperty("DepreciationReimbursement")!="") 
+			{	
+				String DepreciationReimbursementAmount= ODCoverNameAndValueMap.get(dataRow.getProperty("DepreciationReimbursement"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("DepreciationReimbursement").trim(), (DepreciationReimbursementAmount!=null?DepreciationReimbursementAmount:"Record No Found"),stepGroup);
+		    }
+		 }
+		
+		//Cover Basic OD
+		
+		if (dataRow.getProperty("BasicOD")!=null) 
+		{
+			if (dataRow.getProperty("BasicOD")!="") 
+			{	
+				String BasicODAmount= ODCoverNameAndValueMap.get(dataRow.getProperty("BasicOD"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("BasicOD").trim(), (BasicODAmount!=null?BasicODAmount:"Record No Found"),stepGroup);
+		    }
+		 }
+		
+		//Cover Inconvenience Allowance
+		if (dataRow.getProperty("InconvenienceAllowance")!=null) {
+			
+			if (dataRow.getProperty("InconvenienceAllowance")!="") {
+			
+				String InconvenienceAllowanceAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("InconvenienceAllowance"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("InconvenienceAllowance").trim(), (InconvenienceAllowanceAmount!=null?InconvenienceAllowanceAmount:"Record No Found"),stepGroup);
+			}
+		}
+		
+		//Cover Engine Guard
+		if (dataRow.getProperty("EngineGuard")!=null) {
+			
+			if (dataRow.getProperty("EngineGuard")!="") {
+
+				String EngineGuardAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("EngineGuard"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("EngineGuard").trim(), (EngineGuardAmount!=null?EngineGuardAmount:"Record No Found"),stepGroup);
+			
+			}
+		}
+		
+		//Cover Non Electrical Accessory OD
+		if (dataRow.getProperty("NonElectricalAccessoryOD")!=null) {
+			
+			if (dataRow.getProperty("NonElectricalAccessoryOD")!="") {
+
+				String NonElectricalAccessoryODAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("NonElectricalAccessoryOD"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("NonElectricalAccessoryOD").trim(), (NonElectricalAccessoryODAmount!=null?NonElectricalAccessoryODAmount:"Record No Found"),stepGroup);
+			}
+		}
+		
+		//Cover Additional Towing Charges
+		if (dataRow.getProperty("AdditionalTowingCharges")!=null) {
+			
+			if (dataRow.getProperty("AdditionalTowingCharges")!="") {
+	
+				String AdditionalTowingChargesAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("AdditionalTowingCharges"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("AdditionalTowingCharges").trim(), (AdditionalTowingChargesAmount!=null?AdditionalTowingChargesAmount:"Record No Found"),stepGroup);
+			
+			}
+		}
+		
+		//Cover Consumable Coverage
+		if (dataRow.getProperty("ConsumableCoverage")!=null) {
+			
+			if (dataRow.getProperty("ConsumableCoverage")!="") {
+	
+				String ConsumableCoverageAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("ConsumableCoverage"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("ConsumableCoverage").trim(), (ConsumableCoverageAmount!=null?ConsumableCoverageAmount:"Record No Found"),stepGroup);
+			
+			}
+		}
+	
+		
+		//Cover Tyre and Rim Guard Cover
+		if (dataRow.getProperty("TyreandRimGuardCover")!=null) {
+			
+			if (dataRow.getProperty("TyreandRimGuardCover")!="") {
+	
+				String TyreandRimGuardCoverAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("TyreandRimGuardCover"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("TyreandRimGuardCover").trim(), (TyreandRimGuardCoverAmount!=null?TyreandRimGuardCoverAmount:"Record No Found"),stepGroup);
+			
+			}
+		}
+		
+		//Cover Extension of Geographical Area ODIMT1
+		if (dataRow.getProperty("ExtensionofGeographicalAreaODIMT1")!=null) {
+			
+			if (dataRow.getProperty("ExtensionofGeographicalAreaODIMT1")!="") {
+	
+				String ExtensionofGeographicalAreaODIMT1Amount = ODCoverNameAndValueMap.get(dataRow.getProperty("ExtensionofGeographicalAreaODIMT1"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("ExtensionofGeographicalAreaODIMT1").trim(), (ExtensionofGeographicalAreaODIMT1Amount!=null?ExtensionofGeographicalAreaODIMT1Amount:"Record No Found"),stepGroup);
+			
+			}
+		}
+		
+		//Cover Enhanced PA Cover Owner Driver
+		if (dataRow.getProperty("EnhancedPACoverOwnerDriver")!=null) {
+			
+			if (dataRow.getProperty("EnhancedPACoverOwnerDriver")!="") {
+	
+				String EnhancedPACoverOwnerDriverAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("EnhancedPACoverOwnerDriver"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("EnhancedPACoverOwnerDriver").trim(), (EnhancedPACoverOwnerDriverAmount!=null?EnhancedPACoverOwnerDriverAmount:"Record No Found"),stepGroup);
+			
+			}
+		}
+		
+		//Cover Cover for vehicles imported without customs duty IMT19
+		if (dataRow.getProperty("CoverforvehiclesimportedwithoutcustomsdutyIMT19")!=null) {
+			
+			if (dataRow.getProperty("CoverforvehiclesimportedwithoutcustomsdutyIMT19")!="") {
+	
+				String CoverforvehiclesimportedwithoutcustomsdutyIMT19Amount = ODCoverNameAndValueMap.get(dataRow.getProperty("CoverforvehiclesimportedwithoutcustomsdutyIMT19"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("CoverforvehiclesimportedwithoutcustomsdutyIMT19").trim(), (CoverforvehiclesimportedwithoutcustomsdutyIMT19Amount!=null?CoverforvehiclesimportedwithoutcustomsdutyIMT19Amount:"Record No Found"),stepGroup);
+			
+			}
+		}
+		
+		//Cover Hospital Cash - Owner Driver	
+		if (dataRow.getProperty("HospitalCashOwnerDriver")!=null) {
+			
+			if (dataRow.getProperty("HospitalCashOwnerDriver")!="") {
+	
+				String HospitalCashOwnerDriverAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("HospitalCashOwnerDriverAmount"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("HospitalCashOwnerDriver").trim(), (HospitalCashOwnerDriverAmount!=null?HospitalCashOwnerDriverAmount:"Record No Found"),stepGroup);
+			
+			}
+		}
+		
+		//Cover Return to Invoice	
+		if (dataRow.getProperty("ReturntoInvoice")!=null) {
+			
+			if (dataRow.getProperty("ReturntoInvoice")!="") {
+	
+				String ReturntoInvoiceAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("ReturntoInvoice"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("ReturntoInvoice").trim(), (ReturntoInvoiceAmount!=null?ReturntoInvoiceAmount:"Record No Found"),stepGroup);
+			
+			}
+		}		
+		
+		//Cover Hospital Cash - Paid Driver	
+		if (dataRow.getProperty("HospitalCashPaidDriver")!=null) {
+			
+			if (dataRow.getProperty("HospitalCashPaidDriver")!="") {
+	
+				String HospitalCashPaidDriverAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("HospitalCashPaidDriver"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("HospitalCashPaidDriver").trim(), (HospitalCashPaidDriverAmount!=null?HospitalCashPaidDriverAmount:"Record No Found"),stepGroup);
+			
+			}
+		}		
+		
+		//Cover Hospital Cash - Un-named Passengers	
+		if (dataRow.getProperty("HospitalCashUnnamedPassengers")!=null) {
+			
+			if (dataRow.getProperty("HospitalCashUnnamedPassengers")!="") {
+	
+				String HospitalCashUnnamedPassengersAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("HospitalCashUnnamedPassengers"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("HospitalCashUnnamedPassengers").trim(), (HospitalCashUnnamedPassengersAmount!=null?HospitalCashUnnamedPassengersAmount:"Record No Found"),stepGroup);
+			
+			}
+		}		
+		
+		//Cover Reliability trials and rallies - OD (IMT31A)
+		if (dataRow.getProperty("ReliabilitytrialsandralliesODIMT31A")!=null) {
+			
+			if (dataRow.getProperty("ReliabilitytrialsandralliesODIMT31A")!="") {
+	
+				String ReliabilitytrialsandralliesODIMT31AAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("ReliabilitytrialsandralliesODIMT31A"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("ReliabilitytrialsandralliesODIMT31A").trim(), (ReliabilitytrialsandralliesODIMT31AAmount!=null?ReliabilitytrialsandralliesODIMT31AAmount:"Record No Found"),stepGroup);
+			}
+		}		
+
+		//Cover Enhanced PA Cover - Paid Driver
+		if (dataRow.getProperty("EnhancedPACoverPaidDriver")!=null) {
+			
+			if (dataRow.getProperty("EnhancedPACoverPaidDriver")!="") {
+	
+				String EnhancedPACoverPaidDriverAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("EnhancedPACoverPaidDriver"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("EnhancedPACoverPaidDriver").trim(), (EnhancedPACoverPaidDriverAmount!=null?EnhancedPACoverPaidDriverAmount:"Record No Found"),stepGroup);
+			
+			}
+		}		
+		
+		//Cover Key Replacement Cover
+		if (dataRow.getProperty("KeyReplacementCover")!=null) {
+			
+			if (dataRow.getProperty("KeyReplacementCover")!="") {
+	
+				String KeyReplacementCoverAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("KeyReplacementCover"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("KeyReplacementCover").trim(), (KeyReplacementCoverAmount!=null?KeyReplacementCoverAmount:"Record No Found"),stepGroup);			
+			}
+		}		
+
+		
+		//Cover Fibre Glass Fuel Tank
+		if (dataRow.getProperty("FibreGlassFuelTank")!=null) {
+			
+			if (dataRow.getProperty("FibreGlassFuelTank")!="") {
+	
+				String FibreGlassFuelTankAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("FibreGlassFuelTank"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("FibreGlassFuelTank").trim(), (FibreGlassFuelTankAmount!=null?FibreGlassFuelTankAmount:"Record No Found"),stepGroup);			
+			}
+		}		
+		
+		//Cover Loss of Personal Belongings
+		if (dataRow.getProperty("LossofPersonalBelongings")!=null) {
+			
+			if (dataRow.getProperty("LossofPersonalBelongings")!="") {
+	
+				String LossofPersonalBelongingsAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("LossofPersonalBelongings"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("LossofPersonalBelongings").trim(), (LossofPersonalBelongingsAmount!=null?LossofPersonalBelongingsAmount:"Record No Found"),stepGroup);			
+			}
+		}		
+
+		//Cover EMI Protection Cover
+		if (dataRow.getProperty("EMIProtectionCover")!=null) {
+			
+			if (dataRow.getProperty("EMIProtectionCover")!="") {
+	
+				String EMIProtectionCoverAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("EMIProtectionCover"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("EMIProtectionCover").trim(), (EMIProtectionCoverAmount!=null?EMIProtectionCoverAmount:"Record No Found"),stepGroup);			
+			}
+		}		
+		
+		//Cover Trailers OD
+		if (dataRow.getProperty("TrailersOD")!=null) {
+			
+			if (dataRow.getProperty("TrailersOD")!="") {
+	
+				String TrailersODAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("TrailersOD"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("TrailersOD").trim(), (TrailersODAmount!=null?TrailersODAmount:"Record No Found"),stepGroup);			
+			}
+		}		
+
+		
+		//Cover Extension for racing, speed tests, dexterity trails, hill climbs - OD (IMT31B)
+		if (dataRow.getProperty("ExtensionforracingspeedtestsdexteritytrailshillclimbsODIMT31B")!=null) {
+			
+			if (dataRow.getProperty("ExtensionforracingspeedtestsdexteritytrailshillclimbsODIMT31B")!="") {
+	
+				String ExtensionforracingspeedtestsdexteritytrailshillclimbsODIMT31BAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("ExtensionforracingspeedtestsdexteritytrailshillclimbsODIMT31B"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("ExtensionforracingspeedtestsdexteritytrailshillclimbsODIMT31B").trim(), (ExtensionforracingspeedtestsdexteritytrailshillclimbsODIMT31BAmount!=null?ExtensionforracingspeedtestsdexteritytrailshillclimbsODIMT31BAmount:"Record No Found"),stepGroup);			
+			}
+		}		
+		
+		//Cover Electrical or electronic accessories
+		if (dataRow.getProperty("Electricalorelectronicaccessories")!=null) {
+			
+			if (dataRow.getProperty("Electricalorelectronicaccessories")!="") {
+	
+				String ElectricalorelectronicaccessoriesAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("Electricalorelectronicaccessories"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("Electricalorelectronicaccessories").trim(), (ElectricalorelectronicaccessoriesAmount!=null?ElectricalorelectronicaccessoriesAmount:"Record No Found"),stepGroup);			
+			}
+		}
+		
+		//Cover Additional Roadside Assistance
+		if (dataRow.getProperty("AdditionalRoadsideAssistance")!=null) {
+			
+			if (dataRow.getProperty("AdditionalRoadsideAssistance")!="") {
+	
+				String AdditionalRoadsideAssistanceAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("AdditionalRoadsideAssistance"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("AdditionalRoadsideAssistance").trim(), (AdditionalRoadsideAssistanceAmount!=null?AdditionalRoadsideAssistanceAmount:"Record No Found"),stepGroup);			
+			}
+		}
+		
+		//Cover Additional Roadside Assistance
+		if (dataRow.getProperty("BasicRoadsideAssistance")!=null) {
+			
+			if (dataRow.getProperty("BasicRoadsideAssistance")!="") {
+	
+				String BasicRoadsideAssistanceAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("BasicRoadsideAssistance"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("BasicRoadsideAssistance").trim(), (BasicRoadsideAssistanceAmount!=null?BasicRoadsideAssistanceAmount:"Record No Found"),stepGroup);			
+			}
+		}
+				
+		//Cover Fire And Theft
+		if (dataRow.getProperty("FireAndTheft")!=null) {
+			
+			if (dataRow.getProperty("FireAndTheft")!="") {
+	
+				String FireAndTheftAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("FireAndTheft"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("FireAndTheft").trim(), (FireAndTheftAmount!=null?FireAndTheftAmount:"Record No Found"),stepGroup);			
+			}
+		}		
+		
+		//Cover Theft
+		if (dataRow.getProperty("Theft")!=null) {
+			
+			if (dataRow.getProperty("Theft")!="") {
+	
+				String TheftAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("Theft"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("Theft").trim(), (TheftAmount!=null?TheftAmount:"Record No Found"),stepGroup);			
+			}
+		}
+		
+		//Cover Fire
+		if (dataRow.getProperty("Fire")!=null) {
+			
+			if (dataRow.getProperty("Fire")!="") {
+	
+				String FireAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("Fire"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("Fire").trim(), (FireAmount!=null?FireAmount:"Record No Found"),stepGroup);			
+			}
+		}		
+
+		
+		//Cover Inbuilt CNG/LPG kit in bi-fuel system - OD
+		if (dataRow.getProperty("InbuiltCNGLPGkitinbifuelsystemOD")!=null) {
+			
+			if (dataRow.getProperty("InbuiltCNGLPGkitinbifuelsystemOD")!="") {
+	
+				String InbuiltCNGLPGkitinbifuelsystemODAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("InbuiltCNGLPGkitinbifuelsystemOD"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("InbuiltCNGLPGkitinbifuelsystemOD").trim(), (InbuiltCNGLPGkitinbifuelsystemODAmount!=null?InbuiltCNGLPGkitinbifuelsystemODAmount:"Record No Found"),stepGroup);			
+			}
+		}
+		
+
+		//Cover Inbuilt CNG/LPG kit in bi-fuel system - OD
+		if (dataRow.getProperty("ExternallyFittedCNGLPGkitinbifuelsystemOD")!=null) {
+			
+			if (dataRow.getProperty("ExternallyFittedCNGLPGkitinbifuelsystemOD")!="") {
+	
+				String ExternallyFittedCNGLPGkitinbifuelsystemODAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("ExternallyFittedCNGLPGkitinbifuelsystemOD"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("ExternallyFittedCNGLPGkitinbifuelsystemOD").trim(), (ExternallyFittedCNGLPGkitinbifuelsystemODAmount!=null?ExternallyFittedCNGLPGkitinbifuelsystemODAmount:"Record No Found"),stepGroup);			
+			}
+		}
+		
+		//For Two Wheeler Cover Amount And Cover name
+		//Cover Inbuilt CNG/LPG kit in bi-fuel system - OD
+				if (dataRow.getProperty("ExternallyFittedCNGLPGkitinbifuelsystemOD")!=null) {
+					
+					if (dataRow.getProperty("ExternallyFittedCNGLPGkitinbifuelsystemOD")!="") {
+			
+						String ExternallyFittedCNGLPGkitinbifuelsystemODAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("ExternallyFittedCNGLPGkitinbifuelsystemOD"));
+						ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("ExternallyFittedCNGLPGkitinbifuelsystemOD").trim(), (ExternallyFittedCNGLPGkitinbifuelsystemODAmount!=null?ExternallyFittedCNGLPGkitinbifuelsystemODAmount:"Record No Found"),stepGroup);			
+					}
+				}
+				//Cover Cover for Consumables
+				if (dataRow.getProperty("CoverforConsumables")!=null) {
+					
+					if (dataRow.getProperty("CoverforConsumables")!="") {
+			
+						String CoverforConsumablesAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("CoverforConsumables"));
+						ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("CoverforConsumables").trim(), (CoverforConsumablesAmount!=null?CoverforConsumablesAmount:"Record No Found"),stepGroup);			
+					}
+				}
+				
+				//Cover Helmet Protection
+				if (dataRow.getProperty("HelmetProtection")!=null) {
+					
+					if (dataRow.getProperty("HelmetProtection")!="") {
+			
+						String HelmetProtectionAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("HelmetProtection"));
+						ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("HelmetProtection").trim(), (HelmetProtectionAmount!=null?HelmetProtectionAmount:"Record No Found"),stepGroup);			
+					}
+				}
+				
+				//Side Car
+				if (dataRow.getProperty("SideCar")!=null) {
+					
+					if (dataRow.getProperty("SideCar")!="") {
+			
+						String SideCarAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("SideCar"));
+						ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("SideCar").trim(), (SideCarAmount!=null?SideCarAmount:"Record No Found"),stepGroup);			
+					}
+				}
+
+				//Emergency Medical Expense For Two Wheeler
+				if (dataRow.getProperty("EmergencyMedicalExpense")!=null) {
+					
+					if (dataRow.getProperty("EmergencyMedicalExpense")!="") {
+			
+						String EmergencyMedicalExpenseAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("EmergencyMedicalExpense"));
+						ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("EmergencyMedicalExpense").trim(), (EmergencyMedicalExpenseAmount!=null?EmergencyMedicalExpenseAmount:"Record No Found"),stepGroup);			
+					}
+				}
+
+				//Loss of Accessories
+				if (dataRow.getProperty("LossofAccessories")!=null) {
+					
+					if (dataRow.getProperty("LossofAccessories")!="") {
+			
+						String LossofAccessoriesAmount = ODCoverNameAndValueMap.get(dataRow.getProperty("LossofAccessories"));
+						ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("LossofAccessories").trim(), (LossofAccessoriesAmount!=null?LossofAccessoriesAmount:"Record No Found"),stepGroup);			
+					}
+				}
+
+
+	}
+	
+	public void ForAllODLoadingAndDiscount(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,
+			ConcurrentHashMap<String, String> vPAssertFlagForScenarios,
+			ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception 
+	{
+		
+		List<WebElement> indexValue = driver.findElements(By.xpath("//table[@name='OD LD Premium']/tbody/tr/td/b"));
+		int counterValue=1;
+		String LoadingDiscountNameXpath="", GWTXpath="";
+		
+		for (WebElement webElement : indexValue) 
+		{
+			if(webElement.getText().trim().equalsIgnoreCase("Loading/Discount Name"))
+			{
+				LoadingDiscountNameXpath="//table[@name='OD LD Premium']/tbody/tr/td["+counterValue+"]";
+			}
+			if(webElement.getText().trim().equalsIgnoreCase("GWP"))
+			{
+				GWTXpath="//table[@name='OD LD Premium']/tbody/tr/td["+counterValue+"]";
+			}
+			
+			counterValue++;
+		}
+		
+		List<WebElement> ODLoadingAndDiscountName = driver.findElements(By.xpath(LoadingDiscountNameXpath));
+		List<WebElement> ODLoadingAndDiscountNameValue = driver.findElements(By.xpath(GWTXpath));
+
+		//Creating MAP For Storing All OD Loading And Discount.
+		Map<String, String> ODLoadingAndDiscountvalueMap = new HashMap<>();
+
+		for(int i=0;i<ODLoadingAndDiscountName.size();i++)
+		{
+			String odLoadingAndDiscountName=ODLoadingAndDiscountName.get(i).getText().trim();
+			String odLoadingAndDiscountNameValue=ODLoadingAndDiscountNameValue.get(i).getText().trim();
+
+			ODLoadingAndDiscountvalueMap.put(odLoadingAndDiscountName, odLoadingAndDiscountNameValue);
+			System.out.println("Size Of OD Loadinga and Discount Name Map :- "+ODLoadingAndDiscountvalueMap.size());
+		}
+
+		if (dataRow.getProperty("TyreAndRimGuardDeductible")!=null) {
+
+			if (dataRow.getProperty("TyreAndRimGuardDeductible")!="") 
+			{
+
+				String TyreAndRimGuardDeductibleAmount= ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("TyreAndRimGuardDeductible"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("TyreAndRimGuardDeductible").trim(), (TyreAndRimGuardDeductibleAmount!=null?TyreAndRimGuardDeductibleAmount:"Record No Found"),stepGroup);
+
+
+			}
+		}
+		if (dataRow.getProperty("EMIProtectorDeductible")!=null) {
+
+			if (dataRow.getProperty("EMIProtectorDeductible")!="")
+			{
+
+				String EMIProtectorDeductibleAmount= ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("EMIProtectorDeductible"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("EMIProtectorDeductible").trim(), (EMIProtectorDeductibleAmount!=null?EMIProtectorDeductibleAmount:"Record No Found"),stepGroup);
+			}
+		}
+		if (dataRow.getProperty("NoClaimBonusDiscount")!=null) {
+
+			if (dataRow.getProperty("NoClaimBonusDiscount")!="") {
+
+				String NoClaimBonusDiscountAmount= ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("NoClaimBonusDiscount"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("NoClaimBonusDiscount").trim(), (NoClaimBonusDiscountAmount!=null?NoClaimBonusDiscountAmount:"Record No Found"),stepGroup);
+
+			}
+		}
+		if (dataRow.getProperty("VoluntaryExcessDiscount")!=null) {
+
+			if (dataRow.getProperty("VoluntaryExcessDiscount")!="") {
+
+				String VoluntaryExcessDiscountAmount= ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("VoluntaryExcessDiscount"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VoluntaryExcessDiscount").trim(), (VoluntaryExcessDiscountAmount!=null?VoluntaryExcessDiscountAmount:"Record No Found"),stepGroup);
+
+			}
+		}
+		if (dataRow.getProperty("AutomobileAssociationDiscount")!=null) {
+
+			if (dataRow.getProperty("AutomobileAssociationDiscount")!="")
+			{
+				String AutomobileAssociationDiscountAmount= ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("AutomobileAssociationDiscount"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("AutomobileAssociationDiscount").trim(), (AutomobileAssociationDiscountAmount!=null?AutomobileAssociationDiscountAmount:"Record No Found"),stepGroup);
+			}
+		}
+		if (dataRow.getProperty("HandicappedOD")!=null) {
+
+			if (dataRow.getProperty("HandicappedOD")!="") 
+			{
+				String HandicappedODAmount= ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("HandicappedOD"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("HandicappedOD").trim(), (HandicappedODAmount!=null?HandicappedODAmount:"Record No Found"),stepGroup);
+			}
+		}
+		if (dataRow.getProperty("DetariffLoading")!=null) {
+
+			if (dataRow.getProperty("DetariffLoading")!="") 
+			{
+				String DetariffLoadingAmount= ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("DetariffLoading"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("DetariffLoading").trim(), (DetariffLoadingAmount!=null?DetariffLoadingAmount:"Record No Found"),stepGroup);
+			}
+		}
+		if (dataRow.getProperty("AntiTheftDeviceOD")!=null) {
+
+			if (dataRow.getProperty("AntiTheftDeviceOD")!="") {
+				
+				String AntiTheftDeviceODAmount= ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("AntiTheftDeviceOD"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("AntiTheftDeviceOD").trim(), (AntiTheftDeviceODAmount!=null?AntiTheftDeviceODAmount:"Record No Found"),stepGroup);
+			}
+		}
+		if (dataRow.getProperty("LimitedtoOwnPremisesOD")!=null) {
+
+			if (dataRow.getProperty("LimitedtoOwnPremisesOD")!="") {
+				
+				String LimitedtoOwnPremisesODAmount= ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("LimitedtoOwnPremisesOD"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("LimitedtoOwnPremisesOD").trim(), (LimitedtoOwnPremisesODAmount!=null?LimitedtoOwnPremisesODAmount:"Record No Found"),stepGroup);
+			}
+		}
+
+		if (dataRow.getProperty("DetariffDiscount")!=null) {
+
+			if (dataRow.getProperty("DetariffDiscount")!="") {
+				
+				String DetariffDiscountAmount= ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("DetariffDiscount"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("DetariffDiscount").trim(), (DetariffDiscountAmount!=null?DetariffDiscountAmount:"Record No Found"),stepGroup);
+			}
+		}
+
+		if (dataRow.getProperty("VintageCarOD")!=null) {
+
+			if (dataRow.getProperty("VintageCarOD")!="") {
+				
+				String VintageCarODAmount= ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("VintageCarOD"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VintageCarOD").trim(), (VintageCarODAmount!=null?VintageCarODAmount:"Record No Found"),stepGroup);	
+			}
+		}
+		
+		// Covers FOr Two Wheeler 
+		if (dataRow.getProperty("SideCarDiscount")!=null) {
+			
+			if (dataRow.getProperty("SideCarDiscount")!="") {
+	
+				String SideCarDiscountAmount = ODLoadingAndDiscountvalueMap.get(dataRow.getProperty("SideCarDiscount"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("SideCarDiscount").trim(), (SideCarDiscountAmount!=null?SideCarDiscountAmount:"Record No Found"),stepGroup);			
+			}
+		}
+
+		
+	}
+	public void ForAllTPCover(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,
+			ConcurrentHashMap<String, String> vPAssertFlagForScenarios,
+			ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception
+	{
+		
+		List<WebElement> indexValue = driver.findElements(By.xpath("//table[@name='TP Cover Premium']/tbody/tr/td/b"));
+		int counterValue=1;
+		String TPCoverNameXpath="", TPGWTXpath="";
+		
+		for (WebElement webElement : indexValue) 
+		{
+			if(webElement.getText().trim().equalsIgnoreCase("Cover Name"))
+			{
+				TPCoverNameXpath="//table[@name='TP Cover Premium']/tbody/tr/td["+counterValue+"]";
+			}
+			if(webElement.getText().trim().equalsIgnoreCase("GWP"))
+			{
+				TPGWTXpath="//table[@name='TP Cover Premium']/tbody/tr/td["+counterValue+"]";
+			}
+			counterValue++;
+		}
+		
+		List<WebElement> TPCoverName = driver.findElements(By.xpath(TPCoverNameXpath));
+		List<WebElement> TPCoverNameValue = driver.findElements(By.xpath(TPGWTXpath));
+
+		//Creating MAP For Storing All TP Cover Name .
+		Map<String, String> tpCoverNameValueMap = new HashMap<>();
+
+		for(int i=0;i<TPCoverName.size();i++)
+		{
+			String tpCoverName=TPCoverName.get(i).getText().trim();
+			String tpCoverNameValue=TPCoverNameValue.get(i).getText().trim();
+
+			tpCoverNameValueMap.put(tpCoverName, tpCoverNameValue);
+			System.out.println("Size Of TP Cover Name Map :- "+tpCoverNameValueMap.size());
+		}
+		if (dataRow.getProperty("BasicTP")!=null) {
+
+			if (dataRow.getProperty("BasicTP")!="") {
+				
+				String BasicTPAmount= tpCoverNameValueMap.get(dataRow.getProperty("BasicTP"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("BasicTP").trim(), (BasicTPAmount!=null?BasicTPAmount:"Record No Found"),stepGroup);
+				}
+		}
+		if (dataRow.getProperty("ReliabilitytrialsandralliesTPIMT31A")!=null) {
+
+			if (dataRow.getProperty("ReliabilitytrialsandralliesTPIMT31A")!="") {
+				
+				String ReliabilitytrialsandralliesTPIMT31AAmount= tpCoverNameValueMap.get(dataRow.getProperty("ReliabilitytrialsandralliesTPIMT31A"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("ReliabilitytrialsandralliesTPIMT31A").trim(), (ReliabilitytrialsandralliesTPIMT31AAmount!=null?ReliabilitytrialsandralliesTPIMT31AAmount:"Record No Found"),stepGroup);
+				}
+		}
+		
+		if (dataRow.getProperty("TrailersTP")!=null) {
+
+			if (dataRow.getProperty("TrailersTP")!="") {
+				
+				String TrailersTPAmount= tpCoverNameValueMap.get(dataRow.getProperty("TrailersTP"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("TrailersTP").trim(), (TrailersTPAmount!=null?TrailersTPAmount:"Record No Found"),stepGroup);
+				
+			
+
+			}
+		}
+		if (dataRow.getProperty("LegalliabilitytoemployeesotherthanpaiddriverandorconductorcleanerIMT29")!=null) {
+
+			if (dataRow.getProperty("LegalliabilitytoemployeesotherthanpaiddriverandorconductorcleanerIMT29")!="") {
+				
+				String LegalliabilitytoemployeesotherthanpaiddriverandorconductorcleanerIMT29Amount= tpCoverNameValueMap.get(dataRow.getProperty("LegalliabilitytoemployeesotherthanpaiddriverandorconductorcleanerIMT29"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("LegalliabilitytoemployeesotherthanpaiddriverandorconductorcleanerIMT29").trim(), (LegalliabilitytoemployeesotherthanpaiddriverandorconductorcleanerIMT29Amount!=null?LegalliabilitytoemployeesotherthanpaiddriverandorconductorcleanerIMT29Amount:"Record No Found"),stepGroup);
+					}
+		}
+		if (dataRow.getProperty("CompulsoryPersonalAccident")!=null) {
+
+			if (dataRow.getProperty("CompulsoryPersonalAccident")!="") {
+				
+				String CompulsoryPersonalAccidentAmount= tpCoverNameValueMap.get(dataRow.getProperty("CompulsoryPersonalAccident"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("CompulsoryPersonalAccident").trim(), (CompulsoryPersonalAccidentAmount!=null?CompulsoryPersonalAccidentAmount:"Record No Found"),stepGroup);
+ 
+			}
+		}
+		if (dataRow.getProperty("PASoldiersSailorsAirmen")!=null) {
+
+			if (dataRow.getProperty("PASoldiersSailorsAirmen")!="") {
+				
+				String PASoldiersSailorsAirmenAmount= tpCoverNameValueMap.get(dataRow.getProperty("PASoldiersSailorsAirmen"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("PASoldiersSailorsAirmen").trim(), (PASoldiersSailorsAirmenAmount!=null?PASoldiersSailorsAirmenAmount:"Record No Found"),stepGroup);
+			}
+		}
+		if (dataRow.getProperty("NamedPACoverforPersonalAccidentCoverforPaidDriversCleaners")!=null) {
+
+			if (dataRow.getProperty("NamedPACoverforPersonalAccidentCoverforPaidDriversCleaners")!="") {
+				
+				String NamedPACoverforPersonalAccidentCoverforPaidDriversCleanersAmount= tpCoverNameValueMap.get(dataRow.getProperty("NamedPACoverforPersonalAccidentCoverforPaidDriversCleaners"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("NamedPACoverforPersonalAccidentCoverforPaidDriversCleaners").trim(), (NamedPACoverforPersonalAccidentCoverforPaidDriversCleanersAmount!=null?NamedPACoverforPersonalAccidentCoverforPaidDriversCleanersAmount:"Record No Found"),stepGroup);
+			}
+		}
+		if (dataRow.getProperty("UnnamedPACoverforPersonalAccidentCoverforPaidDriversCleaners")!=null) {
+
+			if (dataRow.getProperty("UnnamedPACoverforPersonalAccidentCoverforPaidDriversCleaners")!="") {
+				
+				String UnnamedPACoverforPersonalAccidentCoverforPaidDriversCleanersAmount= tpCoverNameValueMap.get(dataRow.getProperty("UnnamedPACoverforPersonalAccidentCoverforPaidDriversCleaners"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("UnnamedPACoverforPersonalAccidentCoverforPaidDriversCleaners").trim(), (UnnamedPACoverforPersonalAccidentCoverforPaidDriversCleanersAmount!=null?UnnamedPACoverforPersonalAccidentCoverforPaidDriversCleanersAmount:"Record No Found"),stepGroup);
+			}
+		}
+		if (dataRow.getProperty("PersonalAccidentCoverforPaidDriversCleaners")!=null) {
+
+			if (dataRow.getProperty("PersonalAccidentCoverforPaidDriversCleaners")!="") {
+				
+				String PersonalAccidentCoverforPaidDriversCleanersAmount= tpCoverNameValueMap.get(dataRow.getProperty("PersonalAccidentCoverforPaidDriversCleaners"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("PersonalAccidentCoverforPaidDriversCleaners").trim(), (PersonalAccidentCoverforPaidDriversCleanersAmount!=null?PersonalAccidentCoverforPaidDriversCleanersAmount:"Record No Found"),stepGroup);
+			
+
+			}
+		}
+
+		if (dataRow.getProperty("ExtensionofGeographicalAreaTPIMT1")!=null) {
+
+			if (dataRow.getProperty("ExtensionofGeographicalAreaTPIMT1")!="") {
+				
+				String ExtensionofGeographicalAreaTPIMT1Amount= tpCoverNameValueMap.get(dataRow.getProperty("ExtensionofGeographicalAreaTPIMT1"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("ExtensionofGeographicalAreaTPIMT1").trim(), (ExtensionofGeographicalAreaTPIMT1Amount!=null?ExtensionofGeographicalAreaTPIMT1Amount:"Record No Found"),stepGroup);
+			}
+		}
+
+		if (dataRow.getProperty("ExtensionforracingspeedtestsdexteritytrailshillclimbsTPIMT31B")!=null) {
+
+			if (dataRow.getProperty("ExtensionforracingspeedtestsdexteritytrailshillclimbsTPIMT31B")!="") {
+				
+				String ExtensionforracingspeedtestsdexteritytrailshillclimbsTPIMT31BAmount= tpCoverNameValueMap.get(dataRow.getProperty("ExtensionforracingspeedtestsdexteritytrailshillclimbsTPIMT31B"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("ExtensionforracingspeedtestsdexteritytrailshillclimbsTPIMT31B").trim(), (ExtensionforracingspeedtestsdexteritytrailshillclimbsTPIMT31BAmount!=null?ExtensionforracingspeedtestsdexteritytrailshillclimbsTPIMT31BAmount:"Record No Found"),stepGroup);
+			}
+		}
+
+		if (dataRow.getProperty("LLToPaidDriver")!=null) {
+
+			if (dataRow.getProperty("LLToPaidDriver")!="") {
+				
+				String LLToPaidDriverAmount= tpCoverNameValueMap.get(dataRow.getProperty("LLToPaidDriver"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("LLToPaidDriver").trim(), (LLToPaidDriverAmount!=null?LLToPaidDriverAmount:"Record No Found"),stepGroup);
+				}
+		}
+
+		if (dataRow.getProperty("CNGLPGkitinbifuelsystemTP")!=null) {
+
+			if (dataRow.getProperty("CNGLPGkitinbifuelsystemTP")!="") {
+				
+				String CNGLPGkitinbifuelsystemTPAmount= tpCoverNameValueMap.get(dataRow.getProperty("CNGLPGkitinbifuelsystemTP"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("CNGLPGkitinbifuelsystemTP").trim(), (CNGLPGkitinbifuelsystemTPAmount!=null?CNGLPGkitinbifuelsystemTPAmount:"Record No Found"),stepGroup);
+			}
+		}
+		
+		// Added  For Two Wheeler Cover 
+		//Cover Name PA to pillion riders other than insured and the paid driver and cleaner (IMT 16)
+		if (dataRow.getProperty("Patopillionridersotherthaninsuredandthepaiddriverandcleaner_IMT16")!=null) {
+			
+			if (dataRow.getProperty("Patopillionridersotherthaninsuredandthepaiddriverandcleaner_IMT16")!="") {
+	
+				String Patopillionridersotherthaninsuredandthepaiddriverandcleaner_IMT16Amount = tpCoverNameValueMap.get(dataRow.getProperty("Patopillionridersotherthaninsuredandthepaiddriverandcleaner_IMT16"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("Patopillionridersotherthaninsuredandthepaiddriverandcleaner_IMT16").trim(), (Patopillionridersotherthaninsuredandthepaiddriverandcleaner_IMT16Amount!=null?Patopillionridersotherthaninsuredandthepaiddriverandcleaner_IMT16Amount:"Record No Found"),stepGroup);			
+			}
+		}
+
+		//Legal liability to paid driver and or conductor and or cleaner employed (IMT28)
+		if (dataRow.getProperty("Legalliabilitytopaiddriverandorconductorandorcleaneremployed_IMT28")!=null) {
+			
+			if (dataRow.getProperty("Legalliabilitytopaiddriverandorconductorandorcleaneremployed_IMT28")!="") {
+	
+				String Legalliabilitytopaiddriverandorconductorandorcleaneremployed_IMT28Amount = tpCoverNameValueMap.get(dataRow.getProperty("Legalliabilitytopaiddriverandorconductorandorcleaneremployed_IMT28"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("Legalliabilitytopaiddriverandorconductorandorcleaneremployed_IMT28").trim(), (Legalliabilitytopaiddriverandorconductorandorcleaneremployed_IMT28Amount!=null?Legalliabilitytopaiddriverandorconductorandorcleaneremployed_IMT28Amount:"Record No Found"),stepGroup);			
+			}
+		}
+
+		//PA cover to the insured or any named person other than paid driver or cleaner (IMT15)
+		if (dataRow.getProperty("PAcovertotheinsuredoranynamedpersonotherthanpaiddriverorcleaner_IMT15")!=null) {
+			
+			if (dataRow.getProperty("PAcovertotheinsuredoranynamedpersonotherthanpaiddriverorcleaner_IMT15")!="") {
+	
+				String PAcovertotheinsuredoranynamedpersonotherthanpaiddriverorcleaner_IMT15Amount = tpCoverNameValueMap.get(dataRow.getProperty("PAcovertotheinsuredoranynamedpersonotherthanpaiddriverorcleaner_IMT15"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("PAcovertotheinsuredoranynamedpersonotherthanpaiddriverorcleaner_IMT15").trim(), (PAcovertotheinsuredoranynamedpersonotherthanpaiddriverorcleaner_IMT15Amount!=null?PAcovertotheinsuredoranynamedpersonotherthanpaiddriverorcleaner_IMT15Amount:"Record No Found"),stepGroup);			
+			}
+		}		
+	}
+	public void ForAllTPLoadingAndDiscount(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,
+			ConcurrentHashMap<String, String> vPAssertFlagForScenarios,
+			ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception 
+	{
+		List<WebElement> indexValue = driver.findElements(By.xpath("//table[@name='TP LD Premium']/tbody/tr/td/b"));
+		int counterValue=1;
+		String TPLDNameXpath="", TPLDGWTXpath="";
+		
+		for (WebElement webElement : indexValue) 
+		{
+			if(webElement.getText().trim().equalsIgnoreCase("Loading/Discount Name"))
+			{
+				TPLDNameXpath="//table[@name='TP LD Premium']/tbody/tr/td["+counterValue+"]";
+			}
+			if(webElement.getText().trim().equalsIgnoreCase("GWP"))
+			{
+				TPLDGWTXpath="//table[@name='TP LD Premium']/tbody/tr/td["+counterValue+"]";
+			}
+			counterValue++;
+		}
+		
+		List<WebElement> TPLoadingAndDiscountCoverName = driver.findElements(By.xpath(TPLDNameXpath));
+		List<WebElement> TPLoadingAndDiscountCoverValue = driver.findElements(By.xpath(TPLDGWTXpath));
+
+		//Creating MAP For Storing All TP Cover Name .
+		Map<String, String> TPLoadingAndDiscount = new HashMap<>();
+
+		for(int i=0;i<TPLoadingAndDiscountCoverName.size();i++)
+		{
+			String tpCoverName=TPLoadingAndDiscountCoverName.get(i).getText().trim();
+			String tpCoverNameValue=TPLoadingAndDiscountCoverValue.get(i).getText().trim();
+
+			TPLoadingAndDiscount.put(tpCoverName, tpCoverNameValue);
+		}
+
+		System.out.println("Size Of All TP Loading And Discount Map :- "+TPLoadingAndDiscount.size());
+
+		if (dataRow.getProperty("TPPDDiscount")!=null) {
+
+			if (dataRow.getProperty("TPPDDiscount")!="") {
+				
+				String TPPDDiscountAmount= TPLoadingAndDiscount.get(dataRow.getProperty("TPPDDiscount"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("TPPDDiscount").trim(), (TPPDDiscountAmount!=null?TPPDDiscountAmount:"Record No Found"),stepGroup);
+			}
+		}
+
+		if (dataRow.getProperty("LimitedtoOwnPremisesTP")!=null) {
+
+			if (dataRow.getProperty("LimitedtoOwnPremisesTP")!="") {
+				
+				String LimitedtoOwnPremisesTPAmount= TPLoadingAndDiscount.get(dataRow.getProperty("LimitedtoOwnPremisesTP"));
+				ExcelDatabase.CoverUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("LimitedtoOwnPremisesTP").trim(), (LimitedtoOwnPremisesTPAmount!=null?LimitedtoOwnPremisesTPAmount:"Record No Found"),stepGroup);
+			}
+		}
+	}
+}

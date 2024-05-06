@@ -1,0 +1,111 @@
+package com.aqm;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+
+import com.spire.xls.Workbook;
+import com.spire.xls.Worksheet;
+import com.spire.xls.collections.WorksheetsCollection;
+import com.spire.xls.core.INameRanges;
+
+public class CopyExcel {
+	
+	@SuppressWarnings("deprecation")
+	public static void main(String[] args) throws Exception, IOException {
+		
+			
+						
+
+	      /*  Workbook srcWorkbook = new Workbook();
+	        srcWorkbook.loadFromFile("C:\\Users\\70352\\Desktop\\VPData.xlsx");
+	        
+	        //Get the specific worksheet to copy
+	        Worksheet originalSheet = srcWorkbook.getWorksheets().get("VP");
+
+	        //Create another Workbook object to load the destination document
+	        Workbook destWorkbook = new Workbook();
+	        destWorkbook.loadFromFile("C:\\Users\\70352\\Desktop\\Scenarios.xlsx");
+
+	       WorksheetsCollection Destworksheet = destWorkbook.getWorksheets();
+	       Worksheet Verificationworksheet = Destworksheet.get("Verification Point");
+	       Worksheet Evaluationworksheet = Destworksheet.get("Evaluation Warning");
+	       
+	       if(Verificationworksheet!=null )
+	       {
+	    	   Verificationworksheet.remove();
+	       }
+	       
+	       if(Evaluationworksheet!=null )
+	       {
+	    	   destWorkbook.getWorksheets().remove("Evaluation Warning");
+	       }
+	        //Add the copy of selected sheet to destination document
+	        Worksheet newSheet = destWorkbook.getWorksheets().addCopy(originalSheet);
+	        newSheet.setName("Verification Point");
+
+	        //Copy the theme of source document to destination document
+	        destWorkbook.copyTheme(srcWorkbook);
+	        
+	        
+	        
+	        //Save to another file
+	        destWorkbook.saveToFile("C:\\Users\\70352\\Desktop\\Scenarios.xlsx");
+	        System.out.println("dONE");*/
+		
+		 List<String> descriptionPolicyLevellist= new ArrayList<String>();
+		 
+		 descriptionPolicyLevellist.add("AAA");
+		 descriptionPolicyLevellist.add("AAB");
+		 descriptionPolicyLevellist.add("AAE");
+		 descriptionPolicyLevellist.add("AA8");
+		 
+		 List<String>  selectedDescriptionListvalue = new ArrayList<String>();
+		 selectedDescriptionListvalue.add("AAA");
+		 selectedDescriptionListvalue.add("AAB");
+		 selectedDescriptionListvalue.add("AAC");
+		 selectedDescriptionListvalue.add("AAD");
+
+
+		 
+		 int addDetails=0;
+		 int NoLoadingDiscountDetailsSize = descriptionPolicyLevellist.size();	
+		 //1
+		 int LoadingDiscountDetailsfrmapp = selectedDescriptionListvalue.size();
+		 
+         int NoLoadingDiscountDetailsTSize = LoadingDiscountDetailsfrmapp + NoLoadingDiscountDetailsSize;   //8
+         System.out.println("No Loading Discount Details T Size   "+NoLoadingDiscountDetailsTSize);
+         
+         int addCounterValue=LoadingDiscountDetailsfrmapp;
+         
+         for (addDetails = LoadingDiscountDetailsfrmapp; addDetails < NoLoadingDiscountDetailsTSize; addDetails++) 
+         { 
+        	 System.out.println("Click On Add Button : ");
+        	 System.out.println("Add Details Loop : "+addDetails);
+        	 System.out.println("Add Data To Application  : "+descriptionPolicyLevellist.get(addDetails-LoadingDiscountDetailsfrmapp));
+        	 if(!selectedDescriptionListvalue.contains(descriptionPolicyLevellist.get(addDetails-LoadingDiscountDetailsfrmapp)))
+        	 {	
+        		 System.out.println(addCounterValue);
+        		 System.out.println("Allready Present :- "+selectedDescriptionListvalue.contains(descriptionPolicyLevellist.get(addDetails-LoadingDiscountDetailsfrmapp)));
+        		 addCounterValue++;
+        		 
+        	 }
+        	 else
+        	 {
+        		 System.out.println("Value Present In Application :- "+selectedDescriptionListvalue.contains(descriptionPolicyLevellist.get(addDetails-LoadingDiscountDetailsfrmapp)));
+        	 }
+        	 
+        	 
+        	 
+        	 
+         }
+	}
+
+}

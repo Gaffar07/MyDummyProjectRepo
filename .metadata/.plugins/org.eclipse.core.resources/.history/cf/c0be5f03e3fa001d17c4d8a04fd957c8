@@ -1,0 +1,675 @@
+package motorPages;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.sikuli.hotkey.Keys;
+import org.testng.Reporter;
+
+import com.codoid.products.fillo.Connection;
+
+import HealthPages.PartyDetails;
+import constants.PropertyConfigs;
+import testRunner.TestEngine;
+import util.ConfigReader;
+import util.CustomAssert;
+import util.ExcelDatabase;
+import util.GenericMethods;
+import util.SetUpWebdriver;
+import util.WaitTime;
+
+public class MotorBasicDetailsPage extends GenericMethods {
+	WebDriverWait wait;
+	
+	public MotorBasicDetailsPage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		wait = new WebDriverWait(driver, 30);
+	}
+	
+	   //Save , Close , Add button
+	   private By innnerSaveButton = By.id("SaveBtn");
+	   private By innnerAddButton = By.id("AddRowGrid");
+	   private By innnerCloseButton = By.id("CloseBtn");
+	   
+	   //Quote Number and Status Code
+	    private By fetchQuoteNumber = By.xpath("//label[@id='Number']");
+		private By fetchStatus = By.xpath("//label[normalize-space(text()='Draft')][@id='Status']");
+	
+	//Xpath For Policy Details
+		private By vehicleType = By.xpath("//select[@id='Vehicle Type']");
+		private By businessType = By.xpath("//select[@id='Business Type']");
+		private By policyType = By.xpath("//select[@id='Policy Type']");
+		private By policyPlan = By.xpath("//select[@id='Policy Plan']");
+		private By policyTenure = By.xpath("//select[@id='Policy Tenure']");
+
+		//Basic Details
+		private By sector = By.xpath("//select[@id='Sector']");
+		private By coInsuranceApplicable = By.xpath("//select[@id='Co-Insurance Applicable']");
+		
+		//Channel Details
+		private By SearchAgreementCode= By.xpath("//i[@title='Search Agreement Code']");
+	    private By SelectAgreementCode,agreementInputField ;
+	    
+		//Policy Holder Name
+		private By addParty = By.xpath("//button[@id='createParty']");
+		private By PartyCode;
+		private By searchPartyCode = By.xpath("//i[@title='Search Policy Holder']");
+		private By partyCodeTextField = By.xpath("//input[@id='Party Code']");
+		private By searchBtn = By.xpath("//button[@id='Search']");
+		
+		//Condition Details Motor
+		private By conditionDetailsButton = By.xpath("//button[@id='Condition Details']");
+		private By selectConditionNumber,ConditionDescription;
+		private By ConditionNumberAddButton= By.xpath("//button[@name='Add']");
+		private By ConditionNumberSaveButton = By.id("SaveBtn");
+		
+		//POlicy HolderName
+		private By AddPartyDetails= By.id("createParty");
+		
+		//Financier Details
+		private By financierDetailButton = By.xpath("//button[@id='Financier Detail']");
+		
+		private By financierName,BranchName,AgreemnetType,LoanAcNumber,sBIGroupEmployeePFNumber,sBIGroupCompanyName;
+		private By financierAddButton= By.xpath("//button[@name='Add']");
+		private By financierSaveButton = By.id("SaveBtn");
+		
+		//Previous Policy Details
+		private By previousPolicyavailable = By.xpath("//select[@id='Previous Policy available']");
+		private By previousPolicyNumber = By.id("Previous Policy Number");
+		private By previousInsuranceCompanyName = By.id("Previous Insurance Company Name");
+		private By branchAddress = By.id("Branch Address");
+		private By previousPolicyInceptiondate = By.id("Previous Policy Inception date");
+		private By previousPolicyExpiryDate = By.id("Previous Policy Expiry Date");
+		private By previousPolicyTerm = By.xpath("//select[@id='Previous Policy Term']");
+		private By previousPolicyType = By.xpath("//select[@id='Previous Policy Type']");
+		private By claimApplicable = By.xpath("//select[@id='Claim Applicable']");
+		private By numberofClaimsonPreviouspolicy = By.id("Number of Claims on Previous policy");
+		
+		//For RollOver 
+		String previousPolicyInceptionDate="",previouspolicyExpiryDate="";
+		
+		
+		//For OD Only Policy Type
+		private By activeTPPolicyNumber = By.id("Active TP Policy Number");
+		private By activeTPInsuranceCompanyName = By.id("Active TP Insurance Company Name");
+		private By activeTPBranchAddress = By.id("Active TP Branch Address");
+		private By activeTPPolicyInceptionDate = By.id("Active TP Policy Inception Date");
+		private By activeTPPolicyExpiryDate = By.id("Active TP Policy Expiry Date");
+		
+		
+		//Basic Details Save Button
+		private By basicDetailsSaveButton = By.id("Save");
+		
+		public void FillPolicyDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+				String stepGroup, Properties dataRow, CustomAssert customAssert,
+				ConcurrentHashMap<String, String> assertFlagForScenarios, ConcurrentHashMap<String, String> vPAssertFlagForScenarios) throws Exception {
+			// TODO Auto-generated method stub
+			if(dataRow.getProperty("VehicleType")!=null)
+			{
+				if(dataRow.getProperty("VehicleType")!="")
+				{
+					selectFromDropdownByVisibleText(vehicleType, dataRow.getProperty("VehicleType").trim(), "Vehicle Type");
+				}
+			}
+			
+			if(dataRow.getProperty("BusinessType")!=null)
+			{
+				if(dataRow.getProperty("BusinessType")!="")
+				{
+					selectFromDropdownByVisibleText(businessType, dataRow.getProperty("BusinessType").trim(), "Business Type");
+				}
+			}
+			
+			if(dataRow.getProperty("PolicyType")!=null)
+			{
+				if(dataRow.getProperty("PolicyType")!="")
+				{
+					selectFromDropdownByVisibleText(policyType, dataRow.getProperty("PolicyType").trim(), "Policy Type");
+				}
+			}
+			
+			if(dataRow.getProperty("PolicyPlan")!=null)
+			{
+				if(dataRow.getProperty("PolicyPlan")!="")
+				{
+					selectFromDropdownByVisibleText(policyPlan, dataRow.getProperty("PolicyPlan").trim(), "Policy Plan");
+				}
+			}
+			
+			if(dataRow.getProperty("PolicyTenure")!=null)
+			{
+				if(dataRow.getProperty("PolicyTenure")!="")
+				{
+					selectFromDropdownByVisibleText(policyTenure, dataRow.getProperty("PolicyTenure").trim(), "Policy Tenure");
+				}
+			}
+			
+		}	
+		
+		public void FillBasicDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+				String stepGroup, Properties dataRow, CustomAssert customAssert,
+				ConcurrentHashMap<String, String> assertFlagForScenarios, ConcurrentHashMap<String, String> vPAssertFlagForScenarios) throws Exception {
+			// TODO Auto-generated method stub
+			if(dataRow.getProperty("PolicyTenure")!=null)
+			{
+				if(dataRow.getProperty("PolicyTenure")!="")
+				{
+					if(dataRow.getProperty("PolicyTenure").equalsIgnoreCase("Short Term < 1yr"))
+					{
+						clearAndSenKeys(By.id("Policy Duration"), dataRow.getProperty("PolicyDuration").trim(), "Policy Duration");
+					}
+				}
+			}
+			
+			if(dataRow.getProperty("PolicyInceptionDate")!=null)
+			{
+				if(dataRow.getProperty("PolicyInceptionDate")!="")
+				{
+					if(!dataRow.getProperty("PolicyInceptionDate").equalsIgnoreCase("currentDate"))
+					{
+						driver.findElement(By.id("Policy Inception Date")).click();
+						selectDateFromDatePicker(dataRow.getProperty("PolicyInceptionDate").trim(),getPreviousOrFutureDate(dataRow.getProperty("PolicyInceptionDate").trim()));
+					}	
+				}
+			}
+			
+			if(dataRow.getProperty("Sector")!=null)
+			{
+				if(dataRow.getProperty("Sector")!="")
+				{
+					selectFromDropdownByVisibleText(sector, dataRow.getProperty("Sector").trim(), "Sector");
+				}
+			}
+			
+			if(dataRow.getProperty("CoInsuranceApplicable")!=null)
+			{
+				if(dataRow.getProperty("CoInsuranceApplicable")!="")
+				{
+					selectFromDropdownByVisibleText(coInsuranceApplicable, dataRow.getProperty("CoInsuranceApplicable").trim(), "Co-Insurance Applicable");
+				}
+			}
+		}
+	public void FillMotorBasicDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,
+			ConcurrentHashMap<String, String> vPAssertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception {
+		
+				//Condition For Policy Details 
+		
+				if(dataRow.getProperty("FillPolicyDetails")!=null)
+				{
+					if(dataRow.getProperty("FillPolicyDetails").equalsIgnoreCase("yes"))
+					{
+						FillPolicyDetails(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+					}
+				}
+				
+				//Condition For Basic Details 
+				if(dataRow.getProperty("BasicDetails")!=null)
+				{
+					if(dataRow.getProperty("BasicDetails").equalsIgnoreCase("yes"))
+					{
+						FillBasicDetails(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+					}
+				}
+				
+				//Channel Details 
+				if(dataRow.getProperty("FillAgreementCode")!=null)
+				{
+					if(dataRow.getProperty("FillAgreementCode").equalsIgnoreCase("Yes"))
+					{
+						agreementInputField= By.id("Agreement Code");
+						clearAndSenKeys(agreementInputField, dataRow.getProperty("AgreementCode"), "Agreement Code");
+						click(SearchAgreementCode, "Search Agreement Code");
+		                switchToWindow(driver, "Agreement Code");
+		                Thread.sleep(2000);
+		                
+		                SelectAgreementCode = By.xpath("(//a[normalize-space(text()='"+dataRow.getProperty("AgreementCode")+"')])[1]");
+		                click(SelectAgreementCode, "Selected agreement Code" +dataRow.getProperty("AgreementCode"));
+		                
+		                switchToWindow(driver, "TCS BαNCS Insurance");
+		                switchtoframe(driver, "display");
+		                switchtoframe(driver, "containerFrame");
+					}
+				}			
+
+				//Condition For Policy Holder Name 
+				if(dataRow.getProperty("FillPolicyHolderName")!=null)
+				{
+					if(dataRow.getProperty("FillPolicyHolderName").equalsIgnoreCase("Yes"))
+					{
+						 if(dataRow.getProperty("CreateNewParty")!=null)
+						 {
+							 if(dataRow.getProperty("CreateNewParty")!="" && dataRow.getProperty("CreateNewParty").equalsIgnoreCase("yes") )
+							 {
+								 click(AddPartyDetails, "Add Party Details");
+								 switchToWindow(driver);
+								 PartyDetails partyDetails = new PartyDetails(driver);
+								 partyDetails.CreatePartyCode(driver, testScenarioID, workbook, conn, stepGroup, dataRow, customAssert, assertFlagForScenarios, vPAssertFlagForScenarios, scenariosFailureReason);
+							 
+								 switchToWindow(driver, "TCS BαNCS Insurance");
+								 switchtoframe(driver, "display");
+								 switchtoframe(driver, "containerFrame");
+							 }
+						 }
+						 
+						 if(dataRow.getProperty("ExistingPartyCode")!=null)
+						 {
+							 if(dataRow.getProperty("ExistingPartyCode")!="")
+							 {
+								    click(searchPartyCode,"Search Party");
+									switchToWindow(driver, "Party Search");
+									Thread.sleep(WaitTime.low);
+									clearAndSenKeys(partyCodeTextField, dataRow.getProperty("ExistingPartyCode"), "Party Code");
+									
+									//For Temporary
+									driver.findElement(By.xpath("//select[@id='PartyType60']//following::option[normalize-space(text())='Individual']")).click();
+							      	driver.findElement(By.xpath("//select[@id='Status100']//following::option[normalize-space(text())='Active']")).click();
+									
+									click(searchBtn,"Search Button");
+									PartyCode = By.xpath("//a[text()='"+dataRow.getProperty("ExistingPartyCode")+"']");
+									Thread.sleep(WaitTime.low);
+									click(PartyCode,"Party Code");
+									
+									ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("UpdatePartyCode").trim(),(dataRow.getProperty("ExistingPartyCode")!=""?dataRow.getProperty("ExistingPartyCode"):"Record No Found"),vPAssertFlagForScenarios);
+									ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("UpdatePartyCodeStatus").trim(),("ACTIVE"),vPAssertFlagForScenarios);
+									
+									 switchToWindow(driver, "TCS BαNCS Insurance");
+									 switchtoframe(driver, "display");
+									 switchtoframe(driver, "containerFrame");
+							 }
+						 }
+					}
+				}
+				
+				//Previous Policy Details 
+				if(dataRow.getProperty("FillPreviousPolicyDetails")!=null)
+				{
+					if(dataRow.getProperty("FillPreviousPolicyDetails").equalsIgnoreCase("yes"))
+					{
+						
+						if(dataRow.getProperty("PreviousPolicyavailable")!=null)
+						{
+							if(dataRow.getProperty("PreviousPolicyavailable")!="")
+							{
+								selectFromDropdownByVisibleText(previousPolicyavailable, dataRow.getProperty("PreviousPolicyavailable"), "Previous Policy available");
+							}
+						}
+						if(dataRow.getProperty("PreviousPolicyNumber")!=null)
+						{
+							if(dataRow.getProperty("PreviousPolicyNumber")!="")
+							{
+							  clearAndSenKeys(previousPolicyNumber, dataRow.getProperty("PreviousPolicyNumber"), "Previous Policy Number");
+							}
+						}
+						if(dataRow.getProperty("PreviousInsuranceCompanyName")!=null)
+						{
+							if(dataRow.getProperty("PreviousInsuranceCompanyName")!="")
+							{
+								selectFromDropdownByValue(previousInsuranceCompanyName, dataRow.getProperty("PreviousInsuranceCompanyName"), "Previous Insurance Company Name");
+							}
+						}
+						if(dataRow.getProperty("BranchAddress")!=null)
+						{
+							if(dataRow.getProperty("BranchAddress")!="")
+							{
+								clearAndSenKeys(branchAddress, dataRow.getProperty("BranchAddress"), "Branch Address");
+							}
+						}
+						if(dataRow.getProperty("PreviousPolicyInceptiondate")!=null)
+						{
+							if(dataRow.getProperty("PreviousPolicyInceptiondate")!="")
+							{
+								clearAndSenKeys(previousPolicyInceptiondate,getPreviousOrFutureDate(dataRow.getProperty("PreviousPolicyInceptiondate")), "Previous Policy Inception date");
+							}
+						}
+						if(dataRow.getProperty("PreviousPolicyExpiryDate")!=null)
+						{
+							if(dataRow.getProperty("PreviousPolicyExpiryDate")!="")
+							{
+								clearAndSenKeys(previousPolicyExpiryDate, getPreviousOrFutureDate(dataRow.getProperty("PreviousPolicyExpiryDate")), "Previous Policy Expiry Date");
+							}
+						}
+						
+						if(dataRow.getProperty("PreviousPolicyTerm")!=null)
+						{
+							if(dataRow.getProperty("PreviousPolicyTerm")!="")
+							{
+								selectFromDropdownByVisibleText(previousPolicyTerm, dataRow.getProperty("PreviousPolicyTerm"), "Previous Policy Term");
+							}
+						}
+						
+						if(dataRow.getProperty("PreviousPolicyType")!=null)
+						{
+							if(dataRow.getProperty("PreviousPolicyType")!="")
+							{
+								selectFromDropdownByVisibleText(previousPolicyType, dataRow.getProperty("PreviousPolicyType"), "Previous Policy Type");
+							}
+						}
+						
+						if(dataRow.getProperty("ClaimApplicable")!=null)
+						{
+							if(dataRow.getProperty("ClaimApplicable")!="" && dataRow.getProperty("ClaimApplicable").equalsIgnoreCase("No"))
+							{
+								selectFromDropdownByValue(claimApplicable,"N", "Claim Applicable");
+							}
+							else
+							{
+								selectFromDropdownByValue(claimApplicable,"Y", "Claim Applicable");
+							}
+						}
+						
+						if(dataRow.getProperty("NumberofClaimsonPreviouspolicy")!=null)
+						{
+							if(dataRow.getProperty("NumberofClaimsonPreviouspolicy")!="")
+							{
+								clearAndSenKeys(numberofClaimsonPreviouspolicy, dataRow.getProperty("NumberofClaimsonPreviouspolicy"), "Number of Claims on Previous policy");
+							}
+						}
+					}
+				}
+				
+				//If Policy type is OD Only
+				
+				if(dataRow.getProperty("PolicyType")!=null)
+				{
+					if(dataRow.getProperty("PolicyType").equalsIgnoreCase("Od Only"))
+					{
+						
+						if(dataRow.getProperty("ActiveTPPolicyNumber")!=null)
+						{
+							if(dataRow.getProperty("ActiveTPPolicyNumber")!="")
+							{
+								clearAndSenKeys(activeTPPolicyNumber, dataRow.getProperty("ActiveTPPolicyNumber"), "Active TP Policy Number");
+							}
+						}
+						if(dataRow.getProperty("ActiveTPInsuranceCompanyName")!=null)    //MAGIC
+						{
+							if(dataRow.getProperty("ActiveTPInsuranceCompanyName")!="")
+							{
+								selectFromDropdownByValue(activeTPInsuranceCompanyName, dataRow.getProperty("ActiveTPInsuranceCompanyName"), "Active TP premium Company Name	");
+							}
+						}
+						if(dataRow.getProperty("ActiveTPBranchAddress")!=null)
+						{
+							if(dataRow.getProperty("ActiveTPBranchAddress")!="")
+							{
+								clearAndSenKeys(activeTPBranchAddress, dataRow.getProperty("ActiveTPBranchAddress"), "Active TP Branch Address");
+							}
+						}
+						if(dataRow.getProperty("ActiveTPPolicyInceptionDate")!=null)
+						{
+							if(dataRow.getProperty("ActiveTPPolicyInceptionDate")!="")
+							{
+								clearAndSenKeys(activeTPPolicyInceptionDate, getPreviousOrFutureDate(dataRow.getProperty("ActiveTPPolicyInceptionDate")).trim(), "Active TP Policy 	InceptionDate");
+							}
+						}
+						if(dataRow.getProperty("ActiveTPPolicyExpiryDate")!=null)
+						{
+							if(dataRow.getProperty("ActiveTPPolicyExpiryDate")!="")
+							{
+								clearAndSenKeys(activeTPPolicyExpiryDate, getPreviousOrFutureDate(dataRow.getProperty("ActiveTPPolicyExpiryDate")).trim(), "Active TP Policy Expiry Date");
+							}
+						}
+					}
+				}
+				
+				//Save The Page For Below To Execute
+				
+				if(dataRow.getProperty("FillConditionDetailsMotor")!=null || dataRow.getProperty("FillFinancierDetails")!=null)
+				{
+					if(dataRow.getProperty("FillConditionDetailsMotor").equalsIgnoreCase("yes") || dataRow.getProperty("FillFinancierDetails").equalsIgnoreCase("yes"))
+					{
+						
+						click(basicDetailsSaveButton, "Basic Details Save Button");
+						POPupMsg();
+						waitForPageLoader();
+					}
+				}
+				
+				
+				if(dataRow.getProperty("FillConditionDetailsMotor")!=null)
+				{
+					if(dataRow.getProperty("FillConditionDetailsMotor").equalsIgnoreCase("yes"))
+					{
+						click(conditionDetailsButton, "Condition Details Button");
+						switchToWindow(driver, "Details");
+						List<String> ConditionNumber = getListTestData(dataRow.getProperty("ConditionNumber"));
+						int ConditionNumberSize =Integer.parseInt(dataRow.getProperty("NumberOfConditionDetails"));
+						for(int addDetails=0;addDetails<ConditionNumberSize;addDetails++)
+						{
+							String conditionNumber= ConditionNumber.get(addDetails).trim();
+							selectConditionNumber=By.id("Condition Number"+addDetails+"");
+							clearAndSenKeys(selectConditionNumber, conditionNumber, "Condition Number From Dropdown");
+							ConditionDescription= By.xpath("//input[@name='Condition Description"+addDetails+"']");
+							clearAndSenKeys(ConditionDescription, "Automation Condition Remark", "Condition Remark");
+							//Click On Add Button
+							if(addDetails<ConditionNumberSize-1)
+							{
+								click(ConditionNumberAddButton, "Add More Button");
+							}
+						}
+						//Click On Save Button
+						click(ConditionNumberSaveButton, "Condition Details Save");
+						POPupMsg();
+						
+						driver.close();
+						//Back To Main Frame
+						switchToWindow(driver, "TCS BαNCS Insurance");
+						switchtodefaultframe(driver);
+						switchtoframe(driver, "display");
+						switchtoframe(driver, "containerFrame");
+					}
+				}
+				
+				if(dataRow.getProperty("FillFinancierDetails")!=null)
+				{
+					if(dataRow.getProperty("FillFinancierDetails").equalsIgnoreCase("yes"))
+					{
+						click(financierDetailButton, "financier Detail Button");
+						switchToWindow(driver, "Details");
+						int NumberOfFinancierDetailsSize =Integer.parseInt(dataRow.getProperty("NumberOfFinancierDetails"));
+						List<String> financierNamelist = getListTestData(dataRow.getProperty("FinancierName"));
+						List<String> branchNamelist = getListTestData(dataRow.getProperty("BranchName"));
+						List<String> agreementTypelist = getListTestData(dataRow.getProperty("AgreemenType"));
+						List<String> loanAcNumberlist = getListTestData(dataRow.getProperty("LoanACNo"));
+						
+						//Added New
+						List<String> SBIGroupEmployeePFNumberlist = getListTestData(dataRow.getProperty("SBIGroupEmployeePFNumber"));
+						List<String> SBIGroupCompanyNamelist = getListTestData(dataRow.getProperty("SBIGroupCompanyName"));
+
+						for(int addDetails=0;addDetails<NumberOfFinancierDetailsSize;addDetails++)
+						{
+							String financierNamevalue= financierNamelist.get(addDetails).trim();
+							String branchNamevalue= branchNamelist.get(addDetails).trim();
+							String agreementTypevalue= agreementTypelist.get(addDetails).trim();
+							String loanAcNumbervalue= loanAcNumberlist.get(addDetails).trim();
+							String sBIGroupEmployeePFNumbervalue= SBIGroupEmployeePFNumberlist.get(addDetails).trim();
+							String sBIGroupCompanyNamevalue= SBIGroupCompanyNamelist.get(addDetails).trim();
+							
+							
+							financierName= By.id("Financier Name"+addDetails+"");
+							BranchName= By.id("Branch Name1"+addDetails+"");
+							AgreemnetType= By.id("Agreement Type"+addDetails+"");
+							LoanAcNumber= By.name("Loan Account No"+addDetails+"");
+							AgreemnetType= By.id("Agreement Type"+addDetails+"");
+							sBIGroupEmployeePFNumber= By.id("SBI Group Employee PF Number"+addDetails+"");
+							sBIGroupCompanyName=By.id("SBI Group Company"+addDetails+"");
+							
+							clearAndSenKeys(financierName, financierNamevalue, "Financier Name");
+							clearAndSenKeys(BranchName, branchNamevalue, "Branch Name From Dropdown");
+							selectFromDropdownByVisibleText(AgreemnetType, agreementTypevalue, "Agreement Type From Dropdown");
+							clearAndSenKeys(LoanAcNumber, loanAcNumbervalue, "LoanAc Number");
+							clearAndSenKeys(sBIGroupEmployeePFNumber, sBIGroupEmployeePFNumbervalue, "SBI Group Employee PF Number");
+							selectFromDropdownByValue(sBIGroupCompanyName, sBIGroupCompanyNamevalue, "SBI Group Company");
+							
+							if(addDetails<NumberOfFinancierDetailsSize-1)
+							{
+								click(financierAddButton, "Add More Button");
+							}
+						}
+						//Click On Save Button
+						click(financierSaveButton, "Financer Save");
+						POPupMsg();
+						
+						click(innnerCloseButton, "Close Button");
+						//Back To Main Frame
+						switchToWindow(driver, "TCS BαNCS Insurance");
+						switchtodefaultframe(driver);
+						switchtoframe(driver, "display");
+						switchtoframe(driver, "containerFrame");
+					}
+				}
+				
+				if(dataRow.getProperty("Sector")!=null)
+				{
+					if(dataRow.getProperty("Sector")!="")
+					{
+						selectFromDropdownByVisibleText(sector, dataRow.getProperty("Sector").trim(), "Sector");
+					}
+				}
+				
+				if(dataRow.getProperty("SaveButton").equalsIgnoreCase("Yes"))
+				{
+ 					click(basicDetailsSaveButton, "Basic Details Save Button");
+					POPupMsg();
+					waitForPageLoader();
+				}
+				
+				//Update Verification Point
+				String policyInceptionDateExpected = getPreviousOrFutureDate(dataRow.getProperty("PolicyInceptionDate")).trim();
+				
+				String quoteNumber = fetchTextFromApp(fetchQuoteNumber);
+				String status = fetchTextFromApp(fetchStatus);
+				
+				java.util.Map<String,String> VehicleType= new java.util.HashMap<>();
+				VehicleType.put("22", "Private Car");
+				VehicleType.put("47", "Private Car - Electric Battery Operated");
+				VehicleType.put("46", "Private Cars - 3 Wheelers");
+				VehicleType.put("43", "Quadricycle (Private Cars)");
+				
+				//Two Wheeler
+				java.util.Map<String,String> twoWheelerPolicyPlan= new java.util.HashMap<>();
+				twoWheelerPolicyPlan.put("1806", "Liability Only Policy for Two Wheeler");
+				twoWheelerPolicyPlan.put("1887", "Standalone Fire Only Cover for Two Wheeler");
+				twoWheelerPolicyPlan.put("188702", "Standalone Fire and Theft Only Cover for Two Wheeler");
+				twoWheelerPolicyPlan.put("1871", "Standalone Own Damage Cover for Two Wheeler");
+				twoWheelerPolicyPlan.put("188701", "Standalone Theft Only Cover for Two Wheeler");
+				twoWheelerPolicyPlan.put("1822", "Two Wheeler Liability Only with Fire");
+				twoWheelerPolicyPlan.put("1814", "Two Wheeler Liability Only with Fire and Theft");
+				twoWheelerPolicyPlan.put("182201", "Two Wheeler Liability Only with Theft");
+				twoWheelerPolicyPlan.put("3397", "Two Wheeler Long Term Package");
+				twoWheelerPolicyPlan.put("1802", "Two Wheeler Package Policy"); 
+				twoWheelerPolicyPlan.put("1826", "Two Wheeler Policy Bundled");
+				
+				java.util.Map<String,String> twoWheelerVehicleType= new java.util.HashMap<>();
+				twoWheelerVehicleType.put("21", "Two Wheeler");
+				twoWheelerVehicleType.put("78", "Two Wheeler - Electric Battery Operated");
+
+				
+				java.util.Map<String,String> BusinessType= new java.util.HashMap<>();
+				BusinessType.put("NEW", "New Business");
+				BusinessType.put("RNWL", "Renewal");
+				BusinessType.put("ROVER", "Roll Over");
+				
+				java.util.Map<String,String> PolicyType= new java.util.HashMap<>();
+				PolicyType.put("B", "Bundled");
+				PolicyType.put("PKG", "Package");
+				PolicyType.put("ODO", "OD Only");
+				
+				java.util.Map<String,String> PolicyPlan= new java.util.HashMap<>();
+				PolicyPlan.put("1825", "Private Car Policy - Bundled");
+				PolicyPlan.put("1815", "Private Car - Liability Only with Fire and Theft");
+				PolicyPlan.put("1819", "Private Car - Liability Only with Fire");
+				PolicyPlan.put("1801", "Private Car Package Policy");
+				PolicyPlan.put("1813", "Private Car - Liability Only with Theft");
+				
+
+				
+				
+				//Depedends On Condition For Private Car and Two Wheeler
+				String vechileType = "",policyPlan="";
+
+				
+				String productName=dataRow.getProperty("Product").trim().toUpperCase(); 
+				switch (productName) {
+				case "PRIVATE CAR":
+					  
+					vechileType =  VehicleType.get(getTextFromField("Vehicle Type"));
+					policyPlan =   PolicyPlan.get(getTextFromField("Policy Plan"));
+					
+					break;
+				case "TWO WHEELER":
+					  
+					vechileType =  twoWheelerVehicleType.get(getTextFromField("Vehicle Type"));
+					policyPlan =   twoWheelerPolicyPlan.get(getTextFromField("Policy Plan"));
+					
+					break;
+
+				default:
+					break;
+				}
+				
+				String policyType =   PolicyType.get(getTextFromField("Policy Type"));
+				String businessType = BusinessType.get(getTextFromField("Business Type")); 
+				String policyInceptionDate = getTextFromField("Policy Inception Date");
+				String policyDuration = getTextFromField("Policy Duration");
+				String policyExpiryDate = getTextFromField("Policy Expiry Date");
+				String agreementCode = getTextFromField("Agreement Code");
+				
+				//For Roll Over 
+				if(dataRow.getProperty("BusinessType").equalsIgnoreCase("roll over"))
+				{
+					previousPolicyInceptionDate = getTextFromField("Previous Policy Inception date");
+					previouspolicyExpiryDate = getTextFromField("Previous Policy Expiry Date");
+				}
+				
+				ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifypolicyInceptionDate").trim(), (policyInceptionDateExpected!=""?policyInceptionDate:"Record No Found"),policyInceptionDateExpected );
+				customAssert.verifyAssertFlag(policyInceptionDateExpected, policyInceptionDate, "Policy Inception Date",testScenarioID,assertFlagForScenarios);
+				customAssert.verifyAssertFlag(vechileType, dataRow.getProperty("VehicleType"), "Vechile Type",testScenarioID,assertFlagForScenarios);
+				customAssert.verifyAssertFlag(businessType, dataRow.getProperty("BusinessType"), "Business Type",testScenarioID,assertFlagForScenarios);
+				customAssert.verifyAssertFlag(policyType, dataRow.getProperty("PolicyType"), "Policy Type",testScenarioID,assertFlagForScenarios);
+				customAssert.verifyAssertFlag(agreementCode, dataRow.getProperty("AgreementCode"), "Agreement Code",testScenarioID,assertFlagForScenarios);				
+				
+				//For Roll Over 
+				if(dataRow.getProperty("BusinessType").equalsIgnoreCase("roll over"))
+				{
+					customAssert.verifyAssertFlag(previousPolicyInceptionDate, getPreviousOrFutureDate(dataRow.getProperty("PreviousPolicyInceptiondate")), "Previous Policy Inception Date",testScenarioID,assertFlagForScenarios);
+					customAssert.verifyAssertFlag(previouspolicyExpiryDate,  getPreviousOrFutureDate(dataRow.getProperty("PreviousPolicyExpiryDate")), "Previous policy Expiry Date",testScenarioID,assertFlagForScenarios);	
+				}
+				
+				
+				if(dataRow.getProperty("BusinessType").equalsIgnoreCase("new business") || dataRow.getProperty("BusinessType").equalsIgnoreCase("renewal") || dataRow.getProperty("BusinessType").equalsIgnoreCase("roll over") )
+				{
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyVechileType").trim(),(vechileType!=""?vechileType:"Record No Found"),vPAssertFlagForScenarios);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyBusinessType").trim(),(businessType!=""?businessType:"Record No Found"),vPAssertFlagForScenarios);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyPolicyType").trim(), (policyType!=""?policyType:"Record No Found"),vPAssertFlagForScenarios);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyPolicyPlan").trim(), (policyPlan!=""?policyPlan:"Record No Found"),vPAssertFlagForScenarios);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifypolicyDuration").trim(), (policyDuration!=""?policyDuration:"Record No Found"),vPAssertFlagForScenarios);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifypolicyExpiryDate").trim(),(policyExpiryDate!=""?policyExpiryDate:"Record No Found"),policyExpiryDate);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyagreementCode").trim(),(agreementCode!=""?agreementCode:"Record No Found"),vPAssertFlagForScenarios);
+				}
+				if(dataRow.getProperty("BusinessType").equalsIgnoreCase("roll over"))
+				{
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyPreviousPolicyInceptionDate").trim(),(previousPolicyInceptionDate!=""?previousPolicyInceptionDate:"Record No Found"),vPAssertFlagForScenarios);
+					ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyPreviousPolicyExpiryDate").trim(),(previouspolicyExpiryDate!=""?previouspolicyExpiryDate:"Record No Found"),vPAssertFlagForScenarios);
+				}
+				
+				//Update Quote and Status Details
+				ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyQuoteNumber").trim(), (quoteNumber!=""?quoteNumber:"Record No Found"),vPAssertFlagForScenarios);
+				ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyStatus").trim(), (status!=""?status:"Record No Found"),vPAssertFlagForScenarios);				
+				
+				SetUpWebdriver.completeScreenShot(driver,TestEngine.excutionFolder + ConfigReader.getInstance().getValue(PropertyConfigs.screenShotFolder),new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date()));
+		}
+}

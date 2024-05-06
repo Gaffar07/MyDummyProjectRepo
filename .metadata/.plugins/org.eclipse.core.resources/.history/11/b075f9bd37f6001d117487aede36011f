@@ -1,0 +1,1227 @@
+package HealthPages;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Reporter;
+
+import com.codoid.products.fillo.Connection;
+
+import constants.PropertyConfigs;
+import testRunner.TestEngine;
+import util.ConfigReader;
+import util.CustomAssert;
+import util.ExcelDatabase;
+import util.ExcelRead;
+import util.GenericMethods;
+import util.SetUpWebdriver;
+import util.WaitTime;
+
+public class CollectionDetails extends GenericMethods{
+	
+	private By selectPaymentModeDropDown = By.xpath("//select[@id='CollectionMode']");
+	private By subCodeBtn = By.xpath("//input[@id='SubCodeLookup']");
+	private By GLCodeNoLink;
+	private By searchBtn = By.xpath("//a[@id=\"accsearch\"]/span");
+	private By narrationTextField = By.xpath("//input[@id='Narration']");
+	private By payinslipBranchTextField = By.xpath("//input[@id='PayinslipBranch']");
+	private By receivedDateTextField = By.id("ReceivedDate");
+	private By channelCodeTextField = By.xpath("//input[@id='ChannelCode']");
+	private By currencyDropDown = By.xpath("//select[@id='Currency']");
+	private By instrumentNoTextField = By.xpath("//input[@id='InsNum']");
+	private By instrumentTypeDropDown = By.xpath("//select[@id='InsType']");
+	private By draweeBankNameTextField = By.xpath("//input[@id='BankName']");
+	private By draweeBankBranchTextField = By.xpath("//input[@id='BankBranch']");
+	private By IFSCCodeTextField = By.xpath("//input[@id='IFSCCode']");
+	private By MICRCodeTextField = By.xpath("//input[@id='MICRCode']");
+	private By CityNameTextField = By.xpath("//input[@id='CityName']");
+	private By ChequeIssuedbyNameTextField = By.xpath("//input[@id='ChequeIssuedbyName']");
+	private By IssuingBankTextField = By.xpath("//input[@id='IssuingBank']");
+	private By GLorSLCodeTextField = By.xpath("//input[@name='pGLCode']");
+	private By branchCodeTextField = By.xpath("//input[@name='pBranchCode']");
+	private By instrumentAmountTextField = By.id("pInstrumentAmt");
+	private By collectionORpaymentAmountTextField = By.id("CollectionAmount");
+	private By collectionSubTypeDropDown = By.id("pColSubType");
+	
+//	Xpath For Debit/Credit Card
+	private By CardTypeDropDown = By.xpath("//select[@id='CardType']");
+	private By CardNumberTextField = By.id("CardNumber");
+	private By CardExpiryDateTextField = By.id("CardExpiryDate");
+	private By CardTransNoTextField = By.id("CardTransNo");
+	private By CardTransDateTextFieldForScroll = By.xpath("//input[@id='CardTransDate']");
+	
+//	Xpath For UPI
+	private By UPITransNumberTextField = By.id("UPITrans.Number");
+	private By UPITransDateTextFieldForSForScroll = By.xpath("//input[@id='UPITrans.Date']");
+	
+//	Xpath For UPI
+	private By ReferenceNoSearchBtn = By.xpath("//input[@id='DNLookup']");
+	private By VoucherNumberTextField = By.xpath("//input[@name='pVoucherNo']");
+	private By searchBthForVoucherNumber = By.xpath("//a[@id=\"search\"]/span");
+	private By VoucherNumberLink;
+	
+//	Xpath for Online PG and Payment Gateway
+	private By merchantIDTextField = By.xpath("//input[@id='MerchantID']");
+	private By terminalIDTextField = By.xpath("//input[@id='TerminalID']");
+	private By transactionIDTextField = By.xpath("//input[@id='TransactionID']");
+	private By gatewayTypeDropDown = By.xpath("//select[@id='GatewayType']");
+	private By actualModeDropDown = By.xpath("//select[@id='ActualMode']");
+	private By creditOnTextField = By.xpath("//input[@id='CreditedOn']");
+	
+	private By getTotalBtn = By.xpath("//span[text()='Get Total']");
+	private By saveButtonForCollection = By.xpath("(//span[@id='SaveSpan'])[1]");
+	private By uploadDocument = By.xpath("//a[@id='UploadDOc']/span");
+	private By NewBtn = By.xpath("//a[@title='New']/span");
+	private By DocumentTypeDropDown = By.xpath("//select[@id='TempSelectId']");
+	private By chooseFileForUpload;
+	private By SaveDoc = By.xpath("//a[@title='Save']");
+	
+	private By postbtn = By.xpath("(//span[@id=\"PostSpan\"])[1]");
+	
+	
+	WebDriverWait wait;
+	public CollectionDetails(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		wait = new WebDriverWait(driver, 30);
+	}
+	
+	public void fillCollectionCommonInfo(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> vPAssertFlagForScenarios) throws Exception {
+
+		if (dataRow.getProperty("CollectionSubType") != null) {
+			if (!dataRow.getProperty("CollectionSubType").equalsIgnoreCase("")) {
+
+				selectFromDropdownByVisibleText(collectionSubTypeDropDown,
+						dataRow.getProperty("CollectionSubType").trim(), "Collection Sub-Type");
+			}
+		}
+		
+			if (!dataRow.getProperty("Mode").equalsIgnoreCase("")) {
+				selectFromDropdownByVisibleText(selectPaymentModeDropDown, dataRow.getProperty("Mode").trim(), "Payment Mode");
+			}
+			
+			if (!dataRow.getProperty("GLorSLCode").equalsIgnoreCase("")) {
+				click(subCodeBtn, "Sub Code");	
+				switchToWindow(driver, "Account Search");
+				Thread.sleep(WaitTime.low);
+				
+				if ((dataRow.getProperty("Mode").equalsIgnoreCase("Cheque") 
+						||dataRow.getProperty("Mode").equalsIgnoreCase("Demand Draft")
+						||dataRow.getProperty("Mode").equalsIgnoreCase("Cash")
+						||dataRow.getProperty("Mode").equalsIgnoreCase("NEFT/RTGS Collection")) 
+						&& dataRow.getProperty("SearchButton").equalsIgnoreCase("Yes")) {
+					
+					driver.findElement(By.xpath("//input[@name='pBranchCode']")).clear();
+					
+					clearAndSenKeys(GLorSLCodeTextField, dataRow.getProperty("GLorSLCode"), " GL/SL Code ");
+					click(searchBtn, "Search Button");
+				}
+				
+				GLCodeNoLink = By.xpath("//div[normalize-space(text()='"+dataRow.getProperty("GLorSLCode")+"')][@class='listlinkstyle']/a");
+				click(GLCodeNoLink, "GL Code No");
+				System.out.println("Size of window "+driver.getWindowHandles().size());
+				
+				Set<String> windowHandles = driver.getWindowHandles();
+		        List<String> windowHandlesList = new ArrayList<>(windowHandles);
+		        System.out.println("List of window :"+windowHandlesList.size());
+		        driver.switchTo().window(windowHandlesList.get(1));
+			}
+			
+			if (dataRow.getProperty("ShortfallAmount") != null) {
+	            if (!dataRow.getProperty("ShortfallAmount").equalsIgnoreCase("")) {
+	                // Code Added By Suraj Singh For Shortfall Scenarios.
+	                String ExcessORShort = dataRow.getProperty("ShortfallAmount").trim().split(":")[0];
+	                String shortFallValue = dataRow.getProperty("ShortfallAmount").trim().split(":")[1];
+	                
+	                String Amounttobecollected = getTextFromField("Premium").replaceAll("\"", "");
+	                
+	                
+	              //  String CollectedAmount = getTextFromField("CollectionAmount").replaceAll("\"", "");
+
+	                System.out.println(Amounttobecollected);
+
+	                double fetchcollectionAmount = Double.valueOf(Amounttobecollected);
+	                int AmountTocollected = (int) fetchcollectionAmount;
+	                int shortFallAmount = Integer.parseInt(shortFallValue);
+	                int finalamountToCollected = 0;
+	                
+	                switch (ExcessORShort.toUpperCase()) 
+	                {
+	                case "SHORT":
+	                        finalamountToCollected = AmountTocollected - shortFallAmount;
+	                    break;
+	                case "EXCESS":
+	                        finalamountToCollected = AmountTocollected + shortFallAmount;
+	                    break;
+
+	                default:
+	                    break;
+	                }
+	                
+	                System.out.println("After ShortFall Collected Amount " + finalamountToCollected);
+	                if (ExcessORShort.toUpperCase().equals("EXCESS")) 
+	                {
+	                	 // for Instrument amount
+		                driver.findElement(By.id("pInstrumentAmt")).clear();
+		                Thread.sleep(2000);
+		                String InstrumentAmount = "pInstrumentAmt";
+		                
+		                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+		                        driver.findElement(instrumentAmountTextField));
+		                Thread.sleep(1000);
+		                
+		                ((JavascriptExecutor) driver).executeScript(
+		                        "document.getElementById('" + InstrumentAmount + "').value='" + finalamountToCollected + "';",
+		                        InstrumentAmount);
+		                driver.findElement(instrumentAmountTextField).sendKeys(Keys.TAB);
+		                Thread.sleep(2000);
+	                }
+	                
+	                
+	                if (!ExcessORShort.toUpperCase().equals("EXCESS")) {
+	                // for Instrument amount
+	                driver.findElement(By.id("pInstrumentAmt")).clear();
+	                Thread.sleep(2000);
+	                String InstrumentAmount = "pInstrumentAmt";
+	                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+	                        driver.findElement(instrumentAmountTextField));
+	                Thread.sleep(1000);
+	                ((JavascriptExecutor) driver).executeScript(
+	                        "document.getElementById('" + InstrumentAmount + "').value='" + Amounttobecollected + "';",
+	                        InstrumentAmount);
+	                driver.findElement(instrumentAmountTextField).sendKeys(Keys.TAB);
+	                Thread.sleep(2000);
+	                }
+	                if (ExcessORShort.toUpperCase().equals("EXCESS")) {
+	                	
+	                	  driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.ENTER);
+	                	  driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.TAB);
+					}
+	                
+	                if (!ExcessORShort.toUpperCase().equals("EXCESS")) {
+						
+	                	 // for collection amount
+		                driver.findElement(By.id("CollectionAmount")).clear();
+		                Thread.sleep(2000);
+		                String collectionAmount = "CollectionAmount";
+		                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+		                        driver.findElement(collectionORpaymentAmountTextField));
+		                Thread.sleep(1000);
+		                ((JavascriptExecutor) driver).executeScript(
+		                        "document.getElementById('" + collectionAmount + "').value='" + finalamountToCollected + "';",
+		                        collectionAmount);
+		                driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.TAB);
+		                Thread.sleep(2000);
+					}
+	                
+	            }
+	        }
+			
+			if (!dataRow.getProperty("Currency").equalsIgnoreCase("")) {
+				
+				if (dataRow.getProperty("UpdateVoucherNumberForAccountingCollection")!=null && dataRow.getProperty("UpdateVoucherNumberForAccountingCollection").equalsIgnoreCase("Yes")) {
+				
+					switchToWindow(driver, "TCS BÎ±NCS Insurance");
+					switchtodefaultframe(driver);
+					switchtoframe(driver, "display");
+				}
+				
+				selectFromDropdownByVisibleText(currencyDropDown, dataRow.getProperty("Currency").trim(), "Currency");
+			}
+			
+			if (!dataRow.getProperty("Narration").equalsIgnoreCase("")) {
+				
+				clearAndSenKeys(narrationTextField, dataRow.getProperty("Narration"), "Narration");
+			}
+			
+			/*if (!dataRow.getProperty("ChannelCode").equalsIgnoreCase("")) {
+				
+				clearAndSenKeys(channelCodeTextField, dataRow.getProperty("ChannelCode"), "Channel Code");
+			}*/
+			
+			if (dataRow.getProperty("PayinslipBranch")!=null) {
+				
+				if (!dataRow.getProperty("PayinslipBranch").equalsIgnoreCase("")) {
+					
+					clearAndSenKeys(payinslipBranchTextField, dataRow.getProperty("PayinslipBranch"), "Payinslip Branch");
+				}
+			}
+			
+			if (dataRow.getProperty("ReceivedDate")!=null) {
+				
+				if (!dataRow.getProperty("ReceivedDate").equalsIgnoreCase("")) {
+					
+					clearAndSenKeys(receivedDateTextField, getPreviousOrFutureDate(dataRow.getProperty("ReceivedDate")), "Received Date");
+				}
+			}
+			
+			if (dataRow.getProperty("InstrumentDate")!=null) {
+				
+				if (!dataRow.getProperty("InstrumentDate").equalsIgnoreCase("")) {
+					
+					clearAndSenKeys(By.id("InsDate"), getPreviousOrFutureDate(dataRow.getProperty("InstrumentDate")), "Received Date");
+				}
+			}
+			
+			if (dataRow.getProperty("InstrumentAmountORCollectionAmount")!=null) {
+				
+				if (!dataRow.getProperty("InstrumentAmountORCollectionAmount").equalsIgnoreCase("") && dataRow.getProperty("InstrumentAmountORCollectionAmount")!="") {
+					
+					String collectionAmount = "CollectionAmount";
+					String instrumentAmount = "pInstrumentAmt";
+					
+					((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", driver.findElement(By.id("pInstrumentAmt")));
+					Thread.sleep(1000);
+					((JavascriptExecutor) driver).executeScript("document.getElementById('"+instrumentAmount+"').value='"+dataRow.getProperty("InstrumentAmountORCollectionAmount").trim()+"';", instrumentAmount);
+					
+					((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", driver.findElement(By.id("CollectionAmount")));
+					Thread.sleep(1000);
+					((JavascriptExecutor) driver).executeScript("document.getElementById('"+collectionAmount+"').value='"+dataRow.getProperty("InstrumentAmountORCollectionAmount").trim()+"';", collectionAmount);
+					
+					Thread.sleep(2000);
+					
+				}
+			}
+			
+			if (!(dataRow.getProperty("Mode").equalsIgnoreCase("Cash") ||dataRow.getProperty("Mode").equalsIgnoreCase("Client Deposit"))) {
+				
+				if (dataRow.getProperty("InstrumentNo") !="" && dataRow.getProperty("InstrumentNo").equalsIgnoreCase("Yes")) {
+					clearAndSenKeys(instrumentNoTextField, getuniqueNumber(), " Instrument No. ");
+					
+				}
+				if (!dataRow.getProperty("InstrumentType").equalsIgnoreCase("")) {
+					selectFromDropdownByVisibleText(instrumentTypeDropDown, dataRow.getProperty("InstrumentType").trim(), "Payment Mode");
+				}
+				if (!dataRow.getProperty("DraweeBankName").equalsIgnoreCase("")) {
+					clearAndSenKeys(draweeBankNameTextField, dataRow.getProperty("DraweeBankName"), "Drawee Bank Name");
+				}
+				if (!dataRow.getProperty("DraweeBankBranch").equalsIgnoreCase("")) {
+					clearAndSenKeys(draweeBankBranchTextField, dataRow.getProperty("DraweeBankBranch"), "Drawee Bank Branch");
+				}
+				
+				if (!(dataRow.getProperty("Mode").equalsIgnoreCase("Demand Draft") || dataRow.getProperty("Mode").equalsIgnoreCase("NEFT/RTGS Collection"))) {
+				
+					if (!dataRow.getProperty("IFSCCode").equalsIgnoreCase("")) {
+						clearAndSenKeys(IFSCCodeTextField, dataRow.getProperty("IFSCCode"), "Drawee Bank Branch");
+					}
+					if (!dataRow.getProperty("MICRCode").equalsIgnoreCase("")) {
+						clearAndSenKeys(MICRCodeTextField, dataRow.getProperty("MICRCode"), "MICR Code");
+					}
+					if (!dataRow.getProperty("CityName").equalsIgnoreCase("")) {
+						clearAndSenKeys(CityNameTextField, dataRow.getProperty("CityName"), "City Name");
+					}
+					if (!dataRow.getProperty("ChequeIssuedbyName").equalsIgnoreCase("")) {
+						clearAndSenKeys(ChequeIssuedbyNameTextField, dataRow.getProperty("ChequeIssuedbyName"), "Cheque Issued by Name");
+					}
+					if (!dataRow.getProperty("IssuingBank").equalsIgnoreCase("")) {
+						clearAndSenKeys(IssuingBankTextField, dataRow.getProperty("IssuingBank"), "Issuing Bank");
+					}
+				}
+				
+			}
+	}
+	
+	public void fillCollectionForDebitAndCreditCard(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> vPAssertFlagForScenarios) throws InterruptedException {
+		// TODO Auto-generated method stub
+		
+		
+		if (!dataRow.getProperty("Mode").equalsIgnoreCase("")) {
+			selectFromDropdownByVisibleText(selectPaymentModeDropDown, dataRow.getProperty("Mode").trim(), "Payment Mode");
+		}
+		
+		if (!dataRow.getProperty("Currency").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(currencyDropDown, dataRow.getProperty("Currency").trim(), "Currency");
+		}
+		
+		if (!dataRow.getProperty("GLorSLCode").equalsIgnoreCase("")) {
+			click(subCodeBtn, "Sub Code");	
+			switchToWindow(driver, "Account Search");
+			Thread.sleep(WaitTime.low);
+			
+			if ((dataRow.getProperty("Mode").equalsIgnoreCase("Dr/Cr Card")
+					||dataRow.getProperty("Mode").equalsIgnoreCase("UPI"))
+					&& dataRow.getProperty("SearchButton").equalsIgnoreCase("Yes")) {
+				
+				driver.findElement(By.xpath("//input[@name='pBranchCode']")).clear();
+				
+				clearAndSenKeys(GLorSLCodeTextField, dataRow.getProperty("GLorSLCode"), " GL/SL Code ");
+				click(searchBtn, "Search Button");
+			}
+			
+			GLCodeNoLink = By.xpath("//div[normalize-space(text()='"+dataRow.getProperty("GLorSLCode")+"')][@class='listlinkstyle']/a");
+			click(GLCodeNoLink, "GL Code No");
+			System.out.println("Size of window "+driver.getWindowHandles().size());
+			
+			Set<String> windowHandles = driver.getWindowHandles();
+	        List<String> windowHandlesList = new ArrayList<>(windowHandles);
+	        System.out.println("List of window :"+windowHandlesList.size());
+	        driver.switchTo().window(windowHandlesList.get(1));
+		}
+		
+		if (dataRow.getProperty("ShortfallAmount") != null) {
+            if (!dataRow.getProperty("ShortfallAmount").equalsIgnoreCase("")) {
+                // Code Added By Suraj Singh For Shortfall Scenarios.
+                String ExcessORShort = dataRow.getProperty("ShortfallAmount").trim().split(":")[0];
+                String shortFallValue = dataRow.getProperty("ShortfallAmount").trim().split(":")[1];
+                
+                String Amounttobecollected = getTextFromField("Premium").replaceAll("\"", "");
+                
+                
+              //  String CollectedAmount = getTextFromField("CollectionAmount").replaceAll("\"", "");
+
+                System.out.println(Amounttobecollected);
+
+                double fetchcollectionAmount = Double.valueOf(Amounttobecollected);
+                int AmountTocollected = (int) fetchcollectionAmount;
+                int shortFallAmount = Integer.parseInt(shortFallValue);
+                int finalamountToCollected = 0;
+                
+                switch (ExcessORShort.toUpperCase()) 
+                {
+                case "SHORT":
+                        finalamountToCollected = AmountTocollected - shortFallAmount;
+                    break;
+                case "EXCESS":
+                        finalamountToCollected = AmountTocollected + shortFallAmount;
+                    break;
+
+                default:
+                    break;
+                }
+                
+                System.out.println("After ShortFall Collected Amount " + finalamountToCollected);
+                if (ExcessORShort.toUpperCase().equals("EXCESS")) 
+                {
+                	 // for Instrument amount
+	                driver.findElement(By.id("pInstrumentAmt")).clear();
+	                Thread.sleep(2000);
+	                String InstrumentAmount = "pInstrumentAmt";
+	                
+	                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+	                        driver.findElement(instrumentAmountTextField));
+	                Thread.sleep(1000);
+	                
+	                ((JavascriptExecutor) driver).executeScript(
+	                        "document.getElementById('" + InstrumentAmount + "').value='" + finalamountToCollected + "';",
+	                        InstrumentAmount);
+	                driver.findElement(instrumentAmountTextField).sendKeys(Keys.TAB);
+	                Thread.sleep(2000);
+                }
+                
+                
+                if (!ExcessORShort.toUpperCase().equals("EXCESS")) {
+                // for Instrument amount
+                driver.findElement(By.id("pInstrumentAmt")).clear();
+                Thread.sleep(2000);
+                String InstrumentAmount = "pInstrumentAmt";
+                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+                        driver.findElement(instrumentAmountTextField));
+                Thread.sleep(1000);
+                ((JavascriptExecutor) driver).executeScript(
+                        "document.getElementById('" + InstrumentAmount + "').value='" + Amounttobecollected + "';",
+                        InstrumentAmount);
+                driver.findElement(instrumentAmountTextField).sendKeys(Keys.TAB);
+                Thread.sleep(2000);
+                }
+                if (ExcessORShort.toUpperCase().equals("EXCESS")) {
+                	
+                	
+                	 // driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.ENTER);
+                	  //driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.TAB);
+                	
+                	// for collection amount
+	                driver.findElement(By.id("CollectionAmount")).clear();
+	                Thread.sleep(2000);
+	                String collectionAmount = "CollectionAmount";
+	                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+	                        driver.findElement(collectionORpaymentAmountTextField));
+	                Thread.sleep(1000);
+	                ((JavascriptExecutor) driver).executeScript(
+	                        "document.getElementById('" + collectionAmount + "').value='" + Amounttobecollected + "';",
+	                        collectionAmount);
+	                driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.TAB);
+	                Thread.sleep(2000);
+                	  
+				}
+                
+                if (!ExcessORShort.toUpperCase().equals("EXCESS")) {
+					
+                	 // for collection amount
+	                driver.findElement(By.id("CollectionAmount")).clear();
+	                Thread.sleep(2000);
+	                String collectionAmount = "CollectionAmount";
+	                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+	                        driver.findElement(collectionORpaymentAmountTextField));
+	                Thread.sleep(1000);
+	                ((JavascriptExecutor) driver).executeScript(
+	                        "document.getElementById('" + collectionAmount + "').value='" + finalamountToCollected + "';",
+	                        collectionAmount);
+	                driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.TAB);
+	                Thread.sleep(2000);
+				}
+                
+            }
+        }
+
+		
+		if (!dataRow.getProperty("Narration").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(narrationTextField, dataRow.getProperty("Narration"), "Narration");
+		}
+		
+		/*if (!dataRow.getProperty("ChannelCode").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(channelCodeTextField, dataRow.getProperty("ChannelCode"), "Channel Code");
+		}*/
+		
+		if (dataRow.getProperty("ReceivedDate")!=null) {
+			
+			if (!dataRow.getProperty("ReceivedDate").equalsIgnoreCase("")) {
+				
+				clearAndSenKeys(receivedDateTextField, getPreviousOrFutureDate(dataRow.getProperty("ReceivedDate")), "Received Date");
+			}
+		}
+		
+		if (!dataRow.getProperty("CardType").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(CardTypeDropDown, dataRow.getProperty("CardType"), " Card Type ");
+		}
+		
+		if (!dataRow.getProperty("CardNumber(Last 4 Digits)").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(CardNumberTextField, dataRow.getProperty("CardNumber(Last 4 Digits)"), " Card Number (Last 4 Digits) ");
+		}
+		
+		if (!dataRow.getProperty("CardExpiryDate").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(CardExpiryDateTextField, getPreviousOrFutureDate(dataRow.getProperty("CardExpiryDate")).substring(3), " Card Expiry Date ");
+		}
+		
+		if (!dataRow.getProperty("CardTransNumber").equalsIgnoreCase("") && dataRow.getProperty("CardTransNumber").equalsIgnoreCase("Yes")) {
+			
+			clearAndSenKeys(CardTransNoTextField, getuniqueNumber(), " Card Trans Number ");
+		}
+		
+		if (!dataRow.getProperty("CardTransDate").equalsIgnoreCase("")) {
+			String CardTransDateTextField = "CardTransDate";
+			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", driver.findElement(CardTransDateTextFieldForScroll));
+			Thread.sleep(1000);
+			((JavascriptExecutor) driver).executeScript("document.getElementById('"+CardTransDateTextField+"').value='"+getCurrentDate(dataRow.getProperty("CardTransDate"))+"';", CardTransDateTextField);  //currentDate
+			
+		}
+		
+	}
+	
+	public void fillCollectionForUPI(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> vPAssertFlagForScenarios) throws InterruptedException {
+		// TODO Auto-generated method stub
+		
+		if (!dataRow.getProperty("Mode").equalsIgnoreCase("")) {
+			selectFromDropdownByVisibleText(selectPaymentModeDropDown, dataRow.getProperty("Mode").trim(), "Payment Mode");
+		}
+		
+		if (!dataRow.getProperty("Currency").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(currencyDropDown, dataRow.getProperty("Currency").trim(), "Currency");
+		}
+		
+		if (!dataRow.getProperty("GLorSLCode").equalsIgnoreCase("")) {
+			click(subCodeBtn, "Sub Code");	
+			switchToWindow(driver, "Account Search");
+			Thread.sleep(WaitTime.low);
+			
+			if ((dataRow.getProperty("Mode").equalsIgnoreCase("UPI")) 
+					&& dataRow.getProperty("SearchButton").equalsIgnoreCase("Yes")) {
+				
+				driver.findElement(By.xpath("//input[@name='pBranchCode']")).clear();
+				
+				clearAndSenKeys(GLorSLCodeTextField, dataRow.getProperty("GLorSLCode"), " GL/SL Code ");
+				click(searchBtn, "Search Button");
+			}
+			
+			GLCodeNoLink = By.xpath("//div[normalize-space(text()='"+dataRow.getProperty("GLorSLCode")+"')][@class='listlinkstyle']/a");
+			click(GLCodeNoLink, "GL Code No");
+			System.out.println("Size of window "+driver.getWindowHandles().size());
+			
+			Set<String> windowHandles = driver.getWindowHandles();
+	        List<String> windowHandlesList = new ArrayList<>(windowHandles);
+	        System.out.println("List of window :"+windowHandlesList.size());
+	        driver.switchTo().window(windowHandlesList.get(1));
+		}
+		
+		//Adding For UPI ShortFall And Excess
+		
+		if (dataRow.getProperty("ShortfallAmount") != null) {
+            if (!dataRow.getProperty("ShortfallAmount").equalsIgnoreCase("")) {
+                // Code Added By Suraj Singh For Shortfall Scenarios.
+                String ExcessORShort = dataRow.getProperty("ShortfallAmount").trim().split(":")[0];
+                String shortFallValue = dataRow.getProperty("ShortfallAmount").trim().split(":")[1];
+                
+                String Amounttobecollected = getTextFromField("Premium").replaceAll("\"", "");
+                
+                
+              //  String CollectedAmount = getTextFromField("CollectionAmount").replaceAll("\"", "");
+
+                System.out.println(Amounttobecollected);
+
+                double fetchcollectionAmount = Double.valueOf(Amounttobecollected);
+                int AmountTocollected = (int) fetchcollectionAmount;
+                int shortFallAmount = Integer.parseInt(shortFallValue);
+                int finalamountToCollected = 0;
+                
+                switch (ExcessORShort.toUpperCase()) 
+                {
+                case "SHORT":
+                        finalamountToCollected = AmountTocollected - shortFallAmount;
+                    break;
+                case "EXCESS":
+                        finalamountToCollected = AmountTocollected + shortFallAmount;
+                    break;
+
+                default:
+                    break;
+                }
+                
+                System.out.println("After ShortFall Collected Amount " + finalamountToCollected);
+                if (ExcessORShort.toUpperCase().equals("EXCESS")) 
+                {
+                	 // for Instrument amount
+	                driver.findElement(By.id("pInstrumentAmt")).clear();
+	                Thread.sleep(2000);
+	                String InstrumentAmount = "pInstrumentAmt";
+	                
+	                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+	                        driver.findElement(instrumentAmountTextField));
+	                Thread.sleep(1000);
+	                
+	                ((JavascriptExecutor) driver).executeScript(
+	                        "document.getElementById('" + InstrumentAmount + "').value='" + finalamountToCollected + "';",
+	                        InstrumentAmount);
+	                driver.findElement(instrumentAmountTextField).sendKeys(Keys.TAB);
+	                Thread.sleep(2000);
+                }
+                
+                
+                if (!ExcessORShort.toUpperCase().equals("EXCESS")) {
+                // for Instrument amount
+                driver.findElement(By.id("pInstrumentAmt")).clear();
+                Thread.sleep(2000);
+                String InstrumentAmount = "pInstrumentAmt";
+                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+                        driver.findElement(instrumentAmountTextField));
+                Thread.sleep(1000);
+                ((JavascriptExecutor) driver).executeScript(
+                        "document.getElementById('" + InstrumentAmount + "').value='" + Amounttobecollected + "';",
+                        InstrumentAmount);
+                driver.findElement(instrumentAmountTextField).sendKeys(Keys.TAB);
+                Thread.sleep(2000);
+                }
+                if (ExcessORShort.toUpperCase().equals("EXCESS")) {
+                	
+                	
+                	 // driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.ENTER);
+                	  //driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.TAB);
+                	
+                	// for collection amount
+	                driver.findElement(By.id("CollectionAmount")).clear();
+	                Thread.sleep(2000);
+	                String collectionAmount = "CollectionAmount";
+	                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+	                        driver.findElement(collectionORpaymentAmountTextField));
+	                Thread.sleep(1000);
+	                ((JavascriptExecutor) driver).executeScript(
+	                        "document.getElementById('" + collectionAmount + "').value='" + Amounttobecollected + "';",
+	                        collectionAmount);
+	                driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.TAB);
+	                Thread.sleep(2000);
+                	  
+				}
+                
+                if (!ExcessORShort.toUpperCase().equals("EXCESS")) {
+					
+                	 // for collection amount
+	                driver.findElement(By.id("CollectionAmount")).clear();
+	                Thread.sleep(2000);
+	                String collectionAmount = "CollectionAmount";
+	                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);",
+	                        driver.findElement(collectionORpaymentAmountTextField));
+	                Thread.sleep(1000);
+	                ((JavascriptExecutor) driver).executeScript(
+	                        "document.getElementById('" + collectionAmount + "').value='" + finalamountToCollected + "';",
+	                        collectionAmount);
+	                driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.TAB);
+	                Thread.sleep(2000);
+				}
+                
+            }
+        }
+
+		
+		if (!dataRow.getProperty("Narration").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(narrationTextField, dataRow.getProperty("Narration"), "Narration");
+		}
+		
+		/*if (!dataRow.getProperty("ChannelCode").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(channelCodeTextField, dataRow.getProperty("ChannelCode"), "Channel Code");
+		}*/
+		
+		if (dataRow.getProperty("ReceivedDate")!=null) {
+			
+			if (!dataRow.getProperty("ReceivedDate").equalsIgnoreCase("")) {
+				
+				clearAndSenKeys(receivedDateTextField, getPreviousOrFutureDate(dataRow.getProperty("ReceivedDate")), "Received Date");
+			}
+		}
+		
+		if (!dataRow.getProperty("UPITransNumber").equalsIgnoreCase("") && dataRow.getProperty("UPITransNumber").equalsIgnoreCase("Yes")) {
+			
+			clearAndSenKeys(UPITransNumberTextField, getuniqueNumber(), " UPI Trans Number ");
+		}
+		
+		if (!dataRow.getProperty("UPITransDate").equalsIgnoreCase("")) {
+			String UPITransDateTextField = "UPITrans.Date";
+			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", driver.findElement(UPITransDateTextFieldForSForScroll));
+			Thread.sleep(1000);
+			((JavascriptExecutor) driver).executeScript("document.getElementById('"+UPITransDateTextField+"').value='"+getCurrentDate(dataRow.getProperty("UPITransDate"))+"';", UPITransDateTextField);  //currentDate
+			
+		}
+		
+	}
+	
+	public void fillCollectionForCDCustomerANDBG(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> vPAssertFlagForScenarios) throws Exception {
+		
+		if (!dataRow.getProperty("Mode").equalsIgnoreCase("")) {
+			selectFromDropdownByVisibleText(selectPaymentModeDropDown, dataRow.getProperty("Mode").trim(), "Payment Mode");
+		}
+		
+		if (!dataRow.getProperty("Currency").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(currencyDropDown, dataRow.getProperty("Currency").trim(), "Currency");
+		}
+		
+		if (!dataRow.getProperty("GLorSLCode").equalsIgnoreCase("") && dataRow.getProperty("GLorSLCode").equalsIgnoreCase("Yes")) {
+			click(subCodeBtn, "Sub Code");	
+			switchToWindow(driver, "Account Search");
+			Thread.sleep(WaitTime.low);
+			
+			if ((dataRow.getProperty("Mode").equalsIgnoreCase("CD-Customer")
+					|| dataRow.getProperty("Mode").equalsIgnoreCase("CD-IMD")) 
+					&& dataRow.getProperty("SearchButton").equalsIgnoreCase("Yes")) {
+				
+				String CDAccountCodeORGLCode = ExcelDatabase.getValueFromSheet(conn,dataRow.getProperty("GetGLCode") , "CD A/C Code", testScenarioID, "VPActualData");
+
+				driver.findElement(By.xpath("//input[@name='pBranchCode']")).clear();
+				clearAndSenKeys(GLorSLCodeTextField, CDAccountCodeORGLCode, " GL/SL Code ");
+				click(searchBtn, "Search Button");
+				GLCodeNoLink = By.xpath("//div[normalize-space(text()='"+CDAccountCodeORGLCode+"')][@class='listlinkstyle']/a");
+				click(GLCodeNoLink, "GL Code No");
+			}
+			
+			if ((dataRow.getProperty("Mode").equalsIgnoreCase("BG")) 
+					&& dataRow.getProperty("SearchButton").equalsIgnoreCase("Yes")) {
+				
+				String BGAccountCodeORGLCode = ExcelDatabase.getValueFromSheet(conn,dataRow.getProperty("GetGLCode") , "Bank Guarantee A/C Code", testScenarioID, "VPActualData");
+
+				driver.findElement(By.xpath("//input[@name='pBranchCode']")).clear();
+				clearAndSenKeys(GLorSLCodeTextField, BGAccountCodeORGLCode, " GL/SL Code ");
+				click(searchBtn, "Search Button");
+				GLCodeNoLink = By.xpath("//div[normalize-space(text()='"+BGAccountCodeORGLCode+"')][@class='listlinkstyle']/a");
+				click(GLCodeNoLink, "GL Code No");
+			}
+			
+			System.out.println("Size of window "+driver.getWindowHandles().size());
+			
+			Set<String> windowHandles = driver.getWindowHandles();
+	        List<String> windowHandlesList = new ArrayList<>(windowHandles);
+	        System.out.println("List of window :"+windowHandlesList.size());
+	        driver.switchTo().window(windowHandlesList.get(1));
+		}
+		
+		
+		
+		if (!dataRow.getProperty("Narration").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(narrationTextField, dataRow.getProperty("Narration"), "Narration");
+		}
+		
+		/*if (!dataRow.getProperty("ChannelCode").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(channelCodeTextField, dataRow.getProperty("ChannelCode"), "Channel Code");
+		}*/
+		
+		if (dataRow.getProperty("ReceivedDate")!=null) {
+			
+			if (!dataRow.getProperty("ReceivedDate").equalsIgnoreCase("")) {
+				
+				clearAndSenKeys(receivedDateTextField, getPreviousOrFutureDate(dataRow.getProperty("ReceivedDate")), "Received Date");
+			}
+		}
+		
+		if (!dataRow.getProperty("ReferenceNo").equalsIgnoreCase("") && dataRow.getProperty("ReferenceNo").equalsIgnoreCase("Yes")) {
+			
+			click(ReferenceNoSearchBtn, " Reference No Search Btn ");
+			switchToWindow(driver, "Voucher List");
+			Thread.sleep(2000);
+			
+			String voucherNumber = ExcelDatabase.getValueFromSheet(conn,dataRow.getProperty("GetVoucherNumber") , "Accounting Voucher Number", testScenarioID, "VPActualData");
+			
+			clearAndSenKeys(VoucherNumberTextField, voucherNumber, " Voucher Number ");
+			click(searchBthForVoucherNumber, "Search Voucher Number");
+			VoucherNumberLink= By.xpath("//div[normalize-space(text()='"+voucherNumber+"')]/span");
+			click(VoucherNumberLink, " Selected Voucher Number ");
+			
+//			Back to main Collection Screen
+			Set<String> windowHandles = driver.getWindowHandles();
+	        List<String> windowHandlesList = new ArrayList<>(windowHandles);
+	        System.out.println("List of window :"+windowHandlesList.size());
+	        driver.switchTo().window(windowHandlesList.get(1));
+	        
+		}
+	}
+	
+	public void fillCollectionForOnlinePGandPaymentGateway(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> vPAssertFlagForScenarios) throws Exception {
+		
+		if (!dataRow.getProperty("Mode").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(selectPaymentModeDropDown, dataRow.getProperty("Mode").trim(), "Payment Mode");
+		}
+		
+		if (!dataRow.getProperty("Currency").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(currencyDropDown, dataRow.getProperty("Currency").trim(), "Currency");
+		}
+		
+		if (!dataRow.getProperty("GLorSLCode").equalsIgnoreCase("")) {
+			click(subCodeBtn, "Sub Code");	
+			switchToWindow(driver, "Account Search");
+			Thread.sleep(WaitTime.low);
+			
+			if ((dataRow.getProperty("Mode").equalsIgnoreCase("Online PG")) 
+					&& dataRow.getProperty("SearchButton").equalsIgnoreCase("Yes")) {
+				
+				driver.findElement(By.xpath("//input[@name='pBranchCode']")).clear();
+				clearAndSenKeys(GLorSLCodeTextField, dataRow.getProperty("GLorSLCode"), " GL/SL Code ");
+				click(searchBtn, "Search Button");
+			}
+			
+			GLCodeNoLink = By.xpath("//div[normalize-space(text()='"+dataRow.getProperty("GLorSLCode")+"')][@class='listlinkstyle']/a");
+			click(GLCodeNoLink, "GL Code No");
+			System.out.println("Size of window "+driver.getWindowHandles().size());
+			
+			Set<String> windowHandles = driver.getWindowHandles();
+	        List<String> windowHandlesList = new ArrayList<>(windowHandles);
+	        System.out.println("List of window :"+windowHandlesList.size());
+	        driver.switchTo().window(windowHandlesList.get(1));
+		}
+		
+		if (dataRow.getProperty("Accounting")!=null) {
+			
+			if (!dataRow.getProperty("Accounting").equalsIgnoreCase("") && dataRow.getProperty("Accounting").equalsIgnoreCase("Yes")) {
+				
+				switchToWindow(driver, "TCS BÎ±NCS Insurance");
+		        switchtodefaultframe(driver);
+		        switchtoframe(driver, "display");
+			}
+		}
+		
+		if (dataRow.getProperty("InstrumentNo") !="" && dataRow.getProperty("InstrumentNo").equalsIgnoreCase("Yes")) {
+			
+			clearAndSenKeys(instrumentNoTextField, getuniqueNumber(), " Instrument No. ");
+			
+		}
+        
+		if (!dataRow.getProperty("MerchantID").equalsIgnoreCase("") && dataRow.getProperty("MerchantID").equalsIgnoreCase("Yes")) {
+			
+			clearAndSenKeys(merchantIDTextField, getFifteenDigitRandomNumber(), "Merchant ID");
+			
+		}
+		
+		if (!dataRow.getProperty("TerminalID").equalsIgnoreCase("") && dataRow.getProperty("TerminalID").equalsIgnoreCase("Yes")) {
+			
+			clearAndSenKeys(terminalIDTextField, randomNumberGenerator(), "Terminal ID");
+		}
+		
+		if (!dataRow.getProperty("TransactionID").equalsIgnoreCase("") && dataRow.getProperty("TransactionID").equalsIgnoreCase("Yes")) {
+			
+			clearAndSenKeys(transactionIDTextField, getFifteenDigitRandomNumber(), "Transaction ID");
+		}
+		
+		if (!dataRow.getProperty("GatewayType").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(gatewayTypeDropDown, dataRow.getProperty("GatewayType"), "Gateway Type");
+		}
+		
+		if (!dataRow.getProperty("ActualMode").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(actualModeDropDown, dataRow.getProperty("ActualMode"), "Actual Mode");
+		}
+		
+		/*if (!dataRow.getProperty("ChannelCode").equalsIgnoreCase("")) {
+		
+			clearAndSenKeys(channelCodeTextField, dataRow.getProperty("ChannelCode"), "Channel Code");
+		}*/
+		
+		if (!dataRow.getProperty("Narration").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(narrationTextField, dataRow.getProperty("Narration"), "Narration");
+		}
+		
+		if (!dataRow.getProperty("CreditedOn").equalsIgnoreCase("")) {
+			
+			String CreditedOn = "CreditedOn";
+			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", driver.findElement(creditOnTextField));
+			Thread.sleep(1000);
+			((JavascriptExecutor) driver).executeScript("document.getElementById('"+CreditedOn+"').value='"+getCurrentDate(dataRow.getProperty("CreditedOn")).trim()+"';", CreditedOn);
+			
+		}
+	}
+	
+	public void fiilAndSaveCollectionDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert,ConcurrentHashMap<String, String> assertFlagForScenarios, ConcurrentHashMap<String, String> vPAssertFlagForScenarios) throws IOException, Exception {
+		
+		
+//		For fetching collection amount and sending to instrument amount
+		if(dataRow.getProperty("ShortfallAmount")!=null)
+		{
+			if (!(!dataRow.getProperty("ShortfallAmount").equalsIgnoreCase(""))) {
+				
+				if (dataRow.getProperty("InstrumentAmountORCollectionAmount")!=null) {
+					
+					if (!(!dataRow.getProperty("InstrumentAmountORCollectionAmount").equalsIgnoreCase("") && dataRow.getProperty("InstrumentAmountORCollectionAmount")!="")) {
+					
+						driver.findElement(By.id("pInstrumentAmt")).clear();
+						Thread.sleep(2000);
+						
+						String InstrumentAmount = "pInstrumentAmt";
+						String collectionORPaymentAmount = "CollectionAmount";
+						
+//						For Instrument Amount
+						((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", driver.findElement(instrumentAmountTextField));
+						Thread.sleep(1000);
+						((JavascriptExecutor) driver).executeScript("document.getElementById('"+InstrumentAmount+"').value='"+getTextFromField("Premium")+"';", InstrumentAmount);
+						driver.findElement(instrumentAmountTextField).sendKeys(Keys.TAB);
+						
+//						For collection Amount
+						((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", driver.findElement(collectionORpaymentAmountTextField));
+						Thread.sleep(1000);
+						((JavascriptExecutor) driver).executeScript("document.getElementById('"+collectionORPaymentAmount+"').value='"+getTextFromField("Premium")+"';", collectionORPaymentAmount);
+						driver.findElement(collectionORpaymentAmountTextField).sendKeys(Keys.TAB);
+						
+						Thread.sleep(2000);
+					}
+				}
+				
+			}
+    	}
+		
+		if (dataRow.getProperty("GetTotal").equalsIgnoreCase("Yes")) {
+			
+			click(getTotalBtn, "Get Total Button");
+			Thread.sleep(1000);
+			String amountToBeCollected= getTextFromField("ptbCollected");
+			String CollectedAmount = getTextFromField("pCollected");
+			Reporter.log("<B><Font color=\"Yellow\"> '"+amountToBeCollected+"'</Font> </B> Amount To Be Collected fetch from  Application");
+			Reporter.log("<B><Font color=\"Yellow\"> '"+CollectedAmount+"'</Font> </B> Collected Amount fetch from  Application");
+			
+		}
+		
+		if (dataRow.getProperty("SaveButton").equalsIgnoreCase("Yes")) {
+			
+			click(saveButtonForCollection, "Save Button");
+			
+			if (dataRow.getProperty("IsBusinessValidation")!=null && dataRow.getProperty("IsBusinessValidation")!="") {
+				
+				if (dataRow.getProperty("IsBusinessValidation").equalsIgnoreCase("Yes")) {
+					
+					String errorMessage = driver.findElement(By.xpath("//td[@id=\"errorMessageFront\"]/table/tbody/tr/td")).getText();
+					Reporter.log("<B>Error Message <Font color=\"Yellow\">" + errorMessage + "</Font> </B>");
+					
+					if (errorMessage != null) {
+						customAssert.verifyAssertFlag(true, true, "Pass" ,testScenarioID,assertFlagForScenarios);
+					}else {
+						customAssert.verifyAssertFlag(true, false, "Fail",testScenarioID,assertFlagForScenarios);
+					}
+					
+					ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyMultipleValidation"), (errorMessage!=""?errorMessage:"Record NO Found"),stepGroup);
+					SetUpWebdriver.captureScreenShot(driver, TestEngine.excutionFolder+ConfigReader.getInstance().getValue(PropertyConfigs.screenShotFolder), new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date()) );
+					driver.close();
+					
+					//Back To Main Frame
+					switchToWindow(driver, "TCS BÎ±NCS Insurance");
+					switchtodefaultframe(driver);
+					switchtoframe(driver, "display");
+					switchtoframe(driver, "containerFrame");
+					
+				}
+				
+			}
+			
+//			Uploading Document for Cheque Mode
+			if (!dataRow.getProperty("Mode").equalsIgnoreCase("") && dataRow.getProperty("Mode").equalsIgnoreCase("Cheque")) {
+				
+				if (!(dataRow.getProperty("IsBusinessValidation")!=null && dataRow.getProperty("IsBusinessValidation")!="")) {
+					
+					click(uploadDocument, "Upload Document");
+					switchToWindow(driver, "Document Types");
+					Thread.sleep(1000);
+					click(NewBtn, " New Button ");
+					switchToWindow(driver, "Voucher Document");
+					Thread.sleep(1000);
+					selectFromDropdownByVisibleText(DocumentTypeDropDown, dataRow.getProperty("DocumentType").trim(), " DocumentType "+dataRow.getProperty("DocumentType").trim());
+					chooseFileForUpload = By.xpath("//input[@value='txtUpload']");
+					driver.findElement(chooseFileForUpload).sendKeys(dataRow.getProperty("UploadFileForChequeMode"));
+					Thread.sleep(2000);
+					click(SaveDoc, " Save Document Button ");
+					waitForPageLoader();
+					POPupMsg();
+					driver.close();
+					
+//					Back to main Collection Screen
+					Set<String> windowHandles = driver.getWindowHandles();
+			        List<String> windowHandlesList = new ArrayList<>(windowHandles);
+			        System.out.println("List of window :"+windowHandlesList.size());
+			        driver.switchTo().window(windowHandlesList.get(1));
+					
+				}
+				
+			}
+			
+//			Update for Collection
+			if (dataRow.getProperty("UpdateVoucherNumberForCollection") != null
+					&& dataRow.getProperty("UpdateVoucherNumberForCollection").equalsIgnoreCase("Yes")) {
+				
+				// For Fetching Collection Number
+				String collectionNumber = getTextFromField("pCollectionNo");
+				String CollectionORPaymentAmount = getTextFromField("CollectionAmount");
+				
+				Reporter.log("<B><Font color=\"Yellow\"> '"+collectionNumber+"'</Font> </B> Collection number fetch from  Application");
+				System.out.println("collection Number is " +collectionNumber);
+
+				if (stepGroup.equalsIgnoreCase("none")) {
+
+					ExcelDatabase.UpdateInAssertTestData(conn, dataRow.getProperty("AssertionTestDataSheetName"),
+							testScenarioID, dataRow.getProperty("VerifyCollectionNumber").trim(),
+							(collectionNumber != "" ? collectionNumber : "Record NO Found"), vPAssertFlagForScenarios);
+					ExcelDatabase.UpdateInAssertTestData(conn, dataRow.getProperty("AssertionTestDataSheetName"),
+							testScenarioID, dataRow.getProperty("VerifyCollection/PaymentAmount").trim(),
+							(CollectionORPaymentAmount != "" ? CollectionORPaymentAmount : "Record NO Found"),
+							vPAssertFlagForScenarios);
+
+				} else {
+
+					if (dataRow.getProperty("LOB").equalsIgnoreCase("Motor")) {
+						ExcelDatabase.UpdateInAssertTestData(conn, dataRow.getProperty("AssertionTestDataSheetName"),
+								testScenarioID, dataRow.getProperty("VerifyCollectionNumber").trim(),
+								(collectionNumber != "" ? collectionNumber : "Record NO Found"),
+								vPAssertFlagForScenarios,stepGroup);
+						ExcelDatabase.UpdateInAssertTestData(conn, dataRow.getProperty("AssertionTestDataSheetName"),
+								testScenarioID, dataRow.getProperty("VerifyCollection/PaymentAmount").trim(),
+								(CollectionORPaymentAmount != "" ? CollectionORPaymentAmount : "Record NO Found"),
+								vPAssertFlagForScenarios,stepGroup);
+					} else {
+						ExcelDatabase.NSPTUpdateInAssertTestData(conn,
+								dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID,
+								dataRow.getProperty("VerifyCollectionNumberForNSTP").trim(),
+								(collectionNumber != "" ? collectionNumber : "Record NO Found"), stepGroup);
+						ExcelDatabase.NSPTUpdateInAssertTestData(conn,
+								dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID,
+								dataRow.getProperty("VerifyCollection/PaymentAmountForNSTP").trim(),
+								(CollectionORPaymentAmount != "" ? CollectionORPaymentAmount : "Record NO Found"),
+								stepGroup);
+					}
+				}
+			}
+		}
+		
+		Map<String,String> CollectionMode = new HashMap<>();
+		CollectionMode.put("BG", "BG");
+		CollectionMode.put("CDC", "CD-Customer");
+		CollectionMode.put("CDI", "CD-IMD");
+		CollectionMode.put("C", "Cash");
+		CollectionMode.put("Q", "Cheque");
+		CollectionMode.put("CDE", "Client Deposit");
+		CollectionMode.put("D", "Demand Draft");
+		CollectionMode.put("DCR", "Dr/Cr Card");
+		CollectionMode.put("NEFC", "NEFT/RTGS Collection");
+		CollectionMode.put("OPG", "Online PG");
+		CollectionMode.put("UO", "Other Dues");
+		CollectionMode.put("S", "Scroll");
+		CollectionMode.put("UPI", "UPI");
+		
+		// Code Added By Punam For Cash Amount Greater then 50K asking For Uploading Document.
+		try {
+			String CollectedAmount = getTextFromField("CollectionAmount").replaceAll("\"", "");
+
+			System.out.println(CollectedAmount);
+
+			double Amount = Double.valueOf(CollectedAmount);
+
+			System.out.println(Amount);
+
+			int value = (int) Amount;
+
+			System.out.println(value);
+
+			if (value > 50000) {
+				if (dataRow.getProperty("DocumentType") != null) {
+
+					if (dataRow.getProperty("DocumentType").equalsIgnoreCase("Source_Of_Fund")) {
+
+						click(uploadDocument, "Upload Document");
+						switchToWindow(driver, "Document Types");
+						Thread.sleep(1000);
+						click(NewBtn, " New Button ");
+						switchToWindow(driver, "Voucher Document");
+						Thread.sleep(1000);
+						selectFromDropdownByVisibleText(DocumentTypeDropDown, dataRow.getProperty("DocumentType").trim(),
+								" DocumentType " + dataRow.getProperty("DocumentType").trim());
+						chooseFileForUpload = By.xpath("//input[@value='txtUpload']");
+						driver.findElement(chooseFileForUpload).sendKeys(dataRow.getProperty("UploadFileForChequeMode"));
+						Thread.sleep(2000);
+						click(SaveDoc, " Save Document Button ");
+						waitForPageLoader();
+						POPupMsg();
+						driver.close();
+
+						switchToWindow(driver, "TCS BÎ±NCS Insurance");
+						switchtodefaultframe(driver);
+						switchtoframe(driver, "display");
+					}
+				}
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		if (dataRow.getProperty("PostButton").equalsIgnoreCase("Yes")) {
+			click(postbtn, "Post Button");
+			String VoucherNumber = getTextFromField("pVoucherNo");
+			String FetchModeOfdCollection = getTextFromField("CollectionMode");
+			String paymentModetype=CollectionMode.get(FetchModeOfdCollection.trim());
+			
+			Thread.sleep(WaitTime.low);
+	//		completeScreenShot(driver,
+				//	TestEngine.excutionFolder + ConfigReader.getInstance().getValue(PropertyConfigs.screenShotFolder),
+				//	new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date()));
+			
+//			Update for Accounting
+			if (dataRow.getProperty("UpdateVoucherNumberForAccountingCollection")!=null && dataRow.getProperty("UpdateVoucherNumberForAccountingCollection").equalsIgnoreCase("Yes")){
+				
+				ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyVoucherNumberForAccounting").trim(), (VoucherNumber!=""?VoucherNumber:"Record NO Found"),vPAssertFlagForScenarios);
+			}
+							
+			Reporter.log("<B><Font color=\"Yellow\"> '"+VoucherNumber+"'</Font> </B> Voucher number fetch from  Application");
+			
+//			For Collection
+			if (dataRow.getProperty("UpdateVoucherNumberForCollection")!=null && dataRow.getProperty("UpdateVoucherNumberForCollection").equalsIgnoreCase("Yes")) {
+				
+				ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyModeOfCollection").trim(), (paymentModetype!=null?paymentModetype:"Record NO Found"),vPAssertFlagForScenarios);
+				driver.close();
+				
+				//Back To Main Frame
+				switchToWindow(driver, "TCS BÎ±NCS Insurance");
+				switchtodefaultframe(driver);
+				switchtoframe(driver, "display");
+				switchtoframe(driver, "containerFrame");
+			}
+		}
+	}
+	
+	public void fillAndSubmitCollectionDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert,ConcurrentHashMap<String, String> assertFlagForScenarios, ConcurrentHashMap<String, String> vPAssertFlagForScenarios) throws Exception {
+		
+		Properties collectionData = ExcelRead.readRowDataInProperties(workbook, dataRow.getProperty("CollectionSheetName"), testScenarioID, stepGroup);
+		
+		String ModeOfPayment = collectionData.getProperty("Mode").trim().toUpperCase();
+		
+		switch (ModeOfPayment) {
+		case "CASH":
+			fillCollectionCommonInfo(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "CHEQUE":
+			fillCollectionCommonInfo(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "DEMAND DRAFT":
+			fillCollectionCommonInfo(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "NEFT/RTGS COLLECTION":
+			fillCollectionCommonInfo(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "CLIENT DEPOSIT":
+			fillCollectionCommonInfo(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "DR/CR CARD":
+			fillCollectionForDebitAndCreditCard(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "UPI":
+			fillCollectionForUPI(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "CD-CUSTOMER":
+			fillCollectionForCDCustomerANDBG(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "BG":
+			fillCollectionForCDCustomerANDBG(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "CD-IMD":
+			fillCollectionForCDCustomerANDBG(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "ONLINE PG":
+			fillCollectionForOnlinePGandPaymentGateway(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "PAYMENT GATEWAY":
+			fillCollectionForOnlinePGandPaymentGateway(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,vPAssertFlagForScenarios);
+			fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, collectionData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+
+		default:
+			break;
+			
+		}
+	}
+}

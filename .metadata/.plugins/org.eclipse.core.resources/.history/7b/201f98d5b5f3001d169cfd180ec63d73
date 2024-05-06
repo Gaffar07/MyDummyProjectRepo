@@ -1,0 +1,268 @@
+package motorPages;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import com.codoid.products.fillo.Connection;
+
+import constants.PropertyConfigs;
+import testRunner.TestEngine;
+import util.ConfigReader;
+import util.CustomAssert;
+import util.ExcelDatabase;
+import util.ExcelRead;
+import util.GenericMethods;
+import util.SetUpWebdriver;
+
+public class MotorPolicyChangesPage extends GenericMethods {
+	
+	private By endorsementTypeDropDown = By.id("Type of Endorsement");
+	private By endorsementEffectiveDate = By.id("Effective Date");
+	private By rating = By.id("Endorsement Calculation Type");
+	private By initiatedBy = By.id("Initiated By");
+	private By endorsementSubWording = By.id("Endorsement Sub-Wording");
+	private By selectCheckBox;
+	private By proceedButton = By.id("btnPrcd");
+	
+	//For Policy Summary tab
+	private By policySummaryTab = By.xpath("//a[@name='Policy Summary']/i");
+	
+//	For fetching details 
+	private By fetchEndorsementNumber = By.xpath("//label[normalize-space(text()='Number')]/following::label[@id='Number']");
+	private By fetchstatusForEndorsement = By.xpath("//label[normalize-space(text()='Status')]/following::label[@id='Status']");
+	private By fetchSubStatusEndorsement = By.xpath("//label[normalize-space(text()='Sub Status')]/following::label[@id='Sub-Status']");
+	
+
+	public MotorPolicyChangesPage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		wait = new WebDriverWait(driver, 30);
+	}
+	
+	public void fillAndSubmitPolicyEndorsementDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,ConcurrentHashMap<String, 
+			String> vPAssertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception {
+		/*
+			Ownership Transfer          OWTF
+			Recovery of No Claim Bouns  RNCB
+			Change in IDV		    CIVIDV
+			Correction in Vehicle Details  CIVD
+			Change IN RTO Location		CHIRTOL
+			Change of NCB               CONCB
+			Change in SBIG Add on covers	CISBIAC
+			Change in IMT Covers		CIIMTC
+			NCB Falsification - OD Cancellation  NCBFODC
+			Change in Active TP Policy Details   CIATPD
+			Change in Driver Details  	     CIDD
+			Correction in Vehicle Identification Number  CIVIN
+			Change in Previous Year Policy Details       CIPYPD
+			Correction in Nominee Details		     CIND
+			Change in Financier Details		     CIFD
+			Correction in Insured Personal Details	     CIIPD
+		*/		
+		
+		
+		
+		if (dataRow.getProperty("EndorsementType")!=null) {
+			
+			if (dataRow.getProperty("EndorsementType")!="") {
+				
+				selectFromDropdownByVisibleText(endorsementTypeDropDown, dataRow.getProperty("EndorsementType"), " Endorsement Type ");
+			}
+		}
+		
+		if (dataRow.getProperty("EndorsementEffectiveDate")!=null) {
+			
+			if (dataRow.getProperty("EndorsementEffectiveDate")!="") {
+				
+				driver.findElement(endorsementEffectiveDate).click();
+				
+				selectDateFromDatePicker(dataRow.getProperty("EndorsementEffectiveDate").trim(),getPreviousOrFutureDate(dataRow.getProperty("EndorsementEffectiveDate")).trim());
+			}
+		}
+
+		if (dataRow.getProperty("Rating")!=null) {
+			
+			if (dataRow.getProperty("Rating")!="") {
+				
+				selectFromDropdownByVisibleText(rating, dataRow.getProperty("Rating").trim(), " Rating  :-"+dataRow.getProperty("Rating").trim());
+			}
+		}
+		
+		if (dataRow.getProperty("InitiatedBy")!=null) {
+			
+			if (dataRow.getProperty("InitiatedBy")!="") {
+				
+				selectFromDropdownByVisibleText(initiatedBy, dataRow.getProperty("InitiatedBy"), " initiated By :- "+dataRow.getProperty("InitiatedBy"));
+			}
+		}
+	
+		if (dataRow.getProperty("EndorsementSubWording")!=null) {
+			
+			if (dataRow.getProperty("EndorsementSubWording")!="") {
+				
+				clearAndSenKeys(endorsementSubWording, dataRow.getProperty("EndorsementSubWording"), " Endorsement Sub Wording :-"+dataRow.getProperty("EndorsementSubWording").trim());
+			}
+		}
+		
+		if (dataRow.getProperty("ProceedButton")!=null) {
+			
+			if (dataRow.getProperty("ProceedButton")!="") {
+				
+				SetUpWebdriver.completeScreenShot(driver,TestEngine.excutionFolder + ConfigReader.getInstance().getValue(PropertyConfigs.screenShotFolder),
+						new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date()));
+				
+				/*
+				Ownership Transfer          OWTF
+				Recovery of No Claim Bouns  RNCB
+				Change in IDV		    CIVIDV
+				Correction in Vehicle Details  CIVD
+				Change IN RTO Location		CHIRTOL
+				Change of NCB               CONCB
+				Change in SBIG Add on covers	CISBIAC
+				Change in IMT Covers		CIIMTC
+				NCB Falsification - OD Cancellation  NCBFODC
+				Change in Active TP Policy Details   CIATPD
+				
+				Change in Driver Details  	     CIDD
+				Correction in Vehicle Identification Number  CIVIN
+				Change in Previous Year Policy Details       CIPYPD
+				Correction in Nominee Details		     CIND
+				Change in Financier Details		     CIFD
+				Correction in Insured Personal Details	     CIIPD
+			   */	
+				
+				Map<String,String> endorsementType = new HashMap<>();
+				endorsementType.put("OWTF", "Ownership Transfer");
+				endorsementType.put("RNCB", "Recovery of No Claim Bouns");
+				endorsementType.put("CIVIDV", "Change in IDV");
+				endorsementType.put("CHIRTOL", "Change IN RTO Location");
+				endorsementType.put("CONCB", "Change of NCB");
+				endorsementType.put("CISBIAC", "Change in SBIG Add on covers");
+				endorsementType.put("CIIMTC", "Change in IMT Covers");
+				endorsementType.put("NCBFODC", "NCB Falsification - OD Cancellation");
+				endorsementType.put("CIATPD", "Change in Active TP Policy Details");
+				endorsementType.put("CIDD", "Change in Driver Details");
+				endorsementType.put("CIVIN", "Correction in Vehicle Identification Number");
+				endorsementType.put("CIPYPD", "Change in Previous Year Policy Details");
+				endorsementType.put("CIND", "Correction in Nominee Details");
+				endorsementType.put("CIFD", "Change in Financier Details");
+				endorsementType.put("CIIPD", "Correction in Insured Personal Details");
+				
+				//Map For Initiated By 
+				Map<String,String> initiatedBy = new HashMap<>();
+				initiatedBy.put("BR", "Branch");
+				initiatedBy.put("AU", "Auditor");
+				initiatedBy.put("FN", "Financier");
+				initiatedBy.put("IN", "Insured");
+				initiatedBy.put("INS", "Insurer");
+				initiatedBy.put("PH", "Policy Holder");
+				endorsementType.put("UW", "Underwriter");
+				
+				String fetchEndorsementType = getTextFromField("Type of Endorsement");
+				String endorsementTypeList=endorsementType.get(fetchEndorsementType.trim());
+				
+				//Get The Endorsement Rating
+				String fetchEndorsementRating = getTextFromField("Endorsement Calculation Type");
+				
+				//Get The Endorsement Initiated By 
+				String fetchInitiatedBy = getTextFromField("Initiated By");
+				
+//				For Endorsement Type updation
+				ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyEndorsementType").trim(), (endorsementTypeList!=""?endorsementTypeList:"Record NO Found"),stepGroup);
+				ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyEffectiveEndorsementDate").trim(), (getPreviousOrFutureDate(dataRow.getProperty("EndorsementEffectiveDate"))!=""?getPreviousOrFutureDate(dataRow.getProperty("EndorsementEffectiveDate")):"Record NO Found"),stepGroup);
+				ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyEndorsementRating").trim(), (fetchEndorsementRating!=""?fetchEndorsementRating:"Record NO Found"),stepGroup);
+				ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyInitiatedBy").trim(), (fetchInitiatedBy!=""?fetchInitiatedBy:"Record NO Found"),stepGroup);
+
+//				For Assertion
+				customAssert.verifyAssertFlag(dataRow.getProperty("EndorsementType"), endorsementTypeList, "Endorsement Type",testScenarioID,assertFlagForScenarios);
+
+				click(proceedButton, " Proceed Button ");
+				waitForPageLoader();
+				Thread.sleep(2000);
+				
+				switchToWindow(driver, "TCS BαNCS Insurance");
+				switchtodefaultframe(driver);
+				switchtoframe(driver, "display");
+				click(policySummaryTab, "policy Summary Page");
+				switchtoframe(driver, "containerFrame");
+			}
+		}
+		
+		String EndorsementNumber = fetchTextFromApp(fetchEndorsementNumber);
+		String statusForEndorsement = fetchTextFromApp(fetchstatusForEndorsement);
+		String subStatusForEndorsement = fetchTextFromApp(fetchSubStatusEndorsement);
+		
+		if (statusForEndorsement.equals("ENDORSEMENT/ALTERATION STARTED") && subStatusForEndorsement.equals("Endorsement Draft")) {
+			
+			System.out.println("Endorsement number : " +EndorsementNumber);
+			System.out.println("Endorsement Status : " +statusForEndorsement);
+			System.out.println("Endorsement Sub Status : " +subStatusForEndorsement);
+			
+//			For Updation in sheet
+			ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyEndorsementNumber").trim(), (EndorsementNumber!=""?EndorsementNumber:"Record NO Found"),stepGroup);
+			ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyStatusForEndorsement").trim(), (statusForEndorsement!=""?statusForEndorsement:"Record NO Found"),stepGroup);
+			ExcelDatabase.NSPTUpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifySubStatusForEndorsement").trim(), (subStatusForEndorsement!=""?subStatusForEndorsement:"Record NO Found"),stepGroup);
+
+//			For Verification
+			customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedStatusForEndorsement"), statusForEndorsement, "Endorsement Status",testScenarioID,assertFlagForScenarios);
+			customAssert.verifyAssertFlag(dataRow.getProperty("VerifyExpectedSubStatusForEndorsement"), subStatusForEndorsement, "Endorsement Sub Status",testScenarioID,assertFlagForScenarios);
+		}
+		
+	}
+	
+	public void fillAndSubmitPolicyCancellationDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,ConcurrentHashMap<String,
+			String> vPAssertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception {
+	
+	}
+	
+	public void fillAndSubmitPolicyChangeDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> assertFlagForScenarios, ConcurrentHashMap<String, String> vPAssertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason, ConcurrentHashMap<String, String> assignRoleToScenariosID) throws Exception
+	{
+		
+		Properties policyChangesData = ExcelRead.readRowDataInProperties(workbook, dataRow.getProperty("PolicyChangesSheetName"), testScenarioID, stepGroup);
+		
+		if((policyChangesData.getProperty("ExecuteType").equalsIgnoreCase("add") || policyChangesData.getProperty("ExecuteType").equalsIgnoreCase("edit")) && stepGroup.equalsIgnoreCase(policyChangesData.getProperty("GroupName")))
+		{
+			
+//			For filling Endorsement Details
+			if (policyChangesData.getProperty("FillEndorsementDetails")!=null) {
+				
+				if(!policyChangesData.getProperty("FillEndorsementDetails").equalsIgnoreCase("") && policyChangesData.getProperty("FillEndorsementDetails").equalsIgnoreCase("Yes"))
+				{
+					fillAndSubmitPolicyEndorsementDetails(driver, testScenarioID, workbook, conn, stepGroup, policyChangesData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);
+
+				}
+			}
+			
+//			For filling Cancellation Details
+			if (policyChangesData.getProperty("FillCancellationDetails")!=null) {
+				
+				if(!policyChangesData.getProperty("FillCancellationDetails").equalsIgnoreCase("") && policyChangesData.getProperty("FillCancellationDetails").equalsIgnoreCase("Yes"))
+				{
+					fillAndSubmitPolicyCancellationDetails(driver, testScenarioID, workbook, conn, stepGroup, policyChangesData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,scenariosFailureReason);
+
+				}
+			}
+			
+		}
+		
+	}
+
+}
+

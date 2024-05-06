@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite thread-count="4" name="Motor" parallel="tests">
+  <parameter name="TestData_RepositoryFile" value="TestDataSuite\0002_MotorTestDataSuite_SBI.xlsx"/>
+  <parameter name="LOB" value="Motor"/>
+  <test verbose="2" name="Motor_TwoWheeler-PolicyCreation_TC_002">
+    <parameter name="ScriptReference" value="ActiveNSTPPolicyForMotor"/>
+    <parameter name="ScenarioID" value="Motor_TwoWheeler-PolicyCreation_TC_002"/>
+    <parameter name="Description" value="To verify that Policy Creation for Two Wheeler  Bundle Product : 
+Policy Tenure :5Year.
+Policy Plan:1(OD)+5(TP)
+Business Type : New Business
+Vehicle Type: Two Wheeler.
+Vehicle Make: AutoMakeTwoWheelerPetrol150CC
+Vehicle Model: AutoModelTwoWheelerPetrol150CC
+Cubic Capcity :Exceeding 75 cc but not exceeding 150 cc
+Vehicle Age:  Vehicle age should not be more than 6 months 
+Policy Inception Date : Current Date 
+Date Of Registration   : Current Date - 2days
+RTO Zone: B
+Fuel Type: Petrol
+Cover: OD( ALL STP) +TP( All STP)
+GST: IGST
+Collection Mode: UPI-Shortfall"/>
+    <parameter name="Product" value="Two_Wheeler"/>
+    <parameter name="Module" value="Policy Creation "/>
+    <parameter name="LOB" value="Motor"/>
+    <classes>
+      <class name="testRunner.TestExecutionSuite"/>
+    </classes>
+  </test> <!-- Motor_TwoWheeler-PolicyCreation_TC_002 -->
+  <test verbose="2" name="Motor_TwoWheeler-PolicyCreation_TC_013">
+    <parameter name="ScriptReference" value="ActivePolicyForMotor"/>
+    <parameter name="ScenarioID" value="Motor_TwoWheeler-PolicyCreation_TC_013"/>
+    <parameter name="Description" value="To verify that Policy Creation for Two Wheeler-Electric battery Operated  Package  Product 
+Policy Tenure :1Year.
+Policy Plan:1(OD)+1(TP)
+Business Type : Rollover
+Vehicle Type: Two Wheeler.
+Vehicle Make: AutoMakeTwoWheelerBattery3KW
+Vehicle Model: AutoModelTwoWheelerBattery3KW
+Cubic Capcity : 0-3 KW
+Vehicle Age: Exceeding 5 years but not 10 years 
+Policy Inception Date : Current Date 
+Date Of Registration   :  Current Date -2500 Days 
+RTO Zone: A
+Fuel Type: Battery
+Cover: OD Only+TP Only
+GST: CGST &amp; SGST
+Collection Mode: BG"/>
+    <parameter name="Product" value="Two_Wheeler"/>
+    <parameter name="Module" value="Policy Creation "/>
+    <parameter name="LOB" value="Motor"/>
+    <classes>
+      <class name="testRunner.TestExecutionSuite"/>
+    </classes>
+  </test> <!-- Motor_TwoWheeler-PolicyCreation_TC_013 -->
+  <test verbose="2" name="Motor_TwoWheeler-PolicyCreation_TC_018">
+    <parameter name="ScriptReference" value="ActivePolicyForMotor"/>
+    <parameter name="ScenarioID" value="Motor_TwoWheeler-PolicyCreation_TC_018"/>
+    <parameter name="Description" value="To verify that Policy Creation for Two Wheeler  Package  Product(STP) : 
+Policy Tenure :1Year.
+Policy Plan:OD
+Business Type : Rollover
+Vehicle Type: Two Wheeler.
+Vehicle Make: AutoMakeTwoWheelerBattery7KW
+Vehicle Model: AutoModelTwoWheelerBattery7KW
+Cubic Capcity :3.1-7 KW
+Vehicle Age: Not exceeding 5 years 
+Policy Inception Date : Current Date 
+Date Of Registration   :  Current Date -360 Days
+RTO Zone: A
+Fuel Type: Battery 
+Cover: OD Only
+GST:  CGST &amp; SGST
+Collection Mode:Cheque -- Temporary"/>
+    <parameter name="Product" value="Two_Wheeler"/>
+    <parameter name="Module" value="Policy Creation "/>
+    <parameter name="LOB" value="Motor"/>
+    <classes>
+      <class name="testRunner.TestExecutionSuite"/>
+    </classes>
+  </test> <!-- Motor_TwoWheeler-PolicyCreation_TC_018 -->
+</suite> <!-- Motor -->

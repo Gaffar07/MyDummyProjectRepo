@@ -1,0 +1,179 @@
+package commonPages;
+
+
+import java.util.Properties;
+
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Reporter;
+
+import com.codoid.products.fillo.Connection;
+
+import util.CustomAssert;
+import util.ExcelRead;
+import util.GenericMethods;
+import util.LoginUserFromSyncMap;
+import util.MapOfUserIDAssignedToAllocation;
+
+import org.openqa.selenium.Keys;
+
+public class SBIlogin extends GenericMethods {
+	
+//	Ankush 28-06-2022 for Login
+	private By userName = By.xpath("//input[@id = 'pUserName']");
+	private By userPassword = By.xpath("//input[@id = 'textfield2']");
+	private By branchCode = By.id("pSelectBranch");
+	private By loginButton = By.xpath("//span/strong[normalize-space(@text() = 'LOGIN')]");
+	
+	private By userNamePP = By.xpath("//input[@id = 'userNameInput']");
+	private By userPasswordPP = By.xpath("//input[@id = 'passwordInput']");
+	private By signInPP = By.xpath("//span[@id='submitButton']");
+	
+    WebDriverWait webdwait;
+    CustomAssert cusAsst;
+    
+	public SBIlogin(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		webdwait=new WebDriverWait(driver, 30);	
+		
+		cusAsst = new CustomAssert(driver);
+		
+	}
+	
+	public void fillAndSubmitNewTCSLogin(WebDriver driver,String testCaseName, XSSFWorkbook workbook,Connection conn,String stepGroup,String referenceStepKeywordSheetName, CustomAssert customAssert, ConcurrentHashMap<String, String> assertFlagForScenarios, ConcurrentHashMap<String, String> assignRoleToScenariosID ) throws Exception
+	{
+		Properties dataRow = ExcelRead.readRowDataInProperties(workbook, "TCS_LoginPage", testCaseName,stepGroup);
+		Reporter.log("<B>Login To Application</B>");
+		Reporter.log("<B><Font color=\"Yellow\">Login Page is Displayed</Font></B>");
+
+		String user="";
+		
+		if(dataRow.getProperty("BOPSLogin")!=null && !(dataRow.getProperty("BOPSLogin").isEmpty()))
+		{
+			if(dataRow.getProperty("BOPSLogin").equalsIgnoreCase("Yes"))
+			{
+				user=LoginUserFromSyncMap.userIDForLogin(MapOfUserIDAssignedToAllocation.listOfUserIDForExecution,testCaseName);
+				System.out.println("Status wise MAP::"+MapOfUserIDAssignedToAllocation.listOfUserIDForExecution.toString());
+				Reporter.log("Status wise MAP::"+MapOfUserIDAssignedToAllocation.listOfUserIDForExecution.toString());
+				assignRoleToScenariosID.put(testCaseName, "BOPS");
+			}
+			
+		}
+		if(dataRow.getProperty("PPMCLogin")!=null && !(dataRow.getProperty("PPMCLogin").isEmpty()))
+		{
+			if(dataRow.getProperty("PPMCLogin").equalsIgnoreCase("Yes"))
+			{
+				user=LoginUserFromSyncMap.userIDForLogin(MapOfUserIDAssignedToAllocation.PPMClistOfUserIDForExecution,testCaseName);
+				System.out.println("Status wise MAP::"+MapOfUserIDAssignedToAllocation.PPMClistOfUserIDForExecution.toString());
+				assignRoleToScenariosID.put(testCaseName, "PPMC");
+			}
+		}
+		if(dataRow.getProperty("UWRLogin")!=null && !(dataRow.getProperty("UWRLogin").isEmpty()))
+		{
+			if(dataRow.getProperty("UWRLogin").equalsIgnoreCase("Yes"))
+			{
+				user=LoginUserFromSyncMap.userIDForLogin(MapOfUserIDAssignedToAllocation.UWRlistOfUserIDForExecution,testCaseName);
+				System.out.println("Status wise MAP::"+MapOfUserIDAssignedToAllocation.UWRlistOfUserIDForExecution.toString());
+				Reporter.log("Status wise MAP::"+MapOfUserIDAssignedToAllocation.UWRlistOfUserIDForExecution.toString());
+				assignRoleToScenariosID.put(testCaseName, "UWRR");
+			}
+		}
+		
+		//For Motor UWRLogin
+		if(dataRow.getProperty("UWR5Login")!=null && !(dataRow.getProperty("UWR5Login").isEmpty()))
+		{
+			if(dataRow.getProperty("UWR5Login").equalsIgnoreCase("Yes"))
+			{
+				user=LoginUserFromSyncMap.userIDForLogin(MapOfUserIDAssignedToAllocation.MotorUWRR5LogId,testCaseName);
+				System.out.println("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorUWRR5LogId.toString());
+				Reporter.log("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorUWRR5LogId.toString());
+				assignRoleToScenariosID.put(testCaseName, "MotorUWRR5LogId");
+			}
+		}
+		
+		if(dataRow.getProperty("UWR6Login")!=null && !(dataRow.getProperty("UWR6Login").isEmpty()))
+		{
+			if(dataRow.getProperty("UWR6Login").equalsIgnoreCase("Yes"))
+			{
+				user=LoginUserFromSyncMap.userIDForLogin(MapOfUserIDAssignedToAllocation.MotorUWRR6LogId,testCaseName);
+				System.out.println("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorUWRR6LogId.toString());
+				Reporter.log("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorUWRR6LogId.toString());
+				assignRoleToScenariosID.put(testCaseName, "MotorUWRR6LogId");
+			}
+		}
+		
+		if(dataRow.getProperty("UWR7Login")!=null && !(dataRow.getProperty("UWR7Login").isEmpty()))
+		{
+			if(dataRow.getProperty("UWR7Login").equalsIgnoreCase("Yes"))
+			{
+				user=LoginUserFromSyncMap.userIDForLogin(MapOfUserIDAssignedToAllocation.MotorUWRR7LogId,testCaseName);
+				System.out.println("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorUWRR7LogId.toString());
+				Reporter.log("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorUWRR7LogId.toString());
+				assignRoleToScenariosID.put(testCaseName, "MotorUWRR7LogId");
+			}
+		}
+		
+		if(dataRow.getProperty("UWR8Login")!=null && !(dataRow.getProperty("UWR8Login").isEmpty()))
+		{
+			if(dataRow.getProperty("UWR8Login").equalsIgnoreCase("Yes"))
+			{
+				user=LoginUserFromSyncMap.userIDForLogin(MapOfUserIDAssignedToAllocation.MotorUWRR8LogId,testCaseName);
+				System.out.println("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorUWRR8LogId.toString());
+				Reporter.log("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorUWRR8LogId.toString());
+				assignRoleToScenariosID.put(testCaseName, "MotorUWRR8LogId");
+			}
+		}
+		
+		//Added By Suraj For RM Role For Motor 24-07-2023
+		if(dataRow.getProperty("RMLogin")!=null && !(dataRow.getProperty("RMLogin").isEmpty()))
+		{
+			if(dataRow.getProperty("RMLogin").equalsIgnoreCase("Yes"))
+			{
+				user=LoginUserFromSyncMap.userIDForLogin(MapOfUserIDAssignedToAllocation.MotorRMLogId,testCaseName);
+				System.out.println("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorRMLogId.toString());
+				Reporter.log("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorRMLogId.toString());
+				assignRoleToScenariosID.put(testCaseName, "MotorRMLogId");
+			}
+		}
+		
+//		Added by Ankush For All UWRR motor 
+		if(dataRow.getProperty("UWRLoginForAllRoles")!=null && !(dataRow.getProperty("UWRLoginForAllRoles").isEmpty()))
+		{
+			if(dataRow.getProperty("UWRLoginForAllRoles").equalsIgnoreCase("Yes"))
+			{
+				user=LoginUserFromSyncMap.userIDForLogin(MapOfUserIDAssignedToAllocation.MotorUWRRLoginIDForAllRoles,testCaseName);
+				System.out.println("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorUWRRLoginIDForAllRoles.toString());
+				Reporter.log("Status wise MAP::"+MapOfUserIDAssignedToAllocation.MotorUWRRLoginIDForAllRoles.toString());
+				assignRoleToScenariosID.put(testCaseName, "UWRMyuserId");
+			}
+		}
+		
+//		For Pre pod
+		/*System.out.println("At the time of login using USER ID: "+user+" Updated MAP shows as below:");
+		clearAndSenKeysLogin(userNamePP, user, "UserName");
+		clearAndSenKeysLogin(userPasswordPP, dataRow.getProperty("Password"), "Password");
+		clickForLogin(signInPP, "Login Button");
+		switchtodefaultframe(driver);*/
+		
+		
+        System.out.println("At the time of login using USER ID: "+user+" Updated MAP shows as below:");
+		
+        switchtoframe(driver, "display");
+        clearAndSenKeys(userName,user, "UserName");
+		clearAndSenKeysLogin(userPassword,dataRow.getProperty("Password"), "Password");
+		clearAndSenKeysLogin(branchCode,dataRow.getProperty("BranchCode"), "Branch Code");
+		
+		clickForLogin(loginButton, "Login Button");
+		waitForPageLoader();
+
+		switchtodefaultframe(driver);
+	}
+	
+
+}

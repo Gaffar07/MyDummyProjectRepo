@@ -1,0 +1,2655 @@
+package motorPages;
+
+import java.awt.RenderingHints.Key;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindAll;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Reporter;
+
+import com.codoid.products.fillo.Connection;
+
+import core.FrameworkServices;
+import util.CustomAssert;
+import util.ExcelDatabase;
+import util.ExcelRead;
+import util.GenericMethods;
+import util.WaitTime;
+
+public class RiskDetailsPage extends GenericMethods {
+
+	WebDriverWait wait;
+
+	public RiskDetailsPage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		wait = new WebDriverWait(driver, 30);
+	}
+	//Save , Close , Add button
+	   private By innnerSaveButton = By.id("SaveBtn");
+	   private By innnerAddButton = By.id("AddRowGrid");
+	   private By innnerCloseButton = By.id("CloseBtn");
+	   
+	// Click On Add Details
+	private By addRiskDetails = By.id("AddBtn");
+	
+	//For Endorsement
+	private By vechileLink= By.xpath("//label[normalize-space(text())='VEHICLE']/parent::a[1]");
+
+	// Risk Details - Vehicle Details
+	private By registrationNumberFormat = By.xpath("//select[@id='Registration number format']");
+	private By registrationNoBox1 = By.xpath("//input[@id='Registration no box 1']");
+	private By registrationNoBox2 = By.xpath("//input[@id='Registration no box 2']");
+	private By registrationNoBox3 = By.xpath("//input[@id='Registration no box 3']");
+	private By registrationNoBox4 = By.xpath("//input[@id='Registration no box 4']");
+	private By registrationNumber = By.xpath("//input[@id='Registration Number']");
+
+	private By engineNumber = By.xpath("//input[@id='Engine Number']");
+	private By chasisNumber = By.xpath("//input[@id='Chassis Number']");
+	private By modelYear = By.id("yearof manufacturing");
+	private By clickmodelYear;
+	
+	//Model Year Changes
+	private By vehicleMake = By.xpath("//input[@id='vehiclemake']");
+	private By clickvehicleMake;
+
+	private By vehicleModel = By.xpath("//input[@id='vehiclemodel']");
+	private By clickvehicleModel;
+
+	private By vehicleSpecification = By.xpath("//input[@id='vehiclesub type']");
+	private By clickvehicleSpecification;
+
+	private By TypeOfFuel = By.xpath("//select[@id='Type of Fuel']");
+	private By DateOfRegistration = By.id("Date Of Registration");
+	private By TypeOfModification = By.xpath("//select[@id='Type Of Modification']");
+
+	// RTA Details
+	private By RTACode = By.xpath("//input[@id='RTA Code']");
+	String RTACodevalue, RTAStatevalue, RTADistrictvalue, RTACityvalue, RTAPincodevalue, RegistrationZonevalue;
+
+	private By rtaCode = By.xpath("//input[@id='RTA Code']");
+	private By rtaState = By.xpath("//input[@id='RTA State']");
+	private By rtaDistrict = By.xpath("//input[@id='RTA District']");
+	private By rtaCity = By.xpath("//input[@id='RTA City']");
+	private By rtaPincode = By.xpath("//input[@id='RTA Pincode']");
+	private By registrationZone = By.xpath("//input[@id='Registration Zone']");
+
+	// Risk Properties
+	private By vehicleColorPrivateCar = By.xpath("//input[@id='Vehicle Color']");
+	private By vehicleColorTwowheeler = By.xpath("//input[@id='colour']");
+	private By clickvehicleColorTwowheeler;
+	private By vehicleDetailsButton = By.xpath("//button[@id='Vehicle details']");
+	private By vehicleUniqueId;
+	
+	private By changeIDVAmount;
+	
+	//For Motor Added By Suraj 
+	private By sideCar = By.id("Side Car");
+	private By sideCarSumInsured = By.id("Side Car - Sum Insured");
+	
+	private By vehicleInvoiceValue = By.id("Vehicle Invoice Value");
+	private By zoneforRTI = By.id("Vehicle Zone");
+	private By vehicleIDV = By.id("Vehicle IDV");
+	private By originalIDV = By.id("Original IDV");
+	String vehicleInvoice, zoneforRTIvalue, vehicleIDVvalue, originalIDVvalue;
+
+	// Is CNG/LPG Extra fitted?
+	private By isCNGLPGExtrafitted = By.id("Is CNG/LPG Extra fitted?");
+	private By cNGLPGkitIDV = By.id("CNG/LPG kit IDV");
+
+	//Added By Suraj For Motor 
+	
+	private By lossofAccessories_IMT33 = By.id("Loss of Accessories (IMT 33)");
+	private By SIforLossofAccessories = By.id("SI for Loss of Accessories");
+	
+	// MultipleAccessories
+	private By multipleAccessoriesPresent, typeOfAccessories, descriptionOfItem, iDVValue, accessoriesDescription,
+			addMultipleAccessories, saveMultipleAccessories, closeMultipleAccessories;
+	private By multipleAccessoriesDetailsButton = By.id("Multiple Accessories");
+
+	private By Isthecarusedfordemonstrationpurpose = By.id("Is the car used for demonstration purpose");
+	private By Isthecarusedfordrivingtuitionpurpose = By.id("Is the car used for driving tuition purpose");
+	private By Roadtaxamount = By.id("Road tax amount");
+	
+	private By AdditionalTowingCharges = By.id("Additional Type of Price");
+	private By TwowheelerAdditionalTowingCharges = By.id("Additional Towing Charges");
+	
+	private By ExtensionofGeographicalAreaRequired_IMT1 = By.id("Extension of Geographical Area Required (IMT1)");
+	private By GeographicalExtensionButton = By.id("Geographical Extension");
+	private By GeographicalExtension;
+	private By addGeographicalExtension = By.id("AddRowGrid");
+	private By saveGeographicalExtension = By.id("SaveBtn");
+
+	private By WhethervehicleiscertifiedasVintagecarbyVintageandClassicCarclub_IMT2 = By
+			.id("Whether vehicle is certified as Vintage car by Vintage and Classic Car club (IMT 2)");
+
+	private By AreyouamemberofAutomobileAssociationofIndia_IMT8 = By
+			.id("Are you a member of Automobile Association of India (IMT 8)");
+	private By NameofAssociation = By.id("Name of Association");
+	private By MembershipNo = By.id("Membership No");
+	private By IsLifeMember = By.id("Is Life Member");
+	private By DateofMembershipExpiry = By.id("Date of Membership Expiry");
+
+	private By IsthevehiclefittedwithAntitheftdeviceIMT10 = By
+			.id("Is the vehicle fitted with Anti-theft device (IMT 10)");
+	private By VehicledesignedforBlindhandicappedMentallychallengedpersonsandendorsedbyRTA_IMT12 = By
+			.id("Vehicle designed for Blind handicapped Mentally challenged persons and endorsed by RTA (IMT 12)");
+
+	private By VehicleuseislimitedtoOwnPremises_IMT13 = By.id("Vehicle use is limited to Own Premises (IMT 13)");
+	private By PremisesAddress = By.id("Premise Address");
+
+	private By DoyouwanttoincludePAcovertoNamedPerson_IMT15 = By
+			.id("Do you want to include PA cover to Named Person (IMT 15)");
+	private By NameOfPersonDetailsButton = By.id("Name of the Persons");
+	private By NameofTheInsuredPerson, RelationshipwithInsured, NomineeName, AgeofNominee, RelationshipwithNominee,
+			AppointeeName, RelationshipofAppointeewithNominee;
+
+	private By IndividualSIfor_IMT15 = By.id("Individual SI for IMT 15");
+
+	private By DoyouwanttoincludePAcoverforUnnamedPersonotherthaninsuredandthepaiddriverandcleaner_IMT16 = By.id(
+			"Do you want to include PA cover for Unnamed Person other than insured and the paid driver and cleaner (IMT 16)");
+	private By NOofUnnamedpersons = By.id("No of Unnamed persons");
+	private By IndividualSIfor_IMT16 = By.id("Individual SI for IMT 16");
+
+	private By DoyouwanttoincludePAcovertopaiddriverscleanersandconductors_IMT17 = By
+			.id("Do you want to include PA cover to paid drivers cleaners and conductors (IMT 17)");
+	private By Noofpaiddriverscleanersandconductors = By.id("NO of PCC");
+	private By IndividualSI = By.id("Individual SI");
+	
+	private By coverforvehiclesimportedwithoutcustomsduty_IMT19 = By.id("Cover for vehicles imported without customs duty (IMT 19)");
+	private By doyouwanttoreduceTPPDCovertothestatutorylimitof6000_IMT20 = By.id("Do you want to reduce TPPD Cover to the statutory limit of 6000 (IMT 20)");
+	private By compulsaryDeductable_IMT22 = By.id("Compulsary Deductable (IMT 22)");
+	
+	private By voluntaryDeductable_IMT22A = By.id("Voluntary Deductable (IMT 22A)");
+	private By TwoWheelervoluntaryDeductable_IMT22 = By.id("Voluntary Deductible");
+	
+	
+	
+	private By imposedExcess = By.id("Imposed Excess");
+	private By noofLLtoPaiddriver_IMT28 = By.id("No of LL to Paid driver(IMT28)");
+	private By noofLLtoEmployeesotherthanPaiddriver_IMT29 = By.id("No of LL to Employees other than Paid driver(IMT29)");
+	
+	private By rallyType_IMT31 = By.id("Rally Type (IMT 31)");
+	private By rallyAssociationName = By.id("Association Name");
+	private By noofDaysforRally_IMT31 = By.id("No of Days for Rally (IMT 31)");
+	private By startDateofRally_IMT31 = By.id("Start Date of Rally (IMT 31)");
+	private By endDateofRally_IMT31 = By.id("End Date of Rally (IMT 31)");
+	private By rallyAdditionalExcess = By.id("Rally Additional Excess");
+	
+	private By accidentstosoldierssailorsairmenemployedasdriversapplicable_IMT32 = By.id("Accidents to soldiers sailors airmen employed as drivers applicable (IMT 32)");
+	private By NoofPersonsfor_IMT32 = By.id("No of Persons for IMT 32");
+	
+	
+	private By buttonTrailerDetails = By.id("TrailerDetails");
+	
+	private By 	TrailerRegistrationNumber0 = By.id("Trailer Registration Number0");
+	private By 	TrailerChassisNumber0 = By.id("Trailer Chassis Number0");
+	private By 	YearofManufacturing0 = By.id("Year of Manufacturing0");
+	private By 	TrailersIDV0 = By.id("Trailers IDV0");
+	private By 	addMoreDetails = By.id("Add");
+	private By 	closeBtn = By.id("CloseBtn");
+	
+	
+	//Addon Cover Property Added By Suraj On 15-12-2022
+	private By 	inconvenienceAllowance = By.id("InconvenienceAllowance");
+	private By 	EMIAmount = By.id("EMI Amount");
+	private By     EMIProtector = By.id("EMI Protector");
+	private By 	EMIDeductibleAmount = By.id("Deductible  Amount");
+	
+	private By 	enhancedPACoverOwnerDriverSumInsured = By.id("Enhanced PA OD");
+	private By 	enhancedPACoverPaidDriverSumInsured = By.id("Enhanced PA PD");
+	private By 	enhancedPACoverUnnamedPassengersSumInsured = By.id("Enhanced PA UNNAMED");
+	private By 	lossofPersonalBelongingsSumInsured = By.id("Loss of Personal Belongings");
+	private By 	zone = By.id("Zone for RTI");
+	
+	private By 	emergencyMedicalExpense = By.id("Emergency Medical Expense");
+	private By 	TWemergencyMedicalExpense = By.id("Emergency Medical Expense SI");
+	private By  TWEmergencyMedicalExpenseSI = By.id("Emergency Medical Evacuation sum insured");
+	
+	
+	private By 	presenceofAirbags = By.id("Presence Of Albumin");
+	private By 	tyreandRimGuardDeductibleAmount = By.id("Deductible Amount TR");
+	private By 	hospitalCashUnnamedPassengers = By.id("Hospital cash UNAMED");
+	private By 	hospitalCashPaidDriver = By.id("Hospital Cash PD");
+	private By 	hospitalCashOwnerDriver = By.id("Hospital Cash OD");
+	
+	/* Depreciation Reimbursement    id -  Depreciation Reimbursement
+
+
+    Cover for Consumables         id -   Cover for Consumables
+    Helmet Protections            id -   Helmet Protections
+    Engine Guard                  id - Engine Guard
+    Basic Road side Assistance    id - Basic Road side Assistance
+    Emergency Medical Expense     id -Emergency Medical Expense SI
+    Return To Invoice             id - Return To Invoice
+    Protection Of NCB	      id -Protection Of NCB*/
+	
+	//For Two Wheeler Addon
+	private By 	depreciationReimbursement = By.id("Depreciation Reimbursement");
+	private By 	coverforConsumables = By.id("Cover for Consumables");
+	private By 	helmetProtections = By.id("Helmet Protections");
+	private By 	helmetProtectionSI = By.id("Helmet Protection");
+	private By 	basicRoadsideAssistance = By.id("Basic Road side Assistance");
+	private By 	returnToInvoice = By.id("Return To Invoice");
+	private By 	protectionOfNCB = By.id("Protection Of NCB");
+	private By 	engineGuard = By.id("Engine Guard");
+	
+	
+	
+	
+	//PA Owner Driver Exemption
+	
+	private By 	cPACoverWaiverRequired = By.id("CPA Cover Waiver Required");
+	private By 	reasonforWaiver = By.id("Do you have a valid License");
+	private By 	yearOfCoverage = By.id("Year Of Coverage");
+	private By 	pARED = By.id("PARED");
+	
+	//NCB Details
+	private By 	transferOfNCB = By.id("Transfer Of NCB");
+	private By 	transferofNCBPercentage = By.id("Transfer of NCB Percent");
+	private By 	nCBreservingletterdate = By.id("NCB reserving letter date");
+	private By 	applicableNCBPercentage = By.id("Applicable NCB %");
+	
+	//For No claim bonus on Previous Policy
+	private By 	noClaimbonusonPreviousPolicy = By.id("No claim bonus on Previous Policy");
+	private By 	proofProvidedforNCB = By.id("Proof Provided for NCB");
+	
+	//Other Information
+	private By 	roadType = By.id("Road Type");
+	private By 	useOfVehicle = By.id("Use Of Vehicle");
+	private By 	averageDailyuseofthevehicle = By.id("Average Daily use of the vehicle");
+	private By 	locationforparkingduringtheday = By.id("Location for parking during the day");
+	private By 	pincode = By.id("Pincode");
+	private By 	locationforparkingduringthenight = By.id("Location for parking during the night");
+	private By 	drivingExperienceinyears = By.id("Driving Experience in years");
+	private By 	ageoftheDriver = By.id("Age of the Driver");
+	private By 	tyreSerialNumberOtherInformation = By.id("Tyre Serial Number");
+	
+	//Q & A
+	
+	private By 	areyouentitledtoNCB = By.id("Are you entitled to NCB");
+	private By 	hasanyInsuranceCompanyever = By.id("Has any Insurance Company ever :");
+	private By 	doesthedriversufferfromdefectivevisionorhearingoranyphysicalinfirmity = By.id("Does the driver suffer from defective vision or hearing or any physical infirmity");
+	private By 	ifyespleaseprovidedetailsofsuchinfirmity = By.id("If yes, please provide details of such infirmity");
+	private By 	hasthedriverbeeninvolvedconvictedforcausingaccident = By.id("Has the driver been involved/convicted for causing accident");
+	
+	private By 	ifyesprovidedetails = By.id("If yes, provide details");
+	private By  driversname = By.id("Driver's name");
+	private By 	dateofaccident = By.id("Date of accident");
+	private By 	circumstancesofaccidentclaim = By.id("Circumstances of accident/claim");
+	private By  lossCost = By.id("Loss/Cost");
+	private By 	isthevehicleingoodcondition = By.id("Is the vehicle in good condition");
+	
+	private By 	relationshipwithProposer = By.id("Relationship with Proposer1");
+	
+	
+	//CPA cover nominee details
+	private By 	nomineeName = By.id("Nominee Name");
+	private By 	nameofappointee = By.id("Name of appointee");
+	private By 	appointeeRelationship = By.id("Appointee relationship");
+	private By 	age = By.id("Age (1)");
+	private By 	relationshipwithowner = By.id("Relationship with owner");
+	
+	//LOADING AND DISCOUNT
+	private By 	loadingDiscountDetailsButton = By.id("Loading/Discount Details");
+	private By descriptionPolicyLevel,twoWheelerdescriptionPolicyLevel,netPremium,LDRate,calculatedAmount,netLD;
+	
+	
+	//Details To Filled
+	boolean MultipleAccessoriesDetailFlag=false;
+	boolean GeographicalExtensionDetailFlag=false;
+	boolean NamedPersonDetailsFlag=false;
+	
+	//For Two Wheeler Added By Suraj
+	boolean lossofAccessoriesFlag=false;
+	
+	boolean TrailerDetailsFlag=false;
+	private By trailerDetailsButton=By.id("TrailerDetails");
+	private By trailerRegistrationNumber,trailerChassisNumber,yearofManufacturing,trailersIDV;
+	
+	boolean TyreandRimGuardDetailsFlag=false;
+	private By 	tyreandRimGuardDetailsButton = By.id("Tyre and Rim Guard");
+	private By  tyre,manufacturingYear, tyreSerialNumber;
+	
+	boolean loadingDiscountDetailsFlag=false;
+	
+	String IndividualSIforIMT15 ="", IndividualSIforIMT16="", IndividualSIcleanersandconductors="" , EnhancedPACoverOwnerDriver="";
+	private By riskDetailsSaveButton= By.id("SaveButton");
+
+	//Cover Details 
+	private By addOptionalCover=By.id("AddOCVRbtn");
+	private By CoverDetailsDeleteButton=By.id("DeleteCvrBtn");
+	private By CoverDetailsSaveButton=By.id("SaveButton");
+	private By selectCoverCodeFillNot;
+	
+	//Member Rider Details Save
+	private By MemberRiderDetailsCloseButton=By.id("Close");
+	private By MemberRiderDetailsSaveButton=By.id("Save");
+	
+	
+	
+	//Checking Fuel Type For External Fuel Type
+	boolean isLPGOrCNGExternalFlag=false;
+	
+	//Global Variable  For Add on Cover Property
+	Properties addonCoverPropertyData,quickQuoteInformationData;
+
+	public void FillRiskDetailsPage(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties dataRow, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,
+			ConcurrentHashMap<String, String> vPAssertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception {
+		// TODO Auto-generated method stub
+
+		if ((dataRow.getProperty("ExecuteType").equalsIgnoreCase("add")
+				|| dataRow.getProperty("ExecuteType").equalsIgnoreCase("edit"))
+				&& stepGroup.equalsIgnoreCase(dataRow.getProperty("GroupName"))) {
+			
+			
+			//Read Data From Risk Details Sheet 
+			
+			String riskDetailsDataSheetName = dataRow.getProperty("RiskDetailsSheetName");
+			Properties riskDetailsData = ExcelRead.readRowDataInProperties(workbook, riskDetailsDataSheetName, testScenarioID, stepGroup);
+			
+			if (riskDetailsData.getProperty("AddDetails") != null) {
+				if (riskDetailsData.getProperty("AddDetails").equalsIgnoreCase("Yes")
+						&& riskDetailsData.getProperty("AddDetails") != "") {
+
+				    //if Its Endorsement
+				    if(riskDetailsData.getProperty("IsEndorsement")!=null)
+				    {
+			    	    if(riskDetailsData.getProperty("IsEndorsement").equalsIgnoreCase("Yes"))
+					    {
+					      click(vechileLink,"  Endorsement  ");
+					      Thread.sleep(3000);
+						  switchtoframe(driver, "memberiframe0");
+					    }
+			    	    else
+					    {
+					    	 click(addRiskDetails, "Add Risk Details");
+							 Thread.sleep(3000);
+							 switchToWindow(driver, "Details");
+					    }
+				    }
+				    else
+				    {
+				    	 click(addRiskDetails, "Add Risk Details");
+						 Thread.sleep(3000);
+						 switchToWindow(driver, "Details");
+				    }
+				   
+					//Fill All Risk Details Page Information
+					if(riskDetailsData.getProperty("FillRiskDetailsTab")!=null)
+					{
+						
+						if(riskDetailsData.getProperty("FillRiskDetailsTab")!="" && riskDetailsData.getProperty("FillRiskDetailsTab").equalsIgnoreCase("Yes"))
+						{
+							click(By.xpath("//div[@id='productpagetabs']//md-tab-item[1]"), "Risk Details Tab");
+							//FillRiskDetailsTabPage(driver, testScenarioID, workbook, conn, stepGroup, riskDetailsData, customAssert, assertFlagForScenarios, vPAssertFlagForScenarios, scenariosFailureReason);
+							
+							// Vehicle Details
+							if (riskDetailsData.getProperty("FillVehicleDetails") != null) {
+								if (riskDetailsData.getProperty("FillVehicleDetails").equalsIgnoreCase("Yes")
+										&& riskDetailsData.getProperty("FillVehicleDetails") != "") {
+									
+									if (riskDetailsData.getProperty("RegistrationNumberFormat") != null) {
+										if (riskDetailsData.getProperty("RegistrationNumberFormat") != "") {
+											selectFromDropdownByVisibleText(registrationNumberFormat,
+													riskDetailsData.getProperty("RegistrationNumberFormat"),
+													"Registration Number Format");
+											driver.findElement(registrationNumberFormat).sendKeys(Keys.TAB);
+											waitForPageLoader();
+
+										}
+									}
+									if (riskDetailsData.getProperty("RegistrationNoBox1") != null) {
+										if (riskDetailsData.getProperty("RegistrationNoBox1") != "") {
+											clearAndSenKeys(registrationNoBox1, riskDetailsData.getProperty("RegistrationNoBox1"),
+													"Registration No Box 1");
+										}
+									}
+									if (riskDetailsData.getProperty("RegistrationNoBox2") != null) {
+										if (riskDetailsData.getProperty("RegistrationNoBox2") != "") {
+											clearAndSenKeys(registrationNoBox2, riskDetailsData.getProperty("RegistrationNoBox2"),
+													"Registration No Box 2");
+										}
+									}
+									if (riskDetailsData.getProperty("RegistrationNoBox3") != null) {
+										if (riskDetailsData.getProperty("RegistrationNoBox3") != "") {
+											clearAndSenKeys(registrationNoBox3, riskDetailsData.getProperty("RegistrationNoBox3"),
+													"Registration No Box 3");
+										}
+									}
+									if (riskDetailsData.getProperty("RegistrationNoBox4") != null) {
+										if (riskDetailsData.getProperty("RegistrationNoBox4") != "") {
+											
+											 Random random = new Random();    
+									         long num = (long) (1000L + random.nextFloat() * 9000L);
+									         String registrationNoBox4Value = String.valueOf(num);
+											
+											 clearAndSenKeys(registrationNoBox4, registrationNoBox4Value,
+													"Registration No Box 4");
+										}
+									}
+									if (riskDetailsData.getProperty("EngineNumber") != null) {
+										// 06 Digit Number
+										Random random = new Random();
+										long num = (long) (100000L + random.nextFloat() * 900000L);
+										String str = String.valueOf(num);
+
+										if (riskDetailsData.getProperty("EngineNumber") != "") {
+											clearAndSenKeys(engineNumber, str, "Engine Number");
+										}
+									}
+									if (riskDetailsData.getProperty("ChasisNumber") != null) {
+										// 15 Digit Number
+										Random random = new Random();
+										long num = (long) (10000000000000000L + random.nextFloat() * 900000000000000L);
+										String str = String.valueOf(num);
+										
+										if (riskDetailsData.getProperty("ChasisNumber") != "") {
+											clearAndSenKeys(chasisNumber, str, "Chasis Number");
+										}
+									}
+									
+									//Model Year On Basis of Date Of Registration
+										String DORModel,manufacturingYear = "";
+										if (riskDetailsData.getProperty("DateOfRegistration") != null)
+											{
+												if (riskDetailsData.getProperty("DateOfRegistration") != "")
+												{
+													DORModel=riskDetailsData.getProperty("DateOfRegistration").trim();
+													
+													if(DORModel.equalsIgnoreCase("currentDate"))
+													{
+														manufacturingYear=getCurrentDate(riskDetailsData.getProperty("DateOfRegistration").trim()).trim().split("/")[2];
+													}
+													else
+													{
+														
+														DORModel=riskDetailsData.getProperty("DateOfRegistration").trim().split("-")[1];
+														
+														String dateformate = "",dateValue;
+														if(DORModel.equalsIgnoreCase("year")) 
+																						dateformate="Year";
+														if(DORModel.equalsIgnoreCase("Days")) 
+																						dateformate="Days";
+														if(DORModel.equalsIgnoreCase("Date"))
+																						dateformate="Date";
+														
+														switch (dateformate.toUpperCase()) 
+														{
+															case "YEAR":
+																manufacturingYear=getCalculatedAged(riskDetailsData.getProperty("DateOfRegistration").trim().split("-")[0]).trim().split("/")[2];
+																break;
+															case "DAYS":
+																manufacturingYear=getCalculatedAgedByDays(riskDetailsData.getProperty("DateOfRegistration").trim().split("-")[0]).trim().split("/")[2];
+																break;	
+															case "DATE":
+																manufacturingYear=riskDetailsData.getProperty("DateOfRegistration").split("-")[0].trim();
+																break;
+															default:
+																break;
+														}
+														
+														System.out.println("Date Of Registration "+manufacturingYear);
+													}
+													clickmodelYear = By.xpath("//input[@id='yearof manufacturing']//following::li//span[@class='highlight'][text()='"+manufacturingYear+"']//ancestor::li[1]");
+													
+													//Select The model Year
+													clearAndSenKeys(modelYear,manufacturingYear,"Model Year");	
+													click(clickmodelYear, manufacturingYear);
+												}
+											}
+											else
+											{
+												clickmodelYear = By.xpath("//input[@id='yearof manufacturing']//following::li//span[@class='highlight'][text()='"+riskDetailsData.getProperty("DateOfRegistration").trim()+"']//ancestor::li[1]");
+												//Select The model Year
+												clearAndSenKeys(modelYear,riskDetailsData.getProperty("DateOfRegistration").trim(),"Model Year");	
+												click(clickmodelYear, riskDetailsData.getProperty("DateOfRegistration").trim());
+											}
+									
+									if (riskDetailsData.getProperty("VehicleMake") != null) {
+										if (riskDetailsData.getProperty("VehicleMake") != "") 
+										{
+											
+											By firstclickvehicleMake = By.xpath(
+													"//input[@id='vehiclemake']//following::li//span[@class='highlight'][text()='"
+															+ riskDetailsData.getProperty("VehicleMake") + "']//ancestor::li[1]");
+											
+											clickvehicleMake = By.xpath(
+													"//input[@id='vehiclemake']//following::li//span[@class='highlight'][text()='"+riskDetailsData.getProperty("VehicleMake")+"']//parent::span[@md-highlight-text]");
+											
+											clearAndSenKeys(vehicleMake, riskDetailsData.getProperty("VehicleMake").trim(),
+													"vehicle Make");
+											
+											//if Suggestion More The One 
+											List<WebElement> vechileMakes = driver.findElements(clickvehicleMake);
+											if(vechileMakes.size() != 0)
+											{
+												//for Loop
+												for(int i=0;i<vechileMakes.size();i++)
+												{
+													String vechileValue = vechileMakes.get(i).getAttribute("innerText");
+													if(vechileValue.trim().toLowerCase().equalsIgnoreCase(riskDetailsData.getProperty("VehicleMake").trim().toLowerCase()))
+													{
+														//click(clickvehicleMake, riskDetailsData.getProperty("VehicleMake"));
+														vechileMakes.get(i).click();
+														Reporter.log("Clicked on <B> " + riskDetailsData.getProperty("VehicleMake").trim() + "</B> ");
+														break;
+													}
+												}
+											}
+											else
+											{
+												click(firstclickvehicleMake, riskDetailsData.getProperty("VehicleMake").trim());
+											}
+										}
+									}
+									if (riskDetailsData.getProperty("VehicleModel") != null) {
+										if (riskDetailsData.getProperty("VehicleModel") != "") 
+										{
+											By firstclickvehicleModel = By.xpath(
+													"//input[@id='vehiclemodel']//following::li//span[@class='highlight'][text()='"
+															+ riskDetailsData.getProperty("VehicleModel") + "']//ancestor::li[1]");
+											
+											clickvehicleModel = By.xpath(
+													"//input[@id='vehiclemodel']//following::li//span[@class='highlight'][text()='"
+															+ riskDetailsData.getProperty("VehicleModel") + "']//parent::span[@md-highlight-text]");
+											
+											clearAndSenKeys(vehicleModel, riskDetailsData.getProperty("VehicleModel").trim(),
+													"Vehicle Model");
+											
+											//if Suggestion More The One 
+											List<WebElement> vehicleModel = driver.findElements(clickvehicleModel);
+											if(vehicleModel.size() != 0)
+											{
+												//for Loop
+												for(int i=0;i<vehicleModel.size();i++)
+												{
+													String vehicleModelValue = vehicleModel.get(i).getAttribute("innerText");
+													if(vehicleModelValue.trim().toLowerCase().equalsIgnoreCase(riskDetailsData.getProperty("VehicleModel").trim().toLowerCase()))
+													{
+														//click(clickvehicleMake, riskDetailsData.getProperty("VehicleMake"));
+														vehicleModel.get(i).click();
+														Reporter.log("Clicked on <B> " + riskDetailsData.getProperty("VehicleModel").trim() + "</B> ");
+														break;
+													}
+												}
+											}
+											else	
+											{
+												click(firstclickvehicleModel, riskDetailsData.getProperty("VehicleModel").trim());
+											}
+										}
+									}
+									if (riskDetailsData.getProperty("VehicleSpecification") != null) {
+										if (riskDetailsData.getProperty("VehicleSpecification") != "") {
+
+											By fristclickvehicleSpecification = By.xpath(
+													"//input[@id='vehiclesub type']//following::li//span[@class='highlight'][text()='"
+															+ riskDetailsData.getProperty("VehicleSpecification")
+															+ "']//ancestor::li[1]");
+											
+											clickvehicleSpecification = By.xpath(
+													"//input[@id='vehiclesub type']//following::li//span[@class='highlight'][text()='"
+															+ riskDetailsData.getProperty("VehicleSpecification")
+															+ "']//parent::span[@md-highlight-text]");
+											
+											clearAndSenKeys(vehicleSpecification,
+													riskDetailsData.getProperty("VehicleSpecification").trim(),
+													"Vehicle Specification");
+											//click(clickvehicleSpecification, riskDetailsData.getProperty("VehicleSpecification"));
+											
+											//if Suggestion More The One 
+											List<WebElement> vehicleSpecification = driver.findElements(clickvehicleSpecification);
+											if(vehicleSpecification.size() != 0)
+											{
+												//for Loop
+												for(int i=0;i<vehicleSpecification.size();i++)
+												{
+													String vehicleModelValue = vehicleSpecification.get(i).getAttribute("innerText");
+													if(vehicleModelValue.trim().toLowerCase().equalsIgnoreCase(riskDetailsData.getProperty("VehicleSpecification").trim().toLowerCase()))
+													{
+														//click(clickvehicleMake, riskDetailsData.getProperty("VehicleMake"));
+														vehicleSpecification.get(i).click();
+														Reporter.log("Clicked on <B> " + riskDetailsData.getProperty("VehicleSpecification").trim() + "</B> ");
+														break;
+													}
+												}
+											}
+											else
+											{
+												click(fristclickvehicleSpecification, riskDetailsData.getProperty("VehicleSpecification").trim());
+											}
+										}
+									}
+									
+									if (riskDetailsData.getProperty("TypeOfFuel") != null) {
+										if (riskDetailsData.getProperty("TypeOfFuel") != "") 
+										{
+											//CNG (External Kit) its CNG1
+											//LPG (External Kit) its LPG1
+										}
+									}
+									String DOR;
+									if (riskDetailsData.getProperty("DateOfRegistration") != null) {
+										if (riskDetailsData.getProperty("DateOfRegistration") != "")
+										{
+											//Click On Date of Registration
+											driver.findElement(DateOfRegistration).click();
+											
+											DOR=riskDetailsData.getProperty("DateOfRegistration").trim();
+											
+											if(DOR.equalsIgnoreCase("currentDate"))
+											{
+												clearAndSenKeys(DateOfRegistration,getCurrentDate(riskDetailsData.getProperty("DateOfRegistration")),
+														"Date Of Registration");
+											}
+											else
+											{
+												
+												DOR=riskDetailsData.getProperty("DateOfRegistration").trim().split("-")[1];
+												
+												String dateformate = "",dateValue;
+												if(DOR.equalsIgnoreCase("year")) 
+																				dateformate="Year";
+												if(DOR.equalsIgnoreCase("Days")) 
+																				dateformate="Days";
+												if(DOR.equalsIgnoreCase("Date"))
+																				dateformate="Date";
+												
+												switch (dateformate.toUpperCase()) 
+												{
+													case "YEAR":
+														clearAndSenKeys(DateOfRegistration,getCalculatedAged(riskDetailsData.getProperty("DateOfRegistration").trim().split("-")[0]),
+																"Date Of Registration");
+														break;
+													case "DAYS":
+														selectDateFromDatePicker(riskDetailsData.getProperty("DateOfRegistration").replace("-", ":"),getCalculatedAgedByDays(riskDetailsData.getProperty("DateOfRegistration").trim().split("-")[0]));
+														//clearAndSenKeys(DateOfRegistration,getCalculatedAgedByDays(riskDetailsData.getProperty("DateOfRegistration").trim().split("-")[0]),"Date Of Registration");
+														
+														break;	
+													case "DATE":
+														clearAndSenKeys(DateOfRegistration,riskDetailsData.getProperty("DateOfRegistration"),
+																"Date Of Registration");
+														break;
+													default:
+														break;
+												}
+											}
+										}
+									}
+									
+									if (riskDetailsData.getProperty("TypeOfModification") != null) {
+										if (riskDetailsData.getProperty("TypeOfModification") != "") {
+											selectFromDropdownByVisibleText(TypeOfModification,
+													riskDetailsData.getProperty("TypeOfModification"), "Type Of Modification");
+										}
+									}
+								}
+							}
+							
+							// RTA Details
+							if (riskDetailsData.getProperty("FillRTADetails") != null) {
+								if (riskDetailsData.getProperty("FillRTADetails").equalsIgnoreCase("Yes")
+										&& riskDetailsData.getProperty("FillRTADetails") != "") {
+									if (riskDetailsData.getProperty("RTACode") != null) {
+										if (riskDetailsData.getProperty("RTACode") != "") {
+											clearAndSenKeys(RTACode, riskDetailsData.getProperty("RTACode"), "RTA Code");
+											driver.findElement(RTACode).sendKeys(Keys.TAB);
+											Thread.sleep(WaitTime.medium);
+
+											// Fetch RTA Data
+											RTACodevalue = fetchTextFromAngularApplication(rtaCode, "RTA Code");
+											RTAStatevalue = fetchTextFromAngularApplication(rtaState, "RTA State");
+											RTADistrictvalue = fetchTextFromAngularApplication(rtaDistrict, "RTA District");
+											RTACityvalue = fetchTextFromAngularApplication(rtaCity, "RTA City");
+										//	RTAPincodevalue = fetchTextFromAngularApplication(rtaPincode, "RTA Pincode");
+											RegistrationZonevalue = fetchTextFromAngularApplication(registrationZone,
+													"Registration Zone");
+
+											System.out.println("RTACodevalue ---- " + RTACodevalue
+													+ "RTAStatevalue------+RTAStatevalue" + "RTADistrictvalue------"
+													+ RTADistrictvalue + "RTACityvalue-----------" + RTACityvalue
+													+ "RTACityvalue----------" + RTACityvalue + "RTAPincodevalue-----"
+													+ RTAPincodevalue + "RegistrationZonevalue-----" + RegistrationZonevalue);
+
+										}
+									}
+								}
+							}
+							
+							// Risk Properties
+							if (riskDetailsData.getProperty("FillRiskProperties") != null) {
+								String sheetName = riskDetailsData.getProperty("RiskProperties");
+								Properties RiskPropertiesData = ExcelRead.readRowDataInProperties(workbook, sheetName,testScenarioID, stepGroup);
+
+								if (riskDetailsData.getProperty("FillRiskProperties").equalsIgnoreCase("Yes")
+										&& riskDetailsData.getProperty("FillRiskProperties") != "") {
+
+									if (RiskPropertiesData.getProperty("VechileColor") != null) {
+										if (RiskPropertiesData.getProperty("VechileColor") != "") {
+											
+											String vechileColor=RiskPropertiesData.getProperty("ProductName").trim().toUpperCase();
+											switch (vechileColor) {
+											case "PRIVATE CAR":
+												clearAndSenKeys(vehicleColorPrivateCar, RiskPropertiesData.getProperty("VechileColor"),
+														"Vechile Color");
+												break;
+											case "TWO WHEELER":
+												
+												By fristclickvehicleColor = By.xpath(
+														"//input[@id='colour']//following::li//span[@class='highlight'][text()='"
+																+ RiskPropertiesData.getProperty("VechileColor")
+																+ "']//ancestor::li[1]");
+												
+												clickvehicleColorTwowheeler = By.xpath(
+														"//input[@id='colour']//following::li//span[@class='highlight'][text()='"
+																+ RiskPropertiesData.getProperty("VechileColor")
+																+ "']//parent::span[@md-highlight-text]");
+												
+												clearAndSenKeys(vehicleColorTwowheeler, RiskPropertiesData.getProperty("VechileColor"),
+														"Vechile Color");
+												
+												//if Suggestion More The One 
+												List<WebElement> vehiclecolor = driver.findElements(clickvehicleColorTwowheeler);
+												if(vehiclecolor.size() != 0)
+												{
+													//for Loop
+													for(int i=0;i<vehiclecolor.size();i++)
+													{
+														String vehicleModelValue = vehiclecolor.get(i).getAttribute("innerText");
+														if(vehicleModelValue.trim().toLowerCase().equalsIgnoreCase(RiskPropertiesData.getProperty("VechileColor").trim().toLowerCase()))
+														{
+															//click(clickvehicleMake, riskDetailsData.getProperty("VehicleMake"));
+															vehiclecolor.get(i).click();
+															Reporter.log("Clicked on <B> " + RiskPropertiesData.getProperty("VechileColor").trim() + "</B> ");
+															break;
+														}
+													}
+												}
+												else
+												{
+													click(fristclickvehicleColor, RiskPropertiesData.getProperty("VechileColor").trim());
+												}
+												break;
+
+											default:
+												break;
+											}
+										}
+									}
+									//Add Code For IDV Value For Endorsement
+									if (riskDetailsData.getProperty("ChangeIDVAmount") != null) {
+										if (riskDetailsData.getProperty("ChangeIDVAmount") != "") 
+										{
+											changeIDVAmount=By.id("Vehicle IDV");
+											clearAndSenKeys(changeIDVAmount, riskDetailsData.getProperty("ChangeIDVAmount"),"");
+										}
+									}
+									
+									if (RiskPropertiesData.getProperty("AddVehicleDetails") != null) {
+										if (RiskPropertiesData.getProperty("AddVehicleDetails") != "" && RiskPropertiesData
+												.getProperty("AddVehicleDetails").equalsIgnoreCase("Yes")) {
+											click(vehicleDetailsButton, "Vehicle Details Button");
+											switchToWindow(driver, "Details");
+
+											vehicleUniqueId = By.xpath(
+													"//table[@id='SearchResult']/tbody/tr[@class='table_ce11']/td[text()='"
+															+ riskDetailsData.getProperty("VehicleMake") + "']//preceding::a[1]");
+											
+											click(vehicleUniqueId, "Unique ID");
+
+											switchToWindow(driver, "Insured Details");
+
+											vehicleInvoice = fetchTextFromAngularApplication(vehicleInvoiceValue,
+													"Vehicle Invoice Value");
+											
+											//Base On Product its Varies.
+											if(RiskPropertiesData.getProperty("ProductName").trim().toUpperCase().equalsIgnoreCase("Private Car".toUpperCase()))
+											{
+												zoneforRTIvalue = fetchTextFromAngularApplication(zoneforRTI, "Zone for RTI value");
+											}
+
+											vehicleIDVvalue = fetchTextFromAngularApplication(vehicleIDV, "vehicle IDV");
+											originalIDVvalue = fetchTextFromAngularApplication(originalIDV, "original IDV");
+										}
+
+										//Added By Suraj For Motor - Two Wheeler
+										if (riskDetailsData.getProperty("SideCar") != null) {
+											if (RiskPropertiesData.getProperty("SideCar") != "" && RiskPropertiesData
+													.getProperty("SideCar").equalsIgnoreCase("Yes")) {
+												
+												selectFromDropdownByVisibleText(sideCar, RiskPropertiesData.getProperty("SideCar"),
+														"Side Car");
+												
+												waitForPageLoader();
+												
+												clearAndSenKeys(sideCarSumInsured, RiskPropertiesData.getProperty("SideCarSumInsured"),
+														"side Car Sum Insured");
+											}
+										}
+										
+										
+										if(riskDetailsData.getProperty("TypeOfFuel").equalsIgnoreCase("CNG1") || riskDetailsData.getProperty("TypeOfFuel").equalsIgnoreCase("LPG1"))
+										{
+											selectFromDropdownByValue(TypeOfFuel, riskDetailsData.getProperty("TypeOfFuel"),
+													"Type Of Fuel");
+											
+											isLPGOrCNGExternalFlag=true;
+										}
+									}
+
+									//This Cover Will opt when fuel type is CNG
+									
+									if(isLPGOrCNGExternalFlag)
+									{
+										if (RiskPropertiesData.getProperty("IsCNGLPGExtrafitted") != null) {
+											if (RiskPropertiesData.getProperty("IsCNGLPGExtrafitted") != "" && RiskPropertiesData
+													.getProperty("IsCNGLPGExtrafitted").equalsIgnoreCase("Yes")) 
+											{
+												selectFromDropdownByVisibleText(isCNGLPGExtrafitted, RiskPropertiesData.getProperty("IsCNGLPGExtrafitted"),
+														"Is CNG LPG Extra fitted");
+												waitForPageLoader();
+												clearAndSenKeys(cNGLPGkitIDV, RiskPropertiesData.getProperty("CNGLPGkitIDV"),
+														"CNG LPG kit IDV");
+											}
+										}
+									}
+									
+
+									if (RiskPropertiesData.getProperty("MultipleAccessoriesPresent") != null) {
+										if (RiskPropertiesData.getProperty("MultipleAccessoriesPresent") != ""
+												&& RiskPropertiesData.getProperty("MultipleAccessoriesPresent")
+														.equalsIgnoreCase("Yes")) {
+											
+											MultipleAccessoriesDetailFlag=true;
+										}
+									}
+
+									//For Motor
+									if (RiskPropertiesData.getProperty("LossofAccessories_IMT33") != null) {
+										if (RiskPropertiesData.getProperty("LossofAccessories_IMT33") != ""
+												&& RiskPropertiesData.getProperty("LossofAccessories_IMT33")
+														.equalsIgnoreCase("Yes")) {
+											
+											lossofAccessoriesFlag=true;
+										}
+									}
+									
+									if (RiskPropertiesData.getProperty("Isthecarusedfordemonstrationpurpose") != null) {
+										if (RiskPropertiesData.getProperty("Isthecarusedfordemonstrationpurpose") != ""
+												&& RiskPropertiesData.getProperty("Isthecarusedfordemonstrationpurpose")
+														.equalsIgnoreCase("Yes")) {
+											selectFromDropdownByVisibleText(Isthecarusedfordemonstrationpurpose,
+													RiskPropertiesData.getProperty("Isthecarusedfordemonstrationpurpose"),
+													"Is the car used for demonstration purpose");
+										}
+									}
+
+									if (RiskPropertiesData.getProperty("Isthecarusedfordrivingtuitionpurpose") != null) {
+										if (RiskPropertiesData.getProperty("Isthecarusedfordrivingtuitionpurpose") != ""
+												&& RiskPropertiesData.getProperty("Isthecarusedfordrivingtuitionpurpose")
+														.equalsIgnoreCase("Yes")) {
+											selectFromDropdownByVisibleText(Isthecarusedfordrivingtuitionpurpose,
+													RiskPropertiesData.getProperty("Isthecarusedfordrivingtuitionpurpose"),
+													"Is the car used for driving tuition purpose");
+										}
+
+									}
+
+									if (RiskPropertiesData.getProperty("Roadtaxamount") != null) {
+										if (RiskPropertiesData.getProperty("Roadtaxamount") != "") {
+											clearAndSenKeys(Roadtaxamount,
+													RiskPropertiesData.getProperty("Roadtaxamount"), "Road Tax Amount");
+										}
+
+									}
+
+									if (RiskPropertiesData.getProperty("AdditionalTowingCharges") != null) {
+										if (RiskPropertiesData.getProperty("AdditionalTowingCharges") != "") {
+										
+											String productName=dataRow.getProperty("Product").trim().toUpperCase(); 
+											switch (productName) {
+											case "PRIVATE CAR":
+												selectFromDropdownByVisibleText(AdditionalTowingCharges,
+														RiskPropertiesData.getProperty("AdditionalTowingCharges"),
+														"Additional Towing Charges");
+												break;
+											case "TWO WHEELER":
+												selectFromDropdownByVisibleText(TwowheelerAdditionalTowingCharges,
+														RiskPropertiesData.getProperty("AdditionalTowingCharges"),
+														"Additional Towing Charges");
+												break;
+											default:
+												break;
+
+										}
+
+								       }
+									}
+
+									if (RiskPropertiesData.getProperty("ExtensionofGeographicalAreaRequired_IMT1") != null) {
+										if (RiskPropertiesData.getProperty("ExtensionofGeographicalAreaRequired_IMT1") != ""
+												&& RiskPropertiesData.getProperty("ExtensionofGeographicalAreaRequired_IMT1")
+														.equalsIgnoreCase("Yes")) {
+											//GeographicalExtensionDetailFlag=true;
+										}
+									}
+
+									//
+									if (RiskPropertiesData.getProperty(
+											"WhethervehicleiscertifiedasVintagecarbyVintageandClassicCarclub_IMT2") != null) {
+										if (RiskPropertiesData.getProperty(
+												"WhethervehicleiscertifiedasVintagecarbyVintageandClassicCarclub_IMT2") != ""
+												&& RiskPropertiesData.getProperty(
+														"WhethervehicleiscertifiedasVintagecarbyVintageandClassicCarclub_IMT2")
+														.equalsIgnoreCase("Yes")) {
+											selectFromDropdownByVisibleText(
+													WhethervehicleiscertifiedasVintagecarbyVintageandClassicCarclub_IMT2,
+													RiskPropertiesData.getProperty(
+															"WhethervehicleiscertifiedasVintagecarbyVintageandClassicCarclub_IMT2"),
+													"Whether vehicle is certified as Vintage car by Vintage and Classic Car club_IMT 2");
+										}
+									}
+
+									if (RiskPropertiesData
+											.getProperty("AreyouamemberofAutomobileAssociationofIndia_IMT8") != null) {
+										if (RiskPropertiesData
+												.getProperty("AreyouamemberofAutomobileAssociationofIndia_IMT8") != ""
+												&& RiskPropertiesData
+														.getProperty("AreyouamemberofAutomobileAssociationofIndia_IMT8")
+														.equalsIgnoreCase("Yes")) {
+											selectFromDropdownByVisibleText(AreyouamemberofAutomobileAssociationofIndia_IMT8,
+													RiskPropertiesData
+															.getProperty("AreyouamemberofAutomobileAssociationofIndia_IMT8"),
+													"Are you a member of Automobile Association of India_IMT 8");
+											waitForPageLoader();
+											clearAndSenKeys(NameofAssociation,
+													RiskPropertiesData.getProperty("NameofAssociation"), "Name of Association");
+											clearAndSenKeys(MembershipNo, RiskPropertiesData.getProperty("MembershipNo"),
+													"Membership No");
+
+											if (RiskPropertiesData.getProperty("IsLifeMember").equalsIgnoreCase("Yes")) {
+												selectFromDropdownByVisibleText(IsLifeMember,
+														RiskPropertiesData.getProperty("IsLifeMember"), "Is LifeMember");
+												
+												/*if(isDisplayed(DateofMembershipExpiry))
+												{
+													clearAndSenKeys(DateofMembershipExpiry,
+															getPreviousOrFutureDate(
+																	RiskPropertiesData.getProperty("DateofMembershipExpiry")),
+															"Date of Membership Expiry");
+												}*/
+											}
+										}
+									}
+
+									if (RiskPropertiesData
+											.getProperty("IsthevehiclefittedwithAnti-theftdevice_IMT10") != null) {
+										if (RiskPropertiesData.getProperty("IsthevehiclefittedwithAnti-theftdevice_IMT10") != ""
+												&& RiskPropertiesData
+														.getProperty("IsthevehiclefittedwithAnti-theftdevice_IMT10")
+														.equalsIgnoreCase("Yes")) {
+											selectFromDropdownByVisibleText(IsthevehiclefittedwithAntitheftdeviceIMT10,
+													RiskPropertiesData
+															.getProperty("IsthevehiclefittedwithAnti-theftdevice_IMT10"),
+													"Is the vehicle fitted with Anti-theft device_IMT10");
+										}
+									}
+
+									if (RiskPropertiesData.getProperty(
+											"VehicledesignedforBlindhandicappedMentallychallengedpersonsandendorsedbyRTA_IMT12") != null) {
+										if (RiskPropertiesData.getProperty(
+												"VehicledesignedforBlindhandicappedMentallychallengedpersonsandendorsedbyRTA_IMT12") != ""
+												&& RiskPropertiesData.getProperty(
+														"VehicledesignedforBlindhandicappedMentallychallengedpersonsandendorsedbyRTA_IMT12")
+														.equalsIgnoreCase("Yes")) {
+											selectFromDropdownByVisibleText(
+													VehicledesignedforBlindhandicappedMentallychallengedpersonsandendorsedbyRTA_IMT12,
+													RiskPropertiesData.getProperty(
+															"VehicledesignedforBlindhandicappedMentallychallengedpersonsandendorsedbyRTA_IMT12"),
+													"Vehicle designed for Blind handicapped Mentally challenged persons and endorsed by RTA_IMT12");
+										}
+									}
+
+									if (RiskPropertiesData.getProperty("VehicleuseislimitedtoOwnPremises_IMT13") != null) {
+										if (RiskPropertiesData.getProperty("VehicleuseislimitedtoOwnPremises_IMT13") != ""
+												&& RiskPropertiesData.getProperty("VehicleuseislimitedtoOwnPremises_IMT13")
+														.equalsIgnoreCase("Yes")) {
+											selectFromDropdownByVisibleText(VehicleuseislimitedtoOwnPremises_IMT13,
+													RiskPropertiesData.getProperty("VehicleuseislimitedtoOwnPremises_IMT13"),
+													"Vehicle use is limited to Own Premises_IMT13");
+											waitForPageLoader();
+											clearAndSenKeys(PremisesAddress, RiskPropertiesData.getProperty("PremisesAddress"),
+													"Premises Address");
+										}
+									}
+
+									//Do you want to include PA cover to Named Person (IMT 15)
+									
+									if (RiskPropertiesData.getProperty("DoyouwanttoincludePAcovertoNamedPerson_IMT15") != null) {
+										if (RiskPropertiesData.getProperty("DoyouwanttoincludePAcovertoNamedPerson_IMT15") != ""
+												&& RiskPropertiesData
+														.getProperty("DoyouwanttoincludePAcovertoNamedPerson_IMT15")
+														.equalsIgnoreCase("Yes")) {
+														
+															NamedPersonDetailsFlag=true;
+										}
+									}
+									
+									if (RiskPropertiesData.getProperty(
+											"DoyouwanttoincludePAcoverforUnnamedPersonotherthaninsuredandthepaiddriverandcleaner_IMT16") != null) {
+										if (RiskPropertiesData.getProperty(
+												"DoyouwanttoincludePAcoverforUnnamedPersonotherthaninsuredandthepaiddriverandcleaner_IMT16") != ""
+												&& RiskPropertiesData.getProperty(
+														"DoyouwanttoincludePAcoverforUnnamedPersonotherthaninsuredandthepaiddriverandcleaner_IMT16")
+														.equalsIgnoreCase("Yes")) {
+											selectFromDropdownByVisibleText(
+													DoyouwanttoincludePAcoverforUnnamedPersonotherthaninsuredandthepaiddriverandcleaner_IMT16,
+													RiskPropertiesData.getProperty(
+															"DoyouwanttoincludePAcoverforUnnamedPersonotherthaninsuredandthepaiddriverandcleaner_IMT16"),
+													"Do you want to include PA cover fo rUnnamed Person other than insured and the paid driver and cleaner_IMT16");
+											waitForPageLoader();
+											clearAndSenKeys(NOofUnnamedpersons,
+													RiskPropertiesData.getProperty("NOofUnnamedpersons"),
+													"Name of Association");
+											selectFromDropdownByVisibleText(IndividualSIfor_IMT16,
+													RiskPropertiesData.getProperty("IndividualSIfor_IMT16"),
+													"IndividualSIfor_IMT16");
+											
+											IndividualSIforIMT16=RiskPropertiesData.getProperty("IndividualSIfor_IMT16").trim();
+										}
+									}
+								}
+
+								//
+								if (RiskPropertiesData.getProperty(
+										"DoyouwanttoincludePAcovertopaiddriverscleanersandconductors_IMT17") != null) {
+									if (RiskPropertiesData.getProperty("DoyouwanttoincludePAcovertopaiddriverscleanersandconductors_IMT17") != "" && RiskPropertiesData.getProperty("DoyouwanttoincludePAcovertopaiddriverscleanersandconductors_IMT17").equalsIgnoreCase("Yes")) {
+										selectFromDropdownByVisibleText(
+												DoyouwanttoincludePAcovertopaiddriverscleanersandconductors_IMT17,
+												RiskPropertiesData.getProperty(
+														"DoyouwanttoincludePAcovertopaiddriverscleanersandconductors_IMT17"),
+												"Do you want to include PA cover to paid drivers cleaner sand conductors_IMT17");
+										driver.findElement(DoyouwanttoincludePAcovertopaiddriverscleanersandconductors_IMT17).sendKeys(Keys.TAB);
+										waitForPageLoader();
+										clearAndSenKeys(Noofpaiddriverscleanersandconductors,
+												RiskPropertiesData.getProperty("Noofpaiddriverscleanersandconductors"),
+												"No of paid drivers cleaner sand conductors");
+										selectFromDropdownByVisibleText(IndividualSI,
+												RiskPropertiesData.getProperty("IndividualSI"), "IndividualSI");
+										
+										IndividualSIcleanersandconductors=RiskPropertiesData.getProperty("IndividualSI").trim();
+										
+									}
+								}
+								
+								//Coverforvehiclesimportedwithoutcustomsduty_IMT19
+								if (RiskPropertiesData.getProperty("Coverforvehiclesimportedwithoutcustomsduty_IMT19") != null) {
+									if (RiskPropertiesData.getProperty("Coverforvehiclesimportedwithoutcustomsduty_IMT19").equalsIgnoreCase("Yes")
+											&& RiskPropertiesData.getProperty("Coverforvehiclesimportedwithoutcustomsduty_IMT19") != "") {
+										selectFromDropdownByVisibleText(coverforvehiclesimportedwithoutcustomsduty_IMT19,
+												RiskPropertiesData.getProperty("Coverforvehiclesimportedwithoutcustomsduty_IMT19"), "Coverforvehiclesimportedwithoutcustomsduty_IMT19");
+									}
+								}
+								
+								//DoyouwanttoreduceTPPDCovertothestatutorylimitof6000_IMT20
+								if (RiskPropertiesData.getProperty("DoyouwanttoreduceTPPDCovertothestatutorylimitof6000_IMT20") != null) {
+									if (RiskPropertiesData.getProperty("DoyouwanttoreduceTPPDCovertothestatutorylimitof6000_IMT20").equalsIgnoreCase("Yes")
+											&& RiskPropertiesData.getProperty("DoyouwanttoreduceTPPDCovertothestatutorylimitof6000_IMT20") != "") {
+
+										selectFromDropdownByVisibleText(doyouwanttoreduceTPPDCovertothestatutorylimitof6000_IMT20,
+												RiskPropertiesData.getProperty("DoyouwanttoreduceTPPDCovertothestatutorylimitof6000_IMT20"), "DoyouwanttoreduceTPPDCovertothestatutorylimitof6000_IMT20");
+									}
+									
+								}
+								//Voluntary Deductable (IMT 22A)
+								if (RiskPropertiesData.getProperty("VoluntaryDeductable_IMT22A") != null) {
+									if (RiskPropertiesData.getProperty("VoluntaryDeductable_IMT22A") != "") {
+										
+										String productName=dataRow.getProperty("Product").trim().toUpperCase(); 
+										switch (productName) {
+										case "PRIVATE CAR":
+											selectFromDropdownByVisibleText(voluntaryDeductable_IMT22A,
+													RiskPropertiesData.getProperty("VoluntaryDeductable_IMT22A"), "Voluntary Deductable (IMT 22A)");
+											break;
+										case "TWO WHEELER":
+											selectFromDropdownByVisibleText(TwoWheelervoluntaryDeductable_IMT22,
+													RiskPropertiesData.getProperty("VoluntaryDeductable_IMT22A"), "Voluntary Deductable (IMT 22A)");
+											break;
+										default:
+											break;
+
+									  }
+									}	
+									
+								}
+								
+								if(riskDetailsData.getProperty("IsEndorsement")!=null)
+							    {
+						    	    if(!riskDetailsData.getProperty("IsEndorsement").equalsIgnoreCase("") && !riskDetailsData.getProperty("IsEndorsement").equalsIgnoreCase("Yes"))
+								    {
+						    	    	//For Two wheeler 
+										String productName=dataRow.getProperty("Product").trim().toUpperCase(); 
+										switch (productName) 
+										{
+											case "PRIVATE CAR":
+												selectFromDropdownByVisibleText(AdditionalTowingCharges,
+														RiskPropertiesData.getProperty("AdditionalTowingCharges"),
+														"Additional Towing Charges");
+												break;
+											case "TWO WHEELER":
+												selectFromDropdownByVisibleText(TwowheelerAdditionalTowingCharges,
+														RiskPropertiesData.getProperty("AdditionalTowingCharges"),
+														"Additional Towing Charges");
+												break;
+											default:
+												break;
+										}
+								    }
+							    }
+								
+								//Imposed Excess
+								if (RiskPropertiesData.getProperty("ImposedExcess") != null) {
+									if (RiskPropertiesData.getProperty("ImposedExcess") != "") {
+
+										clearAndSenKeys(imposedExcess,RiskPropertiesData.getProperty("ImposedExcess"), "Imposed Excess");
+									}
+									
+								}
+								
+								//No of LL to Paid driver(IMT28)
+								if (RiskPropertiesData.getProperty("NoofLLtoPaiddriver_IMT28") != null) {
+									if (RiskPropertiesData.getProperty("NoofLLtoPaiddriver_IMT28") != "") {
+
+										clearAndSenKeys(noofLLtoPaiddriver_IMT28,
+												RiskPropertiesData.getProperty("NoofLLtoPaiddriver_IMT28"), "No of LL to Paid driver(IMT28)");
+									}
+								}
+								
+								//No of LL to Employees other than Paid driver(IMT29)
+								if (RiskPropertiesData.getProperty("NoofLLtoEmployeesotherthanPaiddriver_IMT29") != null) {
+									if (RiskPropertiesData.getProperty("NoofLLtoEmployeesotherthanPaiddriver_IMT29") != "") {
+
+										clearAndSenKeys(noofLLtoEmployeesotherthanPaiddriver_IMT29,
+												RiskPropertiesData.getProperty("NoofLLtoEmployeesotherthanPaiddriver_IMT29"), "No of LL to Employees other than Paid driver(IMT29)");
+									}
+								}
+								
+								//Rally Type (IMT 31)
+								if (RiskPropertiesData.getProperty("RallyType_IMT31") != null) {
+									if (RiskPropertiesData.getProperty("RallyType_IMT31") != "") 
+									{
+
+										selectFromDropdownByVisibleText(rallyType_IMT31,
+												RiskPropertiesData.getProperty("RallyType_IMT31"), "Rally Type (IMT 31)");
+										driver.findElement(rallyType_IMT31).sendKeys(Keys.TAB);
+										waitForPageLoader();
+										
+										if(isDisplayed(rallyAssociationName))
+										{
+											if(RiskPropertiesData.getProperty("RallyAssociationName")!= null) 
+											{
+												if (RiskPropertiesData.getProperty("RallyAssociationName") != "")
+												{
+													clearAndSenKeys(rallyAssociationName, RiskPropertiesData.getProperty("RallyAssociationName"), "Rally Association Name");
+												}
+											}
+											
+											if(RiskPropertiesData.getProperty("NoofDaysforRally_IMT31")!= null) 
+											{
+												if (RiskPropertiesData.getProperty("NoofDaysforRally_IMT31") != "")
+												{
+													clearAndSenKeys(noofDaysforRally_IMT31, RiskPropertiesData.getProperty("NoofDaysforRally_IMT31"), "No of Days for Rally (IMT 31)");
+												}
+											}
+											if(RiskPropertiesData.getProperty("StartDateofRally_IMT31")!= null) 
+											{
+												if (RiskPropertiesData.getProperty("StartDateofRally_IMT31") != "")
+												{
+													clearAndSenKeys(startDateofRally_IMT31,getPreviousOrFutureDate(RiskPropertiesData.getProperty("StartDateofRally_IMT31")),  "Start Date of Rally (IMT 31)");
+												}
+											}
+											if(RiskPropertiesData.getProperty("EndDateofRally_IMT31")!= null) 
+											{
+												if (RiskPropertiesData.getProperty("EndDateofRally_IMT31") != "")
+												{
+												  clearAndSenKeys(endDateofRally_IMT31, getPreviousOrFutureDate(RiskPropertiesData.getProperty("EndDateofRally_IMT31")),  "End Date of Rally (IMT 31)");
+												}
+											}
+											if(RiskPropertiesData.getProperty("RallyAdditionalExcess")!= null) 
+											{
+												if (RiskPropertiesData.getProperty("RallyAdditionalExcess") != "")
+												{
+													if(IsDisableOrNot(rallyAdditionalExcess))
+													{
+														clearAndSenKeys(rallyAdditionalExcess, RiskPropertiesData.getProperty("RallyAdditionalExcess"),  "Rally Additional Excess");
+													}
+												}
+											}
+										}
+									}
+								}
+								
+								//Accidents to soldiers sailors airmen employed as drivers applicable (IMT 32)
+								if (RiskPropertiesData.getProperty("Accidentstosoldierssailorsairmenemployedasdriversapplicable_IMT32") != null) {
+									if (RiskPropertiesData.getProperty("Accidentstosoldierssailorsairmenemployedasdriversapplicable_IMT32").equalsIgnoreCase("yes") && RiskPropertiesData.getProperty("Accidentstosoldierssailorsairmenemployedasdriversapplicable_IMT32") != "") {
+										
+										selectFromDropdownByVisibleText(accidentstosoldierssailorsairmenemployedasdriversapplicable_IMT32,
+												RiskPropertiesData.getProperty("Accidentstosoldierssailorsairmenemployedasdriversapplicable_IMT32"), "Accidents to soldiers sailors airmen employed as drivers applicable (IMT 32)");
+									
+									
+										if(RiskPropertiesData.getProperty("NoofPersonsfor_IMT32")!= null) 
+										{
+											if (RiskPropertiesData.getProperty("NoofPersonsfor_IMT32") != "")
+											{
+												clearAndSenKeys(NoofPersonsfor_IMT32, RiskPropertiesData.getProperty("NoofPersonsfor_IMT32"),  "No of Persons for_IMT32");
+											}
+										}
+									
+									}
+								}
+								
+								
+								if(RiskPropertiesData.getProperty("Trailerdetails") != null)
+								{
+									if(RiskPropertiesData.getProperty("Trailerdetails").equalsIgnoreCase("yes") && RiskPropertiesData.getProperty("Trailerdetails") != "")
+									{
+										TrailerDetailsFlag=true;
+									}
+								}
+								
+							}
+							
+							// Addon Cover Property  AddonCoverPropertySheet
+							if (riskDetailsData.getProperty("FillAddonCoverProperty") != null) {
+								if (riskDetailsData.getProperty("FillAddonCoverProperty").equalsIgnoreCase("Yes")
+										&& riskDetailsData.getProperty("FillAddonCoverProperty") != "") {
+									
+									String AddonCoverPropertySheetName=riskDetailsData.getProperty("AddonCoverPropertySheet");
+									String quickQuoteInformationsheetName=riskDetailsData.getProperty("QuickQuoteInformationSheetName");
+									
+									addonCoverPropertyData = ExcelRead.readRowDataInProperties(workbook, AddonCoverPropertySheetName, testScenarioID, stepGroup);
+									quickQuoteInformationData = ExcelRead.readRowDataInProperties(workbook, quickQuoteInformationsheetName, testScenarioID, stepGroup);
+
+									if(addonCoverPropertyData.getProperty("InconvenienceAllowance")!= null) 
+									{
+										if (addonCoverPropertyData.getProperty("InconvenienceAllowance") != "")
+										{
+											//surajsingh
+											selectFromDropdownByVisibleText(inconvenienceAllowance, addonCoverPropertyData.getProperty("InconvenienceAllowance"),  "Inconvenience Allowance");
+										}
+										
+										if (addonCoverPropertyData.getProperty("InconvenienceAllowance").equalsIgnoreCase("No"))
+										{
+											//surajsingh
+											selectFromDropdownByVisibleText(inconvenienceAllowance, "",  "Inconvenience Allowance");
+										}
+									}
+									if(addonCoverPropertyData.getProperty("EMIProtector")!= null) 
+                                    {
+                                        if (addonCoverPropertyData.getProperty("EMIProtector") != "")
+                                        {
+                                            selectFromDropdownByVisibleText(EMIProtector, addonCoverPropertyData.getProperty("EMIProtector"),  "EMI Protector");
+                                            
+                                        }
+                                    }
+
+									
+									if(addonCoverPropertyData.getProperty("EMIAmount")!= null) 
+									{
+										if (addonCoverPropertyData.getProperty("EMIAmount") != "")
+										{
+											clearAndSenKeys(EMIAmount, addonCoverPropertyData.getProperty("EMIAmount"),  "EMI Amount");
+										}
+									}
+									
+									if(addonCoverPropertyData.getProperty("EMIDeductibleAmount")!= null) 
+									{
+										if (addonCoverPropertyData.getProperty("EMIDeductibleAmount") != "")
+										{
+											selectFromDropdownByVisibleText(EMIDeductibleAmount, addonCoverPropertyData.getProperty("EMIDeductibleAmount"),  "EMI Deductible Amount");
+										}
+									}
+									
+									if(addonCoverPropertyData.getProperty("TyreandRimGuard")!= null) 
+									{
+										if (addonCoverPropertyData.getProperty("TyreandRimGuard") != "" && ( addonCoverPropertyData.getProperty("TyreandRimGuard").equalsIgnoreCase("yes") || addonCoverPropertyData.getProperty("TyreandRimGuard").equalsIgnoreCase("No")))
+										{
+											TyreandRimGuardDetailsFlag=true;
+										}
+									}
+									
+									//Loss of Personal Belongings (Sum Insured)
+									if(addonCoverPropertyData.getProperty("LossofPersonalBelongings")!=null)
+									{
+										if(addonCoverPropertyData.getProperty("LossofPersonalBelongings")!="")
+										{
+											clearAndSenKeys(lossofPersonalBelongingsSumInsured, addonCoverPropertyData.getProperty("LossofPersonalBelongings"), "Loss of Personal Belongings");
+										}
+									}
+									
+									//zone
+									if(addonCoverPropertyData.getProperty("zone")!=null)
+									{
+										if(addonCoverPropertyData.getProperty("zone")!="")
+										{
+											clearAndSenKeys(zone, addonCoverPropertyData.getProperty("zone"), "zone");
+										}
+									}
+									
+									//Emergency Medical Expense
+									if(addonCoverPropertyData.getProperty("EmergencyMedicalExpense")!=null)
+									{
+										if(addonCoverPropertyData.getProperty("EmergencyMedicalExpense")!="")
+										{
+											//For Two wheeler 
+											String productName=dataRow.getProperty("Product").trim().toUpperCase(); 
+											switch (productName) 
+											{
+												case "PRIVATE CAR":
+													selectFromDropdownByVisibleText(emergencyMedicalExpense, addonCoverPropertyData.getProperty("EmergencyMedicalExpense"), "Emergency Medical Expense");
+													break;
+												case "TWO WHEELER":
+													selectFromDropdownByVisibleText(TWemergencyMedicalExpense, addonCoverPropertyData.getProperty("EmergencyMedicalExpense"), "Emergency Medical Expense");
+													waitForPageLoader();
+													clearAndSenKeys(TWEmergencyMedicalExpenseSI, addonCoverPropertyData.getProperty("EmergencyMedicalExpenseSI"), "Emergency Medical Expense SI");
+													break;
+												default:
+													break;
+											}											
+										}
+									}
+									
+									//Presence of Air bags
+									if(addonCoverPropertyData.getProperty("PresenceofAirbags")!=null)
+									{
+										if(addonCoverPropertyData.getProperty("PresenceofAirbags")!="")
+										{
+											selectFromDropdownByVisibleText(presenceofAirbags, addonCoverPropertyData.getProperty("PresenceofAirbags"), "Presence of Airbags");
+										}
+									}
+									
+									// Tyre and Rim Guard Deductible Amount
+									if(addonCoverPropertyData.getProperty("AddOnTyreAndRimGuardDeductibleAmount")!=null)
+									{
+										if(addonCoverPropertyData.getProperty("AddOnTyreAndRimGuardDeductibleAmount")!="")
+										{
+											selectFromDropdownByVisibleText(tyreandRimGuardDeductibleAmount, addonCoverPropertyData.getProperty("AddOnTyreAndRimGuardDeductibleAmount"), " Tyre and Rim Guard Deductible Amount ");
+										}
+									}
+									
+									//Hospital Cash - Un-named Passengers (Sum Insured)
+									if(!quickQuoteInformationData.getProperty("PolicyType").equalsIgnoreCase("Bundled"))
+									{
+										if(IsDisableOrNot(hospitalCashUnnamedPassengers))
+										{
+											if(addonCoverPropertyData.getProperty("HospitalCashUnnamedPassengers")!=null)
+											{
+												if(!addonCoverPropertyData.getProperty("HospitalCashUnnamedPassengers").equalsIgnoreCase("No"))
+												{
+													selectFromDropdownByVisibleText(hospitalCashUnnamedPassengers, addonCoverPropertyData.getProperty("HospitalCashPaidDriver"), " Hospital Cash - Un-named Passengers (Sum Insured) ");												}
+												else selectFromDropdownByVisibleText(hospitalCashUnnamedPassengers,"", " Hospital Cash - Un-named Passengers (Sum Insured) ");
+												
+											}
+										}
+										
+										//Hospital Cash - Paid Driver(Sum Insured)
+										if(IsDisableOrNot(hospitalCashPaidDriver))
+										{
+											if(addonCoverPropertyData.getProperty("HospitalCashPaidDriver")!=null)
+											{
+												if(addonCoverPropertyData.getProperty("HospitalCashPaidDriver")!="")
+												{
+													if(!addonCoverPropertyData.getProperty("HospitalCashPaidDriver").equalsIgnoreCase("No"))
+													{
+														selectFromDropdownByVisibleText(hospitalCashPaidDriver, addonCoverPropertyData.getProperty("HospitalCashPaidDriver"), " Hospital Cash - Paid Driver(Sum Insured) ");
+													}
+													else selectFromDropdownByVisibleText(hospitalCashPaidDriver, "", " Hospital Cash - Paid Driver(Sum Insured) ");
+												}
+											}
+										}
+										
+										//Hospital Cash - Owner Driver (Sum Insured)
+										if(IsDisableOrNot(hospitalCashOwnerDriver))
+										{
+											if(addonCoverPropertyData.getProperty("HospitalCashOwnerDriver")!=null)
+											{
+												if(addonCoverPropertyData.getProperty("HospitalCashOwnerDriver")!="")
+												{
+													if(!addonCoverPropertyData.getProperty("HospitalCashOwnerDriver").equalsIgnoreCase("No"))
+													{
+														selectFromDropdownByVisibleText(hospitalCashOwnerDriver, addonCoverPropertyData.getProperty("HospitalCashOwnerDriver"), " Hospital Cash Owner Driver(Sum Insured) ");
+													}
+													else selectFromDropdownByVisibleText(hospitalCashOwnerDriver, "", " Hospital Cash Owner Driver(Sum Insured) ");
+												}
+											}	
+										}
+									}
+									
+									// For Motor -- Product -- Two Wheeler 
+
+									if(addonCoverPropertyData.getProperty("DepreciationReimbursement")!= null) 
+									{
+										if (addonCoverPropertyData.getProperty("DepreciationReimbursement") != "")
+										{
+											//surajsingh
+											selectFromDropdownByVisibleText(depreciationReimbursement, addonCoverPropertyData.getProperty("DepreciationReimbursement"),  "Depreciation Reimbursement");
+										}
+									}
+									
+									if(addonCoverPropertyData.getProperty("CoverforConsumables")!= null) 
+									{
+										if (addonCoverPropertyData.getProperty("CoverforConsumables") != "")
+										{
+											//surajsingh
+											selectFromDropdownByVisibleText(coverforConsumables, addonCoverPropertyData.getProperty("CoverforConsumables"),  "Cover for Consumables");
+										}
+									}
+									
+									if(addonCoverPropertyData.getProperty("EngineGuard")!= null) 
+									{
+										if (addonCoverPropertyData.getProperty("EngineGuard") != "")
+										{
+											//surajsingh
+											selectFromDropdownByVisibleText(engineGuard, addonCoverPropertyData.getProperty("EngineGuard"),  "Engine Guard");
+										}
+									}
+									
+									if(addonCoverPropertyData.getProperty("HelmetProtections")!= null) 
+									{
+										if (addonCoverPropertyData.getProperty("HelmetProtections") != "")
+										{
+											//surajsingh
+											selectFromDropdownByVisibleText(helmetProtections, addonCoverPropertyData.getProperty("HelmetProtections"),  "Helmet Protections");
+											waitForPageLoader();
+											clearAndSenKeys(helmetProtectionSI, addonCoverPropertyData.getProperty("HelmetProtectionSI"), "Helmet Protections SI");
+										}
+									}
+
+									if(addonCoverPropertyData.getProperty("BasicRoadsideAssistance")!= null) 
+									{
+										if (addonCoverPropertyData.getProperty("BasicRoadsideAssistance") != "")
+										{
+											//surajsingh
+											selectFromDropdownByVisibleText(basicRoadsideAssistance, addonCoverPropertyData.getProperty("BasicRoadsideAssistance"),  "Basic Road side Assistance");
+										}
+									}
+
+									if(addonCoverPropertyData.getProperty("ReturnToInvoice")!= null) 
+									{
+										if (addonCoverPropertyData.getProperty("ReturnToInvoice") != "")
+										{
+											//surajsingh
+											selectFromDropdownByVisibleText(returnToInvoice, addonCoverPropertyData.getProperty("ReturnToInvoice"),  "Return To Invoice");
+										}
+									}
+
+									if(addonCoverPropertyData.getProperty("ProtectionOfNCB")!= null) 
+									{
+										if (addonCoverPropertyData.getProperty("ProtectionOfNCB") != "")
+										{
+											//surajsingh
+											selectFromDropdownByVisibleText(protectionOfNCB, addonCoverPropertyData.getProperty("ProtectionOfNCB"),  "Protection Of NCB");
+										}
+									}
+								}
+							}
+
+							
+							// Pre Inspection Details
+							if (riskDetailsData.getProperty("FillPreInspectionDetails") != null) {
+								if (riskDetailsData.getProperty("FillPreInspectionDetails") != "") 
+								{
+									
+								}
+							}
+
+							// PA Owner Driver Exemption
+							if (riskDetailsData.getProperty("FillPAOwnerDriverExemption") != null) {
+								if (riskDetailsData.getProperty("FillPAOwnerDriverExemption").equalsIgnoreCase("Yes")
+										&& riskDetailsData.getProperty("FillPAOwnerDriverExemption") != "") {
+									
+									//CPA Cover Waiver Required
+									
+									if(riskDetailsData.getProperty("CPACoverWaiverRequired").equalsIgnoreCase("No"))
+									{
+										selectFromDropdownByValue(cPACoverWaiverRequired, "N", "CPA Cover Waiver Required");
+										driver.findElement(cPACoverWaiverRequired).sendKeys(Keys.TAB);
+										selectFromDropdownByVisibleText(yearOfCoverage, riskDetailsData.getProperty("YearOfCoverage"), "Year Of Coverage");
+									}
+
+									//Reason for Waiver
+									if(riskDetailsData.getProperty("CPACoverWaiverRequired").equalsIgnoreCase("Yes"))
+									{
+										selectFromDropdownByValue(cPACoverWaiverRequired,"Y", "CPA Cover Waiver Required");
+										driver.findElement(cPACoverWaiverRequired).sendKeys(Keys.TAB);
+										selectFromDropdownByVisibleText(reasonforWaiver, riskDetailsData.getProperty("ReasonforWaiver"), "Reason For WAiver");
+									}
+
+								}
+							}
+
+							// NCB Details
+							if (riskDetailsData.getProperty("FillNCBDetails") != null) {
+								if (riskDetailsData.getProperty("FillNCBDetails") != "") {
+
+									// Added By Suraj Singh 05-01-2022
+									if (IsDisableOrNot(transferOfNCB)) {
+										
+										selectFromDropdownByVisibleText(transferOfNCB,
+												riskDetailsData.getProperty("TransferOfNCB"), "Transfer Of NCB");
+										driver.findElement(cPACoverWaiverRequired).sendKeys(Keys.TAB);
+										waitForPageLoader();
+										
+										if (riskDetailsData.getProperty("TransferOfNCB").equalsIgnoreCase("Yes")) {
+											if (riskDetailsData.getProperty("TransferofNCBPercentage") != null) {
+												if (riskDetailsData.getProperty("TransferofNCBPercentage") != "") {
+													selectFromDropdownByVisibleText(transferofNCBPercentage,
+															riskDetailsData.getProperty("TransferofNCBPercentage"),
+															"Transfer of NCB Percentage");
+												}
+											}
+
+											if (riskDetailsData.getProperty("NCBReservingletterdate") != null) {
+												if (riskDetailsData.getProperty("NCBReservingletterdate") != "") {
+													clearAndSenKeys(nCBreservingletterdate,
+															getPreviousOrFutureDate(riskDetailsData
+																	.getProperty("NCBReservingletterdate")),
+															"NCB Reserving letter date");
+												}
+											}
+										}
+									}
+
+									if (IsDisableOrNot(noClaimbonusonPreviousPolicy)) {
+										// Added By Suraj Singh On 12-01-2023 Discuss With Shubham.=
+
+										if (riskDetailsData.getProperty("NoclaimbonusonPreviousPolicy") != null) {
+											if (riskDetailsData.getProperty("NoclaimbonusonPreviousPolicy") != "") 
+											{
+												selectFromDropdownByVisibleText(noClaimbonusonPreviousPolicy,
+														riskDetailsData.getProperty("NoclaimbonusonPreviousPolicy"),
+														"No claim bonus on Previous Policy");
+											}
+											
+											driver.findElement(noClaimbonusonPreviousPolicy).sendKeys(Keys.TAB);
+											if (riskDetailsData.getProperty("ProofProvidedforNCB") != null) {
+												if (riskDetailsData.getProperty("ProofProvidedforNCB") != "") {
+													selectFromDropdownByVisibleText(proofProvidedforNCB,
+															riskDetailsData.getProperty("ProofProvidedforNCB"),
+															"Proof Provided for NCB");
+												}
+											}
+										}
+									}
+								}
+							}
+
+							// Other Information
+							if (riskDetailsData.getProperty("FillOtherInformation") != null) {
+								if (riskDetailsData.getProperty("FillOtherInformation").equalsIgnoreCase("Yes")
+										&& riskDetailsData.getProperty("FillOtherInformation") != "") {
+									
+								    //	Age of the Driver
+									if(riskDetailsData.getProperty("AgeoftheDriver")!=null)
+									{
+										if(riskDetailsData.getProperty("AgeoftheDriver")!="")
+										{
+											clearAndSenKeys(ageoftheDriver, riskDetailsData.getProperty("AgeoftheDriver"), "Age of the Driver");
+										}
+									}
+									
+//									Age of the Driver
+									if(riskDetailsData.getProperty("Pincode")!=null)
+									{
+										if(riskDetailsData.getProperty("Pincode")!="")
+										{
+											clearAndSenKeys(pincode, riskDetailsData.getProperty("Pincode"), "Pincode");
+										}
+									}
+								}
+							}
+
+							// Q & A
+							if (riskDetailsData.getProperty("FillQandA") != null) {
+								if (riskDetailsData.getProperty("FillQandA").equalsIgnoreCase("Yes")
+										&& riskDetailsData.getProperty("FillQandA") != "") {
+
+									//Are you entitled to NCB
+									if(riskDetailsData.getProperty("AreyouentitledtoNCB")!=null)
+									{
+										if(riskDetailsData.getProperty("AreyouentitledtoNCB")!="")
+										{
+											selectFromDropdownByVisibleText(areyouentitledtoNCB, riskDetailsData.getProperty("AreyouentitledtoNCB"), "Are you entitled to NCB");
+										}
+									}
+									
+									//Does the driver suffer from defective vision or hearing or any physical infirmity
+									
+									if(riskDetailsData.getProperty("Doesthedriversufferfromdefectivevisionorhearingoranyphysicalinfirmity")!=null)
+									{
+										if(riskDetailsData.getProperty("Doesthedriversufferfromdefectivevisionorhearingoranyphysicalinfirmity")!="")
+										{
+											selectFromDropdownByVisibleText(doesthedriversufferfromdefectivevisionorhearingoranyphysicalinfirmity, riskDetailsData.getProperty("Doesthedriversufferfromdefectivevisionorhearingoranyphysicalinfirmity"), "Does the driver suffer from defective vision or hearing or any physical infirmity");
+											driver.findElement(doesthedriversufferfromdefectivevisionorhearingoranyphysicalinfirmity).sendKeys(Keys.TAB);
+											
+											if(riskDetailsData.getProperty("AreyouentitledtoNCB").equalsIgnoreCase("Yes") || riskDetailsData.getProperty("AreyouentitledtoNCB").equalsIgnoreCase("No"))
+											{
+												//If yes, please provide details of such infirmity
+												if(riskDetailsData.getProperty("Ifyespleaseprovidedetailsofsuchinfirmity")!=null)
+												{
+													if(riskDetailsData.getProperty("Ifyespleaseprovidedetailsofsuchinfirmity")!="")
+													{														
+														waitForPageLoader();
+														clearAndSenKeys(ifyespleaseprovidedetailsofsuchinfirmity, riskDetailsData.getProperty("Ifyespleaseprovidedetailsofsuchinfirmity"), "Are you entitled to NCB");
+													}
+												}
+											}
+											
+											//Has the driver been involved/convicted for causing accident
+											if(riskDetailsData.getProperty("Hasthedriverbeeninvolvedconvictedforcausingaccident")!=null)
+											{
+												if(riskDetailsData.getProperty("Hasthedriverbeeninvolvedconvictedforcausingaccident")!="")
+												{
+													selectFromDropdownByVisibleText(hasthedriverbeeninvolvedconvictedforcausingaccident, riskDetailsData.getProperty("Hasthedriverbeeninvolvedconvictedforcausingaccident"), "Has the driver been involved/convicted for causing accident");
+													driver.findElement(hasthedriverbeeninvolvedconvictedforcausingaccident).sendKeys(Keys.TAB);
+													waitForPageLoader();
+													
+													if(riskDetailsData.getProperty("Hasthedriverbeeninvolvedconvictedforcausingaccident").equalsIgnoreCase("Yes"))
+													{
+														//If yes, provide details
+														if(riskDetailsData.getProperty("Ifyesprovidedetails")!=null)
+														{
+															if(riskDetailsData.getProperty("Ifyesprovidedetails")!="")
+															{
+																clearAndSenKeys(ifyesprovidedetails, riskDetailsData.getProperty("Ifyesprovidedetails"), "If yes provide details");
+															}
+														}
+														
+														//Driver's name
+														if(riskDetailsData.getProperty("Driversname")!=null)
+														{
+															if(riskDetailsData.getProperty("Driversname")!="")
+															{
+																clearAndSenKeys(driversname, riskDetailsData.getProperty("Driversname"), "Drivers name");
+															}
+														}
+														
+														
+														//Relationship with Proposer
+														if(riskDetailsData.getProperty("RelationshipwithPropose")!=null)
+														{
+															if(riskDetailsData.getProperty("RelationshipwithPropose")!="")
+															{
+																selectFromDropdownByVisibleText(relationshipwithProposer, riskDetailsData.getProperty("RelationshipwithPropose"), "Relationship with Propose");
+															}
+														}
+														
+														//Date of accident
+														if(riskDetailsData.getProperty("Dateofaccident")!=null)
+														{
+															if(riskDetailsData.getProperty("Dateofaccident")!="")
+															{
+																clearAndSenKeys(dateofaccident, getPreviousOrFutureDate(riskDetailsData.getProperty("Dateofaccident")), "Date of accident");
+															}
+														}
+														
+														//Circumstances of accident/claim
+														if(riskDetailsData.getProperty("Circumstancesofaccidentclaim")!=null)
+														{
+															if(riskDetailsData.getProperty("Circumstancesofaccidentclaim")!="")
+															{
+																clearAndSenKeys(circumstancesofaccidentclaim, riskDetailsData.getProperty("Circumstancesofaccidentclaim"), "Circumstances of accident claim");
+															}
+														}
+														
+														//Loss/Cost
+														if(riskDetailsData.getProperty("LossCost")!=null)
+														{
+															if(riskDetailsData.getProperty("LossCost")!="")
+															{
+																clearAndSenKeys(lossCost, riskDetailsData.getProperty("LossCost"), "Loss Cost");
+															}
+														}
+													}
+												}
+											}
+											
+											if(riskDetailsData.getProperty("AreyouentitledtoNCB").equalsIgnoreCase("No"))
+											{
+												//Need to update 
+											}
+										}
+									 }
+									
+									//Is the vehicle in good condition
+									if(riskDetailsData.getProperty("Isthevehicleingoodcondition")!=null)
+									{
+										if(riskDetailsData.getProperty("Isthevehicleingoodcondition")!="")
+										{
+											selectFromDropdownByVisibleText(isthevehicleingoodcondition, riskDetailsData.getProperty("Isthevehicleingoodcondition"), "Is the vehicle in good condition");
+											driver.findElement(isthevehicleingoodcondition).sendKeys(Keys.TAB);
+											waitForPageLoader();
+										}
+									}
+								}
+							}
+
+							// CPA cover nominee details
+							if (riskDetailsData.getProperty("FillCPAcovernomineedetails") != null) {
+								if (riskDetailsData.getProperty("FillCPAcovernomineedetails").equalsIgnoreCase("Yes")
+										&& riskDetailsData.getProperty("FillCPAcovernomineedetails") != "") {
+
+									
+									//Nominee Name
+									if(riskDetailsData.getProperty("NomineeName")!=null)
+									{
+										if(riskDetailsData.getProperty("NomineeName")!="")
+										{
+											clearAndSenKeys(nomineeName, riskDetailsData.getProperty("NomineeName"), "Nominee Name");
+										}
+									}
+									
+									//Name of appointee
+									if(riskDetailsData.getProperty("Nameofappointee")!=null)
+									{
+										if(riskDetailsData.getProperty("Nameofappointee")!="")
+										{
+											clearAndSenKeys(nameofappointee, riskDetailsData.getProperty("Nameofappointee"), "Name of appointee");
+										}
+									}
+									// Appointee Relationship
+									if(riskDetailsData.getProperty("AppointeeRelationship")!=null)
+									{
+										if(riskDetailsData.getProperty("AppointeeRelationship")!="")
+										{
+											selectFromDropdownByVisibleText(appointeeRelationship, riskDetailsData.getProperty("AppointeeRelationship"), "Appointee Relationship");
+										}
+									}
+									
+									// AGE
+									if(riskDetailsData.getProperty("AGE")!=null)
+									{
+										if(riskDetailsData.getProperty("AGE")!="")
+										{
+											clearAndSenKeys(age, riskDetailsData.getProperty("AGE"), "AGE");
+										}
+									}
+									
+									// Relationship with owner
+									if(riskDetailsData.getProperty("Relationshipwithowner")!=null)
+									{
+										if(riskDetailsData.getProperty("Relationshipwithowner")!="")
+										{
+											selectFromDropdownByVisibleText(relationshipwithowner, riskDetailsData.getProperty("Relationshipwithowner"), "Relationship with owner");
+										}
+									}
+								}
+							}
+							
+							//LOADING AND DISCOUNT
+							if (riskDetailsData.getProperty("FillLoadingAndDiscount") != null) {
+								if (riskDetailsData.getProperty("FillLoadingAndDiscount").equalsIgnoreCase("Yes")
+										&& riskDetailsData.getProperty("FillLoadingAndDiscount") != "") 
+								{
+									
+									loadingDiscountDetailsFlag=true;
+								}
+							}
+							
+							
+							// Due to Data Flushing Now this below Enhance Cover Data Filling Now.
+							if (riskDetailsData.getProperty("FillPAOwnerDriverExemption") != null) {
+								if (riskDetailsData.getProperty("FillPAOwnerDriverExemption").equalsIgnoreCase("Yes")
+										&& riskDetailsData.getProperty("FillPAOwnerDriverExemption") != "") {
+									
+									if(riskDetailsData.getProperty("CPACoverWaiverRequired").equalsIgnoreCase("No"))
+									{
+										selectFromDropdownByValue(cPACoverWaiverRequired, "N", "CPA Cover Waiver Required");
+										driver.findElement(cPACoverWaiverRequired).sendKeys(Keys.TAB);
+									}
+								}
+							}
+							
+							// Addon Cover Property  AddonCoverPropertySheet
+							if (riskDetailsData.getProperty("FillAddonCoverProperty") != null) 
+							{
+								if (riskDetailsData.getProperty("FillAddonCoverProperty").equalsIgnoreCase("Yes")
+										&& riskDetailsData.getProperty("FillAddonCoverProperty") != "") 
+								{
+							
+									if(IsDisableOrNot(enhancedPACoverOwnerDriverSumInsured))
+									{
+										if(addonCoverPropertyData.getProperty("EnhancedPACoverOwnerDriver")!=null)
+										{
+											if(addonCoverPropertyData.getProperty("EnhancedPACoverOwnerDriver")!="" && !addonCoverPropertyData.getProperty("EnhancedPACoverOwnerDriver").equalsIgnoreCase("No"))
+											{
+												clearAndSenKeys(enhancedPACoverOwnerDriverSumInsured, addonCoverPropertyData.getProperty("EnhancedPACoverOwnerDriver"), "Enhanced PA Cover Owner Driver Sum Insured");
+											}
+											else clearAndSenKeys(enhancedPACoverOwnerDriverSumInsured, "", "Enhanced PA Cover Owner Driver Sum Insured"); 
+										}
+									}
+									
+									   // Due to Data Flushing Now this below Enhance Cover Data Filling Now.
+										{
+											if(IsDisableOrNot(enhancedPACoverPaidDriverSumInsured))
+											if(addonCoverPropertyData.getProperty("EnhancedPACoverPaidDriver")!=null)
+											{
+												if(addonCoverPropertyData.getProperty("EnhancedPACoverPaidDriver")!="" && !addonCoverPropertyData.getProperty("EnhancedPACoverPaidDriver").equalsIgnoreCase("No"))
+												{
+													clearAndSenKeys(enhancedPACoverPaidDriverSumInsured, addonCoverPropertyData.getProperty("EnhancedPACoverPaidDriver"), "Enhanced PA Cover Paid Driver Sum Insured");
+												}
+												else clearAndSenKeys(enhancedPACoverPaidDriverSumInsured,"", "Enhanced PA Cover Paid Driver Sum Insured");
+												
+											}
+										}
+										
+										if(IsDisableOrNot(enhancedPACoverUnnamedPassengersSumInsured))
+										{
+											if(addonCoverPropertyData.getProperty("EnhancedPACoverUnnamedPassengers")!=null)
+											{
+												if(addonCoverPropertyData.getProperty("EnhancedPACoverUnnamedPassengers")!="" && !addonCoverPropertyData.getProperty("EnhancedPACoverUnnamedPassengers").equalsIgnoreCase("No"))
+												{
+													clearAndSenKeys(enhancedPACoverUnnamedPassengersSumInsured, addonCoverPropertyData.getProperty("EnhancedPACoverUnnamedPassengers"), "Enhanced PA Cover Unnamed Passengers SumInsured");
+												}
+												else clearAndSenKeys(enhancedPACoverUnnamedPassengersSumInsured,"", "Enhanced PA Cover Unnamed Passengers SumInsured");
+											}
+										}
+									}
+							}
+
+							
+							 //	Age of the Driver
+							if(riskDetailsData.getProperty("AgeoftheDriver")!=null)
+							{
+								if(riskDetailsData.getProperty("AgeoftheDriver")!="")
+								{
+									clearAndSenKeys(ageoftheDriver, riskDetailsData.getProperty("AgeoftheDriver"), "Age of the Driver");
+								}
+							}
+							
+							//Save the Data For Risk Detials Page 
+							
+							if(riskDetailsData.getProperty("RiskDetailsSaveButton")!=null)
+							{
+								if(riskDetailsData.getProperty("RiskDetailsSaveButton").equalsIgnoreCase("Yes"))
+								{
+									click(riskDetailsSaveButton, "Risk Details Save Button");
+									waitForPageLoader();
+									FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+								}
+								//Fill All Risk Details Present in risk Details Page
+								FillAllRiskDetailsInfo(driver, testScenarioID, workbook, conn, stepGroup, riskDetailsData, customAssert, assertFlagForScenarios, vPAssertFlagForScenarios, scenariosFailureReason);
+							}
+						 }
+						}
+					
+					if(riskDetailsData.getProperty("FillCover")!=null)
+					{
+						if(riskDetailsData.getProperty("FillCover")!="" && riskDetailsData.getProperty("FillCover").equalsIgnoreCase("Yes"))
+						{
+						/*	switchToWindow(driver, "TCS BαNCS Insurance");
+			                switchtoframe(driver, "display");
+			                switchtoframe(driver, "containerFrame");
+			                
+			                switchtoframe(driver, "memberiframe0");*/
+							
+							click(By.xpath("//div[@id='productpagetabs']//md-tab-item[2]"), "Cover Tab");
+							FillCoverTabPage(driver, testScenarioID, workbook, conn, stepGroup, riskDetailsData, customAssert, assertFlagForScenarios, vPAssertFlagForScenarios, scenariosFailureReason);
+						}
+					}
+				}
+			}			
+		}
+	}
+	
+	//Fill Risk Details Tab Page Information
+	public void FillAllRiskDetailsInfo(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, Properties riskDetailsData, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,
+			ConcurrentHashMap<String, String> vPAssertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception 
+	{
+		
+		if (riskDetailsData.getProperty("FillRiskProperties") != null) {
+			
+			boolean debugFlag=false;
+			String sheetName = riskDetailsData.getProperty("RiskProperties");
+			Properties RiskPropertiesData = ExcelRead.readRowDataInProperties(workbook, sheetName,
+					testScenarioID, stepGroup);
+			
+			//Fill Details For Multiple Accessories Details 
+			if(MultipleAccessoriesDetailFlag)
+			{
+				multipleAccessoriesPresent = By.id("Multiple Accessories Present");
+				selectFromDropdownByVisibleText(multipleAccessoriesPresent,
+						RiskPropertiesData.getProperty("MultipleAccessoriesPresent"),
+						"Multiple Accessories Present");
+				
+				driver.findElement(multipleAccessoriesPresent).sendKeys(Keys.TAB);
+				waitForPageLoader();
+				
+				if(isDisplayed(multipleAccessoriesDetailsButton))
+				{
+					click(multipleAccessoriesDetailsButton, "Multiple Accessories Details Button");
+					switchToWindow(driver, "Details");
+					
+
+					List<String> TypeOfAccessories = getListTestData(
+							RiskPropertiesData.getProperty("TypeOfAccessories"));
+					List<String> IDVvalue = getListTestData(RiskPropertiesData.getProperty("IDVValue"));
+
+					int NoOfMultipleAccessoriesSize = Integer
+							.parseInt(RiskPropertiesData.getProperty("NoOfMultipleAccessories"));
+					for (int addDetails = 0; addDetails < NoOfMultipleAccessoriesSize; addDetails++) {
+						String typeOfAccessoriesValue = TypeOfAccessories.get(addDetails).trim();
+						String iDVvalue = IDVvalue.get(addDetails).trim();
+
+						typeOfAccessories = By.id("Type of Accessories" + addDetails + ""); 
+						selectFromDropdownByValue(typeOfAccessories, typeOfAccessoriesValue,
+								"Type Of Accessories From Dropdown");
+						descriptionOfItem = By
+								.xpath("//input[@name='Description of Item" + addDetails + "']");
+						clearAndSenKeys(descriptionOfItem, "Automation "+RandomStringUtils.randomAlphabetic(3)+" Remark ", "Item Remark");
+
+						iDVValue = By.xpath("//input[@name='IDV value" + addDetails + "']");
+						clearAndSenKeys(iDVValue, iDVvalue, "IDV Value");
+
+						accessoriesDescription = By
+								.xpath("//input[@id='Accessories Description" + addDetails + "']");
+						clearAndSenKeys(accessoriesDescription, "Automation Item Remark",
+								"Item Remark");
+
+						// Click On Add Button
+						if (addDetails < NoOfMultipleAccessoriesSize - 1) {
+							click(innnerAddButton, "Add More Button");
+						}
+					}
+					// Click On Save Button
+					click(innnerSaveButton, "Multiple Accessories Save");
+					FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+
+					click(innnerCloseButton, "Close Button");
+					
+					// Back To Main Frame
+					switchToWindow(driver, "Insured Details");
+				}
+			}
+			
+			//For Two Wheeler
+			if (lossofAccessoriesFlag) 
+			{
+				selectFromDropdownByVisibleText(lossofAccessories_IMT33, RiskPropertiesData.getProperty("LossofAccessories_IMT33"),
+						"Loss of Accessories_IMT33");
+				driver.findElement(lossofAccessories_IMT33).sendKeys(Keys.TAB);
+				waitForPageLoader();
+				clearAndSenKeys(SIforLossofAccessories, RiskPropertiesData.getProperty("SIforLossofAccessories"),
+						"SI for Loss of Accessories ");
+
+			}
+			
+			//Do you want to include PA cover to Named Person (IMT 15)
+			if(NamedPersonDetailsFlag)
+			{
+				selectFromDropdownByVisibleText(DoyouwanttoincludePAcovertoNamedPerson_IMT15,
+						RiskPropertiesData
+								.getProperty("DoyouwanttoincludePAcovertoNamedPerson_IMT15"),
+						"Do you want to include PA cover to Named Person_IMT15");
+
+				driver.findElement(DoyouwanttoincludePAcovertoNamedPerson_IMT15).sendKeys(Keys.TAB);
+				waitForPageLoader();
+				
+				if(isDisplayed(NameOfPersonDetailsButton))
+				{
+					click(NameOfPersonDetailsButton, "Name Of Person Details Button");
+					switchToWindow(driver, "Details");
+					List<String> NameofTheInsuredPersonlist = getListTestData(
+							RiskPropertiesData.getProperty("NameofTheInsuredPerson"));
+					List<String> RelationshipwithInsuredlist = getListTestData(
+							RiskPropertiesData.getProperty("RelationshipwithInsured"));
+					List<String> NomineeNamelist = getListTestData(RiskPropertiesData.getProperty("NomineeName"));
+					List<String> AgeofNomineelist = getListTestData(
+							RiskPropertiesData.getProperty("AgeofNominee"));
+					List<String> RelationshipwithNomineelist = getListTestData(
+							RiskPropertiesData.getProperty("RelationshipwithNominee"));
+					List<String> AppointeeNamelist = getListTestData(
+							RiskPropertiesData.getProperty("AppointeeName"));
+					List<String> RelationshipofAppointeewithNomineelist = getListTestData(
+							RiskPropertiesData.getProperty("RelationshipofAppointeewithNominee"));
+
+					int NoOfPersonNameSize = Integer.parseInt(RiskPropertiesData.getProperty("NoOfPersonName"));
+					for (int addDetails = 0; addDetails < NoOfPersonNameSize; addDetails++) {
+						String NameofTheInsuredPersonvalue = NameofTheInsuredPersonlist.get(addDetails)
+								.trim();
+						String RelationshipwithInsuredvalue = RelationshipwithInsuredlist
+								.get(addDetails).trim();
+						String NomineeNamevalue = NomineeNamelist.get(addDetails).trim();
+						String AgeofNomineevalue = AgeofNomineelist.get(addDetails).trim();
+						String RelationshipwithNomineevalue = RelationshipwithNomineelist
+								.get(addDetails).trim();
+						String AppointeeNamevalue = AppointeeNamelist.get(addDetails).trim();
+						String RelationshipofAppointeewithNomineevalue = RelationshipofAppointeewithNomineelist
+								.get(addDetails).trim();
+
+						NameofTheInsuredPerson = By.id("NAME" + addDetails + "");
+						RelationshipwithInsured = By.id("Relationship With Insured" + addDetails + "");
+						NomineeName = By.id("Nominee Name" + addDetails + ""); 
+						AgeofNominee = By.name("Age of Nominee" + addDetails + "");
+						RelationshipwithNominee = By.id("Relationship with Nominee" + addDetails + "");
+						AppointeeName = By.id("Appointee Name" + addDetails + "");
+						RelationshipofAppointeewithNominee = By
+								.id("Relationship of Appointee with Nominee" + addDetails + "");
+
+						clearAndSenKeys(NameofTheInsuredPerson, NameofTheInsuredPersonvalue,
+								"Name of The Insured Person");
+						selectFromDropdownByVisibleText(RelationshipwithInsured,
+								RelationshipwithInsuredvalue,
+								"Relationship with Insured From Dropdown");
+						clearAndSenKeys(NomineeName, NomineeNamevalue, "Nominee Name ");
+						clearAndSenKeys(AgeofNominee, AgeofNomineevalue, "Age of Nominee value");
+						selectFromDropdownByVisibleText(RelationshipwithNominee,
+								RelationshipwithNomineevalue,
+								"Relationship with Nominee From Dropdown");
+						clearAndSenKeys(AppointeeName, AppointeeNamevalue, "Appointee Name value");
+						selectFromDropdownByVisibleText(RelationshipofAppointeewithNominee,
+								RelationshipofAppointeewithNomineevalue,
+								"Relationship of Appointee with Nominee value From Dropdown");
+						// Click On Add Button
+						if (addDetails < NoOfPersonNameSize - 1) {
+							click(innnerAddButton, "Add More Button");
+						}
+					}
+					// Click On Save Button
+					click(innnerSaveButton, "Save");
+					FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+
+					click(innnerCloseButton, "Close Button");
+					
+					// Back To Main Frame
+					switchToWindow(driver, "Insured Details");
+					
+					/*
+					//Fill value Enhanced PA Cover Owner Driver Sum Insured
+					if(IsDisableOrNot(enhancedPACoverOwnerDriverSumInsured))
+					{
+						driver.findElement(cPACoverWaiverRequired).sendKeys(Keys.TAB);
+						
+						if(addonCoverPropertyData.getProperty("EnhancedPACoverOwnerDriver")!=null)
+						{
+							if(addonCoverPropertyData.getProperty("EnhancedPACoverOwnerDriver")!="")
+							{
+								clearAndSenKeys(enhancedPACoverOwnerDriverSumInsured, RiskPropertiesData.getProperty("EnhancedPACoverOwnerDriver"), "Enhanced PA Cover Owner Driver Sum Insured");
+							}
+						}
+					}*/
+				}
+				
+				if (RiskPropertiesData.getProperty("IndividualSIfor_IMT15") != null) {
+					if (RiskPropertiesData.getProperty("IndividualSIfor_IMT15") != "") {
+						selectFromDropdownByVisibleText(IndividualSIfor_IMT15,
+								RiskPropertiesData.getProperty("IndividualSIfor_IMT15"),
+								"Individual SI for_IMT15");
+						
+						IndividualSIforIMT15=RiskPropertiesData.getProperty("IndividualSIfor_IMT15").trim();
+					}
+				}
+			}
+			
+			//Geographical Extension Details
+			
+			if(GeographicalExtensionDetailFlag)
+			{
+				selectFromDropdownByVisibleText(ExtensionofGeographicalAreaRequired_IMT1,
+						RiskPropertiesData.getProperty("ExtensionofGeographicalAreaRequired_IMT1"),
+						"Extension of Geographical Area Required _IMT1");
+				
+				driver.findElement(ExtensionofGeographicalAreaRequired_IMT1).sendKeys(Keys.TAB);
+				waitForPageLoader();
+				
+				if(isDisplayed(GeographicalExtensionButton))
+				{
+					click(GeographicalExtensionButton, "Geographical Extension Button");
+					switchToWindow(driver, "Details");
+
+					List<String> GeographicalExtensionlist = getListTestData(
+							RiskPropertiesData.getProperty("GeographicalExtension"));
+
+					int NOofGeographicalExtensionSize = Integer
+							.parseInt(RiskPropertiesData.getProperty("NOofGeographicalExtension"));
+					for (int addDetails = 0; addDetails < NOofGeographicalExtensionSize; addDetails++) {
+						String GeographicalExtensionvalue = GeographicalExtensionlist.get(addDetails)
+								.trim();
+
+						GeographicalExtension = By.id("GeographicalExtension" + addDetails + "");
+						selectFromDropdownByVisibleText(GeographicalExtension,
+								GeographicalExtensionvalue, "Geographical Extension From Dropdown");
+
+						// Click On Add Button
+						if (addDetails < NOofGeographicalExtensionSize - 1) {
+							click(innnerAddButton, "Add More Button");
+						}
+					}
+					// Click On Save Button
+					click(innnerSaveButton, "Geographical Extension Save");
+					FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+
+					click(innnerCloseButton, "Close Button");
+					
+					// Back To Main Frame
+					switchToWindow(driver, "Insured Details");
+				}
+			}
+			
+			
+			//Trailer Details
+			if(TrailerDetailsFlag)
+			{
+				if(isDisplayed(trailerDetailsButton))
+				{
+
+					click(trailerDetailsButton, "Trailer Details Button");
+					switchToWindow(driver, "Details");
+					
+					List<String> TrailerRegistrationNumberlist = getListTestData(RiskPropertiesData.getProperty("TrailerRegistrationNumber"));
+					List<String> TrailerChassisNumberlist = getListTestData(RiskPropertiesData.getProperty("TrailerChassisNumber"));
+					List<String> YearofManufacturinglist = getListTestData(RiskPropertiesData.getProperty("YearofManufacturing"));
+					List<String> TrailersIDVlist = getListTestData(RiskPropertiesData.getProperty("TrailersIDV"));
+					
+
+					int NoOfTrailerdetailsSize = Integer.parseInt(RiskPropertiesData.getProperty("NoOfTrailerdetails"));
+					for (int addDetails = 0; addDetails < NoOfTrailerdetailsSize; addDetails++) 
+					{
+						String trailerRegistrationNumbervalue = TrailerRegistrationNumberlist.get(addDetails).trim();
+						String trailerChassisNumbervalue = TrailerChassisNumberlist.get(addDetails).trim();
+						String yearofManufacturingvalue = YearofManufacturinglist.get(addDetails).trim();
+						String trailersIDVvalue = TrailersIDVlist.get(addDetails).trim();
+						
+						//private By trailerRegistrationNumber,trailerChassisNumber,yearofManufacturing,trailersIDV;
+						
+						// Trailer Registration Number
+						trailerRegistrationNumber = By.id("Trailer Registration Number" + addDetails + "");
+						clearAndSenKeys(trailerRegistrationNumber,trailerRegistrationNumbervalue, "Trailer Registration Number");
+						
+						// Trailer Chassis Number
+						trailerChassisNumber = By.id("Trailer Chassis Number" + addDetails + "");
+						clearAndSenKeys(trailerChassisNumber,trailerChassisNumbervalue, "Trailer Chassis Number");
+						
+						// Year of Manufacturing
+						yearofManufacturing = By.id("Year of Manufacturing" + addDetails + "");
+						selectFromDropdownByVisibleText(yearofManufacturing,yearofManufacturingvalue, "Year of Manufacturing");
+						
+						// Trailers IDV
+						trailersIDV = By.id("Trailers IDV" + addDetails + "");
+						clearAndSenKeys(trailersIDV,trailersIDVvalue, "Trailers IDV");
+
+						// Click On Add Button
+						if (addDetails < NoOfTrailerdetailsSize - 1) {
+							click(innnerAddButton, "Add More Button");
+						}
+					}
+					// Click On Save Button
+					click(innnerSaveButton, "Trailer Details Save");
+					FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+
+					click(innnerCloseButton, "Close Button");
+					
+					// Back To Main Frame
+					switchToWindow(driver, "Insured Details");
+				}
+			}
+			
+			//Tyre and Rim Guard Details
+			if(TyreandRimGuardDetailsFlag)
+			{
+				if(addonCoverPropertyData.getProperty("TyreandRimGuard").equalsIgnoreCase("yes"))
+				{
+					if(isDisplayed(tyreandRimGuardDetailsButton))
+					{
+						click(tyreandRimGuardDetailsButton, " Tyre and Rim Guard Details ");
+						switchToWindow(driver, "Details");
+						
+						List<String> Tyrelist = getListTestData(RiskPropertiesData.getProperty("Tyre"));
+						List<String> ManufacturingYearlist = getListTestData(RiskPropertiesData.getProperty("ManufacturingYear"));
+						List<String> TyreSerialNumberlist = getListTestData(RiskPropertiesData.getProperty("TyreSerialNumber"));
+						
+
+						int NoOfTyreandRimGuardSize = Integer.parseInt(RiskPropertiesData.getProperty("NoOfTyreandRimGuard"));
+						for (int addDetails = 0; addDetails < NoOfTyreandRimGuardSize; addDetails++) 
+						{
+							String tyrevalue = Tyrelist.get(addDetails).trim();
+							String manufacturingYearvalue = ManufacturingYearlist.get(addDetails).trim();
+							String tyreSerialNumbervalue = TyreSerialNumberlist.get(addDetails).trim();
+						
+							// Tyre
+							tyre = By.id("Tyre" + addDetails + "");
+							selectFromDropdownByVisibleText(tyre,tyrevalue, "Tyre");
+							
+							//  Manufacturing Year
+							manufacturingYear = By.id("Manufacturing year" + addDetails + "");
+							clearAndSenKeys(manufacturingYear,manufacturingYearvalue, " Manufacturing Year ");
+							
+							// Tyre Serial Number
+							tyreSerialNumber = By.id("Tyre Serial Number" + addDetails + "");
+							clearAndSenKeys(tyreSerialNumber,tyreSerialNumbervalue, "Tyre Serial Number");
+							
+							// Click On Add Button
+							if (addDetails < NoOfTyreandRimGuardSize - 1) {
+								click(innnerAddButton, "Add More Button");
+							}
+						}
+						// Click On Save Button
+						click(innnerSaveButton, "Tyre and Rim Guard Details Save");
+						FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+
+						click(innnerCloseButton, "Tyre and Rim Guard Details Close");
+						
+						// Back To Main Frame
+						switchToWindow(driver, "Insured Details");
+					}
+				}
+					
+				if(addonCoverPropertyData.getProperty("TyreandRimGuard").equalsIgnoreCase("No"))
+				{
+					//Code to Remove the TyreandRimGuardr
+				}
+			}
+			
+			//LOADING AND DISCOUNT
+			if(loadingDiscountDetailsFlag)
+			{ 
+			
+			//Map<String,String> selectedDescriptionMapvalue= new HashMap();
+            List<String>  selectedDescriptionListvalue = new ArrayList<String>();
+            
+            if(isDisplayed(loadingDiscountDetailsButton))
+            {
+                int addDetails=0,counterValue=0;
+                String descriptionPolicyLevelIDName="";
+                String notAutoSelectedList="";
+                
+                click(loadingDiscountDetailsButton, " Loading Discount Details Button ");
+                switchToWindow(driver, "Details");
+                
+                String productName=RiskPropertiesData.getProperty("ProductName").trim().toUpperCase(); 
+                switch (productName) {
+                case "PRIVATE CAR":
+                    descriptionPolicyLevelIDName="Description(Policy Level)";
+                    break;
+                case "TWO WHEELER":
+                    descriptionPolicyLevelIDName="Policy Level (Description)";
+                    break;
+                default:
+                    break;
+                }
+                
+                List<WebElement> elements = driver.findElements(By.xpath("//tbody//tr//td[1]"));
+                List<WebElement> allSelectedDiscription = driver.findElements(By.xpath("//tbody//tr//td[1]//following::select[@ng-disabled='false' and @title!='']/option[@selected='selected']"));
+                
+                for(WebElement getDiscription :allSelectedDiscription)
+                {
+                    if(getDiscription.getText()!="")
+                    {
+                        selectedDescriptionListvalue.add(getDiscription.getText().trim());
+                    }
+                }
+                
+                //Check Selected Discription Value 
+                System.out.println("Selected Value From Application "+selectedDescriptionListvalue.size());
+                
+                //int LoadingDiscountDetailsfrmapp = elements.size();
+                
+                int LoadingDiscountDetailsfrmapp = selectedDescriptionListvalue.size();
+                System.out.println(LoadingDiscountDetailsfrmapp);
+                
+                List<String> descriptionPolicyLevellist = getListTestData(riskDetailsData.getProperty("DescriptionPolicyLevel"));
+                //List<String> netPremiumlist = getListTestData(riskDetailsData.getProperty("NetPremium"));
+                List<String> LDRatelist = getListTestData(riskDetailsData.getProperty("LDRate"));
+            //    List<String> calculatedAmountlist = getListTestData(riskDetailsData.getProperty("CalculatedAmount"));
+            //    List<String> netLDlist = getListTestData(riskDetailsData.getProperty("NetLD"));
+                
+              
+                
+                if(LoadingDiscountDetailsfrmapp > 1)
+                {
+                	int NoLoadingDiscountDetailsSize = descriptionPolicyLevellist.size();	    //1
+                    int NoLoadingDiscountDetailsTSize = LoadingDiscountDetailsfrmapp + NoLoadingDiscountDetailsSize;   //8
+                    System.out.println(NoLoadingDiscountDetailsTSize);
+                    
+                    int addCounterValue=LoadingDiscountDetailsfrmapp;
+                    
+                    for (addDetails = LoadingDiscountDetailsfrmapp; addDetails < NoLoadingDiscountDetailsTSize; addDetails++) 
+                    {
+                        String descriptionPolicyLevelvalue = descriptionPolicyLevellist.get(addDetails-LoadingDiscountDetailsfrmapp).trim();
+                        System.out.println(descriptionPolicyLevelvalue);
+                    //  String netPremiumvalue = netPremiumlist.get(addDetails).trim();
+                    //  String LDRatevalue = LDRatelist.get(addDetails).trim();
+                    //  String calculatedAmountvalue = calculatedAmountlist.get(addDetails).trim();
+                    //  String netLDvalue = netLDlist.get(addDetails).trim();
+                    
+                     if(!selectedDescriptionListvalue.contains(descriptionPolicyLevellist.get(addDetails-LoadingDiscountDetailsfrmapp)))
+                   	 {	
+                    	 counterValue++;
+                    	 click(innnerAddButton, "Add More Button");
+                    	 
+                   		 System.out.println(addCounterValue);
+                   		 System.out.println("Allready Present :- "+selectedDescriptionListvalue.contains(descriptionPolicyLevellist.get(addDetails-LoadingDiscountDetailsfrmapp)));
+                   		 
+                   		 notAutoSelectedList=notAutoSelectedList.concat(descriptionPolicyLevelvalue+",");
+                   		
+                   	//   Description(Policy Level)
+                         descriptionPolicyLevel = By.id(descriptionPolicyLevelIDName.concat(String.valueOf(addCounterValue)));
+                         
+                         selectFromDropdownByVisibleText(descriptionPolicyLevel,descriptionPolicyLevelvalue, "Description(Policy Level)");
+                         
+                     //  Net Premium
+                         netPremium = By.id("Net Premium" + addCounterValue + "");
+                     //  clearAndSenKeys(netPremium,netPremiumvalue, " Net Premium ");
+                         
+                         if(descriptionPolicyLevelvalue.equalsIgnoreCase("Detariff Discount") || descriptionPolicyLevelvalue.equalsIgnoreCase("Detariff Loading"))
+                         {
+                             // LD Rate
+                             LDRate = By.id("LD Rate" + addCounterValue + "");
+                             clearAndSenKeys(LDRate,riskDetailsData.getProperty("LDRate").trim(), " LD Rate ");        
+                         }
+                     
+                      // Calculated Amount
+                         calculatedAmount = By.id("Calculated Amount" + addCounterValue + "");
+                      // clearAndSenKeys(calculatedAmount,calculatedAmountvalue, "Calculated Amount");
+                         
+                         // Tyre Serial Number
+                         netLD = By.id("Net L/D" + addCounterValue + "");
+                     // clearAndSenKeys(netLD,netLDvalue, " Net L/D ");                   		 
+                   		 
+                         addCounterValue++;
+                   	 }
+                    }
+                    
+                 // Click On Save Button
+                    click(innnerSaveButton, "Loading and Discount Detail Save");
+                    FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+
+                    click(innnerCloseButton, "Loading and Discount Details Close");
+                    
+                 // Back To Main Frame
+                    switchToWindow(driver, "Insured Details");
+                    
+                    if(counterValue > 1)
+                    {
+                    	ExcelDatabase.UpdateInAssertTestData(conn, riskDetailsData.getProperty("AssertionTestDataSheetName"), testScenarioID, riskDetailsData.getProperty("VerifyLoadingAndDiscount").trim(), (notAutoSelectedList!=""?notAutoSelectedList:"Record No Found"), "Failed",stepGroup);
+                    }
+                    else
+                    {
+                    	ExcelDatabase.UpdateInAssertTestData(conn, riskDetailsData.getProperty("AssertionTestDataSheetName"), testScenarioID, riskDetailsData.getProperty("VerifyLoadingAndDiscount").trim(), (notAutoSelectedList!=""?notAutoSelectedList:"Record No Found"),(notAutoSelectedList!=""?notAutoSelectedList:"Record No Found"),stepGroup);
+                    }
+                    
+                    System.out.println("Loading And Discount which Not Selected By Default Automatically :- "+notAutoSelectedList);
+                }
+                else
+                {
+                	int NoLoadingDiscountDetailsSize = descriptionPolicyLevellist.size();
+                	
+                	if(NoLoadingDiscountDetailsSize > 0)
+                	{
+                		
+                	}
+
+					for (addDetails = 0; addDetails < NoLoadingDiscountDetailsSize; addDetails++) 
+					{
+						counterValue++;
+						String descriptionPolicyLevelvalue  = descriptionPolicyLevellist.get(addDetails).trim();
+					//	String netPremiumvalue = netPremiumlist.get(addDetails).trim();
+			      	//  String LDRatevalue = LDRatelist.get(addDetails).trim();
+					//	String calculatedAmountvalue = calculatedAmountlist.get(addDetails).trim();
+					//	String netLDvalue = netLDlist.get(addDetails).trim();
+					
+					//  Description(Policy Level)
+						descriptionPolicyLevel = By.id(descriptionPolicyLevelIDName.concat(String.valueOf(addDetails)));
+						
+						selectFromDropdownByVisibleText(descriptionPolicyLevel,descriptionPolicyLevelvalue, "Description(Policy Level)");
+						notAutoSelectedList=notAutoSelectedList.concat(descriptionPolicyLevelvalue+",");
+						//  Net Premium
+						netPremium = By.id("Net Premium" + addDetails + "");
+						
+				//		clearAndSenKeys(netPremium,netPremiumvalue, " Net Premium ");
+						
+						if(descriptionPolicyLevelvalue.equalsIgnoreCase("Detariff Discount")||descriptionPolicyLevelvalue.equalsIgnoreCase("Detariff Loading"))
+						{
+							// LD Rate
+							LDRate = By.id("LD Rate" + addDetails + "");
+							clearAndSenKeys(LDRate,riskDetailsData.getProperty("LDRate").trim(), " LD Rate ");		
+						}
+					
+						// Calculated Amount
+						calculatedAmount = By.id("Calculated Amount" + addDetails + "");
+					//	clearAndSenKeys(calculatedAmount,calculatedAmountvalue, "Calculated Amount");
+						
+						// Tyre Serial Number
+						netLD = By.id("Net L/D" + addDetails + "");
+				//	clearAndSenKeys(netLD,netLDvalue, " Net L/D ");
+						
+						// Click On Add Button
+						if (addDetails < NoLoadingDiscountDetailsSize - 1) {
+							click(innnerAddButton, "Add More Button");
+						}
+					}
+					// Click On Save Button
+					click(innnerSaveButton, "Loading and Discount Detail Save");
+					FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+	
+					click(innnerCloseButton, "Loading and Discount Details Close");
+					
+					// Back To Main Frame
+					switchToWindow(driver, "Insured Details");
+					
+					if(counterValue > 1)
+	                {
+	                	ExcelDatabase.UpdateInAssertTestData(conn, riskDetailsData.getProperty("AssertionTestDataSheetName"), testScenarioID, riskDetailsData.getProperty("VerifyLoadingAndDiscount").trim(), (notAutoSelectedList!=""?notAutoSelectedList:"Record No Found"), "Failed",stepGroup);
+	                }
+	                else
+	                {
+	                	ExcelDatabase.UpdateInAssertTestData(conn, riskDetailsData.getProperty("AssertionTestDataSheetName"), testScenarioID, riskDetailsData.getProperty("VerifyLoadingAndDiscount").trim(), (notAutoSelectedList!=""?notAutoSelectedList:"Record No Found"),(notAutoSelectedList!=""?notAutoSelectedList:"Record No Found"),stepGroup);
+	                }
+					
+					System.out.println("Loading And Discount which Not Selected By Default Automatically :- "+notAutoSelectedList);
+				}
+     
+                //For Endoresement
+                
+                if(riskDetailsData.getProperty("RemoveDescriptionPolicyLevel")!=null)
+				{
+                	By deletediscount ;
+                			
+					if(riskDetailsData.getProperty("RemoveDescriptionPolicyLevel")!="")
+					{
+						List<String> removedescriptionPolicyLevellist = getListTestData(riskDetailsData.getProperty("RemoveDescriptionPolicyLevel"));
+						
+						for(int i=0;i<removedescriptionPolicyLevellist.size();i++)
+						{
+							deletediscount= By.xpath("(//select[@title='"+removedescriptionPolicyLevellist.get(i).trim()+"']//following::td//a)[1]");
+							click(deletediscount, " Deleted Discount "+removedescriptionPolicyLevellist.get(i).trim());
+							FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+						}
+						click(innnerSaveButton, "Loading and Discount Detail Save");
+	                    click(innnerCloseButton, "Loading and Discount Details Close");
+	                    
+	                    // Back To Main Frame
+						switchToWindow(driver, "Insured Details");
+					}
+				}
+            }
+           }
+		
+		
+		if(riskDetailsData.getProperty("RiskDetailsSaveButton")!=null)
+		{
+			if(riskDetailsData.getProperty("RiskDetailsSaveButton").equalsIgnoreCase("Yes"))
+			{
+				click(riskDetailsSaveButton, "Risk Details Save Button");
+				waitForPageLoader();
+				FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+			}
+		}
+		
+		//Update IDV Value For Endorsement In VP Sheet
+		if(riskDetailsData.getProperty("VerifyIDVAmountAfterEndorsement")!=null)
+		{
+			if(riskDetailsData.getProperty("VerifyIDVAmountAfterEndorsement")!="")
+			{
+				//Fetch IDV Amount
+				String idvValue=fetchTextFromAngularApplication(By.id("Vehicle IDV"),"IDV Value");
+				
+				if(riskDetailsData.getProperty("VerifyIDVAmountAfterEndorsement").equalsIgnoreCase("Endorsement IDV Amount"))
+				{
+					ExcelDatabase.EndorsementUpdateInAssertTestData(conn, riskDetailsData.getProperty("AssertionTestDataSheetName"), testScenarioID, riskDetailsData.getProperty("VerifyIDVAmountAfterEndorsement"), idvValue, stepGroup);
+				}
+				else
+				{
+					ExcelDatabase.UpdateInAssertTestData(conn,riskDetailsData.getProperty("AssertionTestDataSheetName"), testScenarioID, riskDetailsData.getProperty("VerifyIDVAmountAfterEndorsement").trim(), (idvValue!=""?idvValue:"Record NO Found"),vPAssertFlagForScenarios);
+				}
+			}
+		}
+		
+		//Switch Back To Frame And Window
+		if(riskDetailsData.getProperty("IsEndorsement")!=null)
+	    {
+    	    if(!riskDetailsData.getProperty("IsEndorsement").equalsIgnoreCase("") && riskDetailsData.getProperty("IsEndorsement").equalsIgnoreCase("Yes"))
+		    {
+    	    	switchtodefaultframe(driver);
+    	    	switchToWindow(driver, "TCS BαNCS Insurance");
+		    }
+		}
+		
+		
+	}
+ }
+	
+	//Fill Cover Tab Page Information
+    public void FillCoverTabPage(WebDriver driver, String testScenarioID, XSSFWorkbook workbook, Connection conn,
+				String stepGroup, Properties riskDetailsData, CustomAssert customAssert,
+				ConcurrentHashMap<String, String> assertFlagForScenarios,
+				ConcurrentHashMap<String, String> vPAssertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason) throws Exception 
+        {
+    		
+    	// Code FOr Cover Details Page 
+    	if(riskDetailsData.getProperty("FillCover")!=null)
+		{
+			if(riskDetailsData.getProperty("FillCover")!="" && riskDetailsData.getProperty("FillCover").equalsIgnoreCase("Yes"))
+			{
+				int counter=0;
+				click(addOptionalCover, " Add Optional Cover Button ");
+				switchToWindow(driver, " Member Rider Details ");
+				
+				String nomatchvalue="";
+				
+				List<WebElement> allAdditionalCodeAutoSelect= new ArrayList<WebElement>();
+				List<String> aAdditionalCodeAutoSelectList= new ArrayList<String>();
+				
+				int allAdditionalCodeAutoSelectSize=driver.findElements(By.xpath("//table[@id='tblclmGridData']/tbody/tr/td[3]//a[1]/label")).size();
+				allAdditionalCodeAutoSelect=driver.findElements(By.xpath("//table[@id='tblclmGridData']/tbody/tr/td[3]//a[1]/label"));
+				
+				for (WebElement getCode : allAdditionalCodeAutoSelect) {
+					
+					if(getCode.getText()!=null && getCode.getText()!="" )
+					{
+						aAdditionalCodeAutoSelectList.add(getCode.getText().trim());
+					}
+				}
+				//Size Of Auto List 
+				System.out.println("Additional Auto Select List Size :- "+aAdditionalCodeAutoSelectList.size());
+				
+				if(riskDetailsData.getProperty("CoverCode")!=null)
+				{
+					if(riskDetailsData.getProperty("CoverCode")!="")
+					{
+						List<String> covercodelist=getListTestData(riskDetailsData.getProperty("CoverCode"));
+						
+						for (String covercode : covercodelist) 
+						{
+							selectCoverCodeFillNot=By.xpath("//label[normalize-space(text())='"+covercode+"']//preceding::input[@type='checkbox'][1]");
+							try
+							{
+								if(aAdditionalCodeAutoSelectList.contains(covercode))
+								{
+									WebElement element = waitForElementToBeClickable(selectCoverCodeFillNot);;
+									if (!element.isSelected()) 
+									{
+										counter++;
+										nomatchvalue = nomatchvalue.concat(covercode+",");
+										element.click();
+										waitForPageLoader();
+									}
+								}
+							}catch (Exception e) {
+								// TODO: handle exception
+							}
+						}
+						
+						if(counter > 1)
+		                {
+		                	ExcelDatabase.UpdateInAssertTestData(conn, riskDetailsData.getProperty("AssertionTestDataSheetName"), testScenarioID, riskDetailsData.getProperty("VerifyOptionalCover").trim(), (nomatchvalue!=""?nomatchvalue:"Record No Found"), "Failed",stepGroup);
+		                }
+		                else
+		                {
+		                	ExcelDatabase.UpdateInAssertTestData(conn, riskDetailsData.getProperty("AssertionTestDataSheetName"), testScenarioID, riskDetailsData.getProperty("VerifyOptionalCover").trim(), (nomatchvalue!=""?nomatchvalue:"Record No Found"),(nomatchvalue!=""?nomatchvalue:"Record No Found"),stepGroup);
+		                }
+		                
+		                System.out.println("Loading And Discount which Not Selected By Default Automatically :- "+nomatchvalue);
+					}
+				}
+				
+				/*List<String> covercodelist=getListTestData(riskDetailsData.getProperty("CoverCode"));
+				
+				for (String covercode : covercodelist) 
+				{
+					selectCoverCodeFillNot=By.xpath("//label[normalize-space( text())='"+covercode+"']//preceding::input[@type='checkbox'][1]");
+					try
+					{
+					 selectCheckBox(selectCoverCodeFillNot, covercode+"    is : ");
+					}catch (Exception e) {
+						// TODO: handle exception
+					}
+				}*/
+				
+				//Save Button For Member Rider Details
+				click(MemberRiderDetailsSaveButton, "Member Rider Details Save Button");
+				FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+				
+				//Close the Window
+				click(MemberRiderDetailsCloseButton, "Member Rider Details Close Button");
+				FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+								
+				// Back To Main Frame
+				switchToWindow(driver, "Insured Details");
+				
+				//Save Cover tab
+				click(CoverDetailsSaveButton, "Cover Details Save Button");
+				FetchErrorPOPupMsg(testScenarioID, scenariosFailureReason);
+				
+				
+				//Back TO Main Page	
+				driver.close();
+				
+				switchToWindow(driver, "TCS BαNCS Insurance");
+				switchtodefaultframe(driver);
+				switchtoframe(driver, "display");
+			}
+		}
+		}
+ 
+}

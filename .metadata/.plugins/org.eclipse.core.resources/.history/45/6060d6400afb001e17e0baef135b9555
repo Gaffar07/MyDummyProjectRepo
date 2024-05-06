@@ -1,0 +1,610 @@
+package commonPages;
+
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Properties;
+import java.util.Set;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindAll;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Reporter;
+
+import com.codoid.products.fillo.Connection;
+
+import HealthPages.CollectionDetails;
+import HealthPages.HomePage;
+import constants.PropertyConfigs;
+import testRunner.TestEngine;
+import util.ConfigReader;
+import util.CustomAssert;
+import util.ExcelDatabase;
+import util.ExcelRead;
+import util.GenericMethods;
+import util.WaitTime;
+
+import java.util.concurrent.ConcurrentHashMap;
+
+
+public class CreateAccounting extends GenericMethods {
+	
+	
+	private By backButton = By.xpath("(//img[@class='back-button'])[1]");
+	private By accountingTabField = By.xpath("//a[@name='Accounting']/p[normalize-space(text()='Accounting')]");
+	
+	@FindAll({
+		@FindBy(xpath="//input[@name='Submit']"),
+		@FindBy(xpath="//input[@name='submit']")
+	}) WebElement iUnderstandButton;
+	
+	private By roleDD = By.xpath("//img[@id='roleDD']");
+	private By selectedRole;
+	private By ClickOnAccount = By.xpath("(//div[@id='pageafterid']//a[@id='administration']/img)[1]");
+	
+	private By cashDepositBankGuaranteeTab = By.xpath("//tbody//td[text()='ash Deposit/Bank Guarantee']");
+	private By collectionTab = By.xpath("//tbody//td[text()='llection']");
+	
+//	xpath for Create CD Tab
+	private By createCDTab = By.xpath("//tbody//td[text()='reate CD']");
+	private By partyCodeBtn = By.xpath("(//input[@id='pPartyCode1']/following::a[@name='firstFocus']/img[@src=\"../images/LookUp.bmp\"])[1]");
+	private By partyCode;
+	private By searchBtn = By.xpath("//a[@title=\"Search\"]//span");
+	private By selectparty ;
+	private By openingDateTextField = By.xpath("//input[@name='pOpeningDate']");
+	private By IsGlobalCheckBox = By.id("myCheck");
+	private By CDSaveBtn = By.xpath("//a[@title='Save']/span");
+	private By activateAccountCode = By.xpath("//a[@title='Activate']/span");
+	private By stackNameDropDown = By.xpath("//select[@id='pFunctionCode']");
+	
+//	Xpath for Create BG Tab
+	private By createBGTab = By.xpath("//tbody//td[text()='eate BG']");
+	private By IssuingBankBtn = By.xpath("//input[@name='pPartyCode2']/following::a[@name='firstFocus']/img[@src='../images/LookUp.bmp']");
+	private By dateOfIssueTextField = By.name("pEffectiveStartDate");
+	private By dateOfExpiryTextField = By.name("pEffectiveEndDate");
+	private By BGCreditLimitDays = By.id("pbgcrdays");
+	private By ChannelCodeNameDropDown = By.xpath("//select[@name='pchannelcodename']");
+	private By GuaranteeAmountTextField = By.xpath("//input[@name='pGuaranteeAmnt']");
+	private By BGSaveBtn = By.xpath("//a[@title='Save']/span");
+	
+//	For Create Collection
+	private By createCollectionTab = By.xpath("//td[text()='reate Collection']");
+	private By BillingPartyStakeDropDown = By.xpath("//select[@id='pBillingStake']");
+	private By PayerOrPayeeCodeBtn = By.xpath("(//td[@class='mandatoryTextStyle']/following::a[@name='firstFocus']/img[@src='../images/LookUp.bmp'])[1]");
+	private By radioBtnForIndividual = By.xpath("//input[@value='I']");
+	private By radioBtnForOrganisation = By.xpath("//input[@value='O']");
+	private By collectionORPaymentTypeDropDown = By.xpath("//select[@id='pCollectionType']");
+	private By channelCodeDropDown = By.id("pChannelCode");
+	private By InstrumentAmountTextField = By.xpath("//input[@id='pInstrumentAmt']");
+	private By CollectionORPaymentAmountTextField = By.id("CollectionAmount");
+	private By creditAccountCodeBtn = By.id("CrAccountCodeLookup");
+	private By selectGLCodeNumber;
+	private By GLandSLcode = By.xpath("//input[@name='pGLCode']");
+	private By searchGLandSLCode = By.xpath("//a[@id=\"accsearch\"]/span");
+	
+	ArrayList<String> newTab;
+	String CDAccountCodeORGLCode = "";
+	WebDriverWait wait;
+	
+	public CreateAccounting(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		wait = new WebDriverWait(driver, 30);
+	}
+
+	public void fillAndSubmitCommonDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason,ConcurrentHashMap<String, String> assignRoleToScenariosID) throws Exception {
+		
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "head");
+		click(backButton, " Back From Policy Management Page ");
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "display");
+		
+		if (!dataRow.getProperty("AccountingTab").equalsIgnoreCase("") && dataRow.getProperty("AccountingTab").equalsIgnoreCase("Yes")) {
+			
+			click(accountingTabField, " Accounting Tab ");
+			
+			Thread.sleep(WaitTime.low);
+			switchtodefaultframe(driver);
+			switchtoframe(driver, "display");
+			
+			// switch to Child window
+			newTab = new ArrayList<String>(driver.getWindowHandles());
+			driver.switchTo().window(newTab.get(1));
+			Thread.sleep(2000);
+			waitForPageLoader();
+		}
+		
+		switchToWindowAndFrame();
+		Thread.sleep(2000);
+        clickOnWebElement(iUnderstandButton, " I Understand Button ");
+        Thread.sleep(2000);
+        switchToWindow(driver, "TCS BÎ±NCS Insurance");
+        switchtoframe(driver, "head");
+        
+        Reporter.log("<B>Child window Name is : <Font color=\"Yellow\"> '"+driver.getTitle()+"'</Font> </B>");
+		Reporter.log("<B><Font color=\"Yellow\">Accounting Page is Displayed</Font></B>");
+
+		System.out.println("Page title of Child window : " + driver.getTitle());
+        
+        if (!dataRow.getProperty("Roles").equalsIgnoreCase("")) {
+        	
+			click(roleDD, " Roles ");
+			selectedRole = By.xpath("//tbody//td[text()='"+dataRow.getProperty("Roles")+"']");
+			click(selectedRole, " Selected Role is "+ dataRow.getProperty("Roles"));
+		}
+       
+        if (!dataRow.getProperty("Accounting").equalsIgnoreCase("") && dataRow.getProperty("Accounting").equalsIgnoreCase("Yes")) {
+        	
+        	switchtodefaultframe(driver);
+        	switchtoframe(driver, "display");
+			click(ClickOnAccount, " Account ");
+		}
+	}
+	
+	public void fillAndSubmitCDAccountingDetails(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,ConcurrentHashMap<String, String> vPAssertFlagForScenarios, String fetchPartyCode, ConcurrentHashMap<String, String> scenariosFailureReason ,ConcurrentHashMap<String, String> assignRoleToScenariosID) throws Exception {
+		
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "head");
+		click(cashDepositBankGuaranteeTab, " Cash Deposit Bank Guarantee ");
+		
+		if (!dataRow.getProperty("CreateCDTab").equalsIgnoreCase("") && dataRow.getProperty("CreateCDTab").equalsIgnoreCase("Yes")) {
+			
+			click(createCDTab, " Create CD ");
+		}
+		
+		if (!dataRow.getProperty("CreateBGTab").equalsIgnoreCase("") && dataRow.getProperty("CreateBGTab").equalsIgnoreCase("Yes")) {
+			
+			click(createBGTab, " Create BG ");
+		}
+		
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "display");
+	
+		if (!dataRow.getProperty("PartyCode").equalsIgnoreCase("") && dataRow.getProperty("PartyCode").equalsIgnoreCase("Yes")) {
+			
+			click(partyCodeBtn, " party Code Btn");
+			switchToWindow(driver, "Party Maintenence");
+			
+			if (!dataRow.getProperty("Individual").equalsIgnoreCase("") && dataRow.getProperty("Individual").equalsIgnoreCase("Yes")) {
+				
+				click(radioBtnForIndividual, " Individual ");
+			}
+			if (!dataRow.getProperty("Organisation").equalsIgnoreCase("") && dataRow.getProperty("Organisation").equalsIgnoreCase("Yes")) {
+				
+				click(radioBtnForOrganisation, " Organisation ");
+			}
+			
+			partyCode = By.xpath("//input[@name='pPartyCode']");
+			driver.findElement(partyCode).sendKeys(fetchPartyCode);
+			selectFromDropdownByVisibleText(stackNameDropDown, dataRow.getProperty("StackName").trim(), " Stack Name ");
+			click(searchBtn, " Search Party Code Btn ");
+			Thread.sleep(2000);
+			selectparty = By.xpath("//div[@class=\"listlinkstyle\"]//a[normalize-space(text()='"+fetchPartyCode+"')]");
+			click(selectparty, " Selected party code "+fetchPartyCode);
+			
+	        switchToWindow(driver, "TCS BÎ±NCS Insurance");
+	        switchtodefaultframe(driver);
+	        switchtoframe(driver, "display");
+	        
+		}
+		
+		if (dataRow.getProperty("UniquePartyCodeForDC-IMD")!=null && dataRow.getProperty("UniquePartyCodeForDC-IMD")!="") {
+			
+			if ((!dataRow.getProperty("UniquePartyCodeForDC-IMD").equalsIgnoreCase("")) 
+					&& (dataRow.getProperty("UniquePartyCodeForDC-IMD").split("-")[0]).equalsIgnoreCase("Yes")) {
+				
+				click(partyCodeBtn, " party Code Btn");
+				switchToWindow(driver, "Party Maintenence");
+				
+				if ((dataRow.getProperty("Individual")!=null && dataRow.getProperty("Individual")!="") 
+					|| (dataRow.getProperty("Organisation")!=null && dataRow.getProperty("Organisation")!="")) {
+					
+					if (!dataRow.getProperty("Individual").equalsIgnoreCase("") && dataRow.getProperty("Individual").equalsIgnoreCase("Yes")) {
+						
+						click(radioBtnForIndividual, " Individual ");
+					}
+					if (!dataRow.getProperty("Organisation").equalsIgnoreCase("") && dataRow.getProperty("Organisation").equalsIgnoreCase("Yes")) {
+						
+						click(radioBtnForOrganisation, " Organisation ");
+					}
+					
+				}else {
+					click(By.xpath("//input[@value='A']"), "Both Radio Button");
+					
+				}
+				
+				partyCode = By.xpath("//input[@name='pPartyCode']");
+				driver.findElement(partyCode).sendKeys(dataRow.getProperty("UniquePartyCodeForDC-IMD").split("-")[1].trim());
+				selectFromDropdownByVisibleText(stackNameDropDown, dataRow.getProperty("StackName").trim(), " Stack Name ");
+				click(searchBtn, " Search Party Code Btn ");
+				Thread.sleep(2000);
+				selectparty = By.xpath("//div[@class=\"listlinkstyle\"]//a[normalize-space(text()='"+dataRow.getProperty("UniquePartyCodeForDC-IMD").split("-")[1].trim()+"')]");
+				click(selectparty, " Selected party code "+dataRow.getProperty("UniquePartyCodeForDC-IMD").split("-")[1]);
+				
+		        switchToWindow(driver, "TCS BÎ±NCS Insurance");
+		        switchtodefaultframe(driver);
+		        switchtoframe(driver, "display");
+		        
+			}
+		}
+				
+		if (!dataRow.getProperty("IssuingBank").equalsIgnoreCase("") && dataRow.getProperty("IssuingBank").equalsIgnoreCase("Yes")) {
+			
+			click(IssuingBankBtn, " Issuing Bank Btn");
+			switchToWindow(driver, "Party Maintenence");
+			
+
+			if ((dataRow.getProperty("Individual")!=null && dataRow.getProperty("Individual")!="")
+					|| (dataRow.getProperty("Organisation")!=null && dataRow.getProperty("Organisation")!="")) {
+				
+				if (dataRow.getProperty("Individual").equalsIgnoreCase("Yes")) {
+					
+					click(radioBtnForIndividual, " Individual ");
+				}
+				
+				if (dataRow.getProperty("Organisation").equalsIgnoreCase("Yes")) {
+					
+					click(radioBtnForOrganisation, " Organisation ");
+				}
+			}else {
+				click(By.xpath("//input[@value='A']"), "Both radio Btn");
+				
+			}
+
+			partyCode = By.xpath("//input[@name='pPartyCode']");
+			driver.findElement(partyCode).sendKeys(fetchPartyCode);
+			click(searchBtn, " Search Party Code Btn ");
+			Thread.sleep(2000);
+			selectparty = By.xpath("//div[@class=\"listlinkstyle\"]//a[normalize-space(text()='"+fetchPartyCode+"')]");
+			click(selectparty, " Selected party code "+fetchPartyCode);
+			
+	        switchToWindow(driver, "TCS BαNCS Insurance");
+	        switchtodefaultframe(driver);
+	        switchtoframe(driver, "display");
+	        
+		}
+		
+		if (!dataRow.getProperty("DateOfIssue").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(dateOfIssueTextField, getPreviousOrFutureDate(dataRow.getProperty("DateOfIssue")), " Date Of Issue" );
+		}
+		
+		if (!dataRow.getProperty("DateOfExpiry").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(dateOfExpiryTextField, getPreviousOrFutureDate(dataRow.getProperty("DateOfExpiry")), " Date Of Expiry" );
+		}
+		
+		if (!dataRow.getProperty("BGCreditLimitDays").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(BGCreditLimitDays, dataRow.getProperty("BGCreditLimitDays"), " BG Credit Limit Days" );
+		}
+		
+		if (!dataRow.getProperty("ChannelCodeName").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(ChannelCodeNameDropDown, dataRow.getProperty("ChannelCodeName"), " Channel Code Name" );
+		}
+		
+		if (!dataRow.getProperty("OpeningDate").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(openingDateTextField, getPreviousOrFutureDate(dataRow.getProperty("OpeningDate")), " Opening Date" );
+		}
+		
+		if (dataRow.getProperty("IsGlobalCheckBox")!=null && dataRow.getProperty("IsGlobalCheckBox")!="") {
+			
+			if (dataRow.getProperty("IsGlobalCheckBox").equalsIgnoreCase("Yes")) {
+				
+				click(IsGlobalCheckBox, "Is Global -> "+dataRow.getProperty("IsGlobalCheckBox"));
+			}
+		}
+		
+		if (!dataRow.getProperty("GuaranteeAmount(Rs)").equalsIgnoreCase("")) {
+			
+			clearAndSenKeys(GuaranteeAmountTextField, dataRow.getProperty("GuaranteeAmount(Rs)"), " Guarantee Amount (Rs)" );
+		}
+		
+		if (!dataRow.getProperty("CDSaveButton").equalsIgnoreCase("") && dataRow.getProperty("CDSaveButton").equalsIgnoreCase("Yes")) {
+			
+			click(CDSaveBtn, " CD Save Button ");
+			Thread.sleep(2000);
+			click(activateAccountCode, " Activate CD Account Code ");
+			String fetchCDAoountcode = fetchTextFromAppication("pAccCode");
+			Reporter.log("<B><Font color=\"Yellow\"> '"+fetchCDAoountcode+"'</Font> </B> CD Account Code fetch from  Application");
+			
+			ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyCDAoountcode").trim(), (fetchCDAoountcode!=""?fetchCDAoountcode:"Record NO Found"),vPAssertFlagForScenarios);
+		
+		}
+		
+		if (!dataRow.getProperty("BGSaveButton").equalsIgnoreCase("") && dataRow.getProperty("BGSaveButton").equalsIgnoreCase("Yes")) {
+			
+			click(BGSaveBtn, " BG Save Button ");
+			Thread.sleep(2000);
+			click(activateAccountCode, " Activate BG Account Code ");
+			String fetchBGAoountcode = fetchTextFromAppication("pAccCode");
+			Reporter.log("<B><Font color=\"Yellow\"> '"+fetchBGAoountcode+"'</Font> </B> BG Account Code fetch from  Application");
+			
+			ExcelDatabase.UpdateInAssertTestData(conn,dataRow.getProperty("AssertionTestDataSheetName"), testScenarioID, dataRow.getProperty("VerifyBankGuaranteeACcode").trim(), (fetchBGAoountcode!=""?fetchBGAoountcode:"Record NO Found"),vPAssertFlagForScenarios);
+		
+		}
+		
+		completeScreenShot(driver,TestEngine.excutionFolder + ConfigReader.getInstance().getValue(PropertyConfigs.screenShotFolder),
+				new SimpleDateFormat("dd-MM-yyyy HH-mm-ss").format(new Date()));
+	
+	}
+
+	public void fillAndSubmitAccoutingCollection(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert,
+			ConcurrentHashMap<String, String> assertFlagForScenarios,ConcurrentHashMap<String, String> vPAssertFlagForScenarios, String fetchPartyCode,ConcurrentHashMap<String, String> assignRoleToScenariosID) throws Exception {
+		// TODO Auto-generated method stub
+		
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "head");
+		click(collectionTab, " Collection ");
+		click(createCollectionTab, " Create Collection ");
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "display");
+		
+		if (!dataRow.getProperty("BillingPartyStake").equalsIgnoreCase("")) {
+		
+			selectFromDropdownByVisibleText(BillingPartyStakeDropDown, dataRow.getProperty("BillingPartyStake").trim(), " Billing Party Stake ");
+
+		}
+		
+		if (!dataRow.getProperty("PayerORPayeeCode").equalsIgnoreCase("") && dataRow.getProperty("PayerORPayeeCode").equalsIgnoreCase("Yes")) {
+			
+			click(PayerOrPayeeCodeBtn, "Payer Or Paye eCode Btn");
+			switchToWindow(driver, "Party Maintenence");
+			
+			if (!dataRow.getProperty("Individual").equalsIgnoreCase("") && dataRow.getProperty("Individual").equalsIgnoreCase("Yes")) {
+				
+				click(radioBtnForIndividual, " Individual ");
+			}
+			if (!dataRow.getProperty("Organisation").equalsIgnoreCase("") && dataRow.getProperty("Organisation").equalsIgnoreCase("Yes")) {
+				
+				click(radioBtnForOrganisation, " Organisation ");
+			}
+			
+			partyCode = By.xpath("//input[@name='pPartyCode']");
+			driver.findElement(partyCode).sendKeys(fetchPartyCode);
+			click(searchBtn, " Search Party Code Btn ");
+			Thread.sleep(2000);
+			selectparty = By.xpath("//div[@class='listlinkstyle']//a[normalize-space(text()='"+fetchPartyCode+"')]");
+			click(selectparty, " Selected party code "+fetchPartyCode);
+			
+			switchToWindow(driver, "TCS BÎ±NCS Insurance");
+	        switchtodefaultframe(driver);
+	        switchtoframe(driver, "display");
+			
+		}
+		
+		if ((!dataRow.getProperty("UniquePartyCodeForDC-IMD").equalsIgnoreCase("")) 
+				&& (dataRow.getProperty("UniquePartyCodeForDC-IMD").split("-")[0]).equalsIgnoreCase("Yes")) {
+			
+			click(PayerOrPayeeCodeBtn, "Payer Or Paye eCode Btn");
+			switchToWindow(driver, "Party Maintenence");
+			
+			if ((dataRow.getProperty("Individual")!=null && dataRow.getProperty("Individual")!="") 
+					|| (dataRow.getProperty("Organisation")!=null && dataRow.getProperty("Organisation")!="")) {
+					
+				if (!dataRow.getProperty("Individual").equalsIgnoreCase("") && dataRow.getProperty("Individual").equalsIgnoreCase("Yes")) {
+					
+					click(radioBtnForIndividual, " Individual ");
+				}
+				if (!dataRow.getProperty("Organisation").equalsIgnoreCase("") && dataRow.getProperty("Organisation").equalsIgnoreCase("Yes")) {
+					
+					click(radioBtnForOrganisation, " Organisation ");
+				}
+					
+			}else {
+					click(By.xpath("//input[@value='A']"), "Both Radio Button");
+					
+			}
+			
+			partyCode = By.xpath("//input[@name='pPartyCode']");
+			driver.findElement(partyCode).sendKeys(dataRow.getProperty("UniquePartyCodeForDC-IMD").split("-")[1].trim());
+			selectFromDropdownByVisibleText(stackNameDropDown, dataRow.getProperty("StackName").trim(), " Stack Name ");
+			click(searchBtn, " Search Party Code Btn ");
+			Thread.sleep(2000);
+			selectparty = By.xpath("//div[@class=\"listlinkstyle\"]//a[normalize-space(text()='"+dataRow.getProperty("UniquePartyCodeForDC-IMD").split("-")[1].trim()+"')]");
+			click(selectparty, " Selected party code "+dataRow.getProperty("UniquePartyCodeForDC-IMD").split("-")[1]);
+			
+	        switchToWindow(driver, "TCS BÎ±NCS Insurance");
+	        switchtodefaultframe(driver);
+	        switchtoframe(driver, "display");
+	        
+		}
+		
+		if (!dataRow.getProperty("CollectionORPaymentType").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(collectionORPaymentTypeDropDown, dataRow.getProperty("CollectionORPaymentType").trim(), " Collection OR Payment Type ");
+		}
+		
+		if (!dataRow.getProperty("InstrumentAmountORCollectionAmount").equalsIgnoreCase("")) {
+			
+			driver.findElement(By.id("pInstrumentAmt")).clear();
+			Thread.sleep(3000);
+			
+			String InstrumentAmount = "pInstrumentAmt";
+			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", driver.findElement(InstrumentAmountTextField));
+			Thread.sleep(1000);
+			((JavascriptExecutor) driver).executeScript("document.getElementById('"+InstrumentAmount+"').value='"+dataRow.getProperty("InstrumentAmountORCollectionAmount").trim()+"';", InstrumentAmount);
+			driver.findElement(InstrumentAmountTextField).sendKeys(Keys.TAB);
+			Thread.sleep(2000);
+			clearAndSenKeys(CollectionORPaymentAmountTextField, dataRow.getProperty("InstrumentAmountORCollectionAmount").trim(), " Collection OR Payment Amount ");
+
+		}
+		
+		if (!dataRow.getProperty("AccountingChannelCode").equalsIgnoreCase("")) {
+			
+			selectFromDropdownByVisibleText(channelCodeDropDown, dataRow.getProperty("AccountingChannelCode"), "Channel Code");
+		}
+		
+		if (!dataRow.getProperty("CreditAccountCode").equalsIgnoreCase("") && dataRow.getProperty("CreditAccountCode").equalsIgnoreCase("Yes")) {
+			
+			if (dataRow.getProperty("VerifyCDAoountcode")!=null) {
+				
+				if (dataRow.getProperty("VerifyCDAoountcode").equalsIgnoreCase("CD A/C Code")) {
+					
+					CDAccountCodeORGLCode = ExcelDatabase.getValueFromSheet(conn,dataRow.getProperty("GetGLCode") , "CD A/C Code", testScenarioID, "VPActualData");
+				}
+			}
+			
+			if (dataRow.getProperty("VerifyBankGuaranteeACcode")!=null) {
+				
+				if (dataRow.getProperty("VerifyBankGuaranteeACcode").equalsIgnoreCase("Bank Guarantee A/C Code")) {
+					
+					CDAccountCodeORGLCode = ExcelDatabase.getValueFromSheet(conn,dataRow.getProperty("GetGLCode") , "Bank Guarantee A/C Code", testScenarioID, "VPActualData");
+
+				}
+			}
+			
+			click(creditAccountCodeBtn, " Credit Account Code ");
+			switchToWindow(driver, "Account Search");
+			
+			clearAndSenKeys(GLandSLcode, CDAccountCodeORGLCode, "GL/SL Code");
+			click(searchGLandSLCode, "GL/SL Code");
+			Thread.sleep(2000);
+			selectGLCodeNumber = By.xpath("//div[@class='listlinkstyle'][normalize-space(text()='"+CDAccountCodeORGLCode+"')]/a");
+			click(selectGLCodeNumber, " Selected GL Code Number ");
+			
+	        switchToWindow(driver, "TCS BÎ±NCS Insurance");
+	        switchtodefaultframe(driver);
+	        switchtoframe(driver, "display");
+			
+		}
+		
+//		Call to Collection Method
+		CollectionDetails collectionDetails = new CollectionDetails(driver);
+		String paymentMode = dataRow.getProperty("Mode").trim().toUpperCase();
+		
+		switch (paymentMode) {
+		case "CASH":
+			collectionDetails.fillCollectionCommonInfo(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,vPAssertFlagForScenarios);
+			collectionDetails.fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "ONLINE PG":
+			collectionDetails.fillCollectionForOnlinePGandPaymentGateway(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,vPAssertFlagForScenarios);
+			collectionDetails.fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+			
+		case "NEFT/RTGS COLLECTION":
+			collectionDetails.fillCollectionCommonInfo(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,vPAssertFlagForScenarios);
+			collectionDetails.fiilAndSaveCollectionDetails(driver, testScenarioID, workbook, conn, stepGroup, dataRow,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios);
+			break;
+
+		default:
+			break;
+		}
+		
+		switchToWindow(driver, "TCS BÎ±NCS Insurance");
+        switchtodefaultframe(driver);
+		switchtoframe(driver, "head");
+		click(By.xpath("//a/img[@src='../images/icon_logout.png']"), "LogOut from Accounting Screen");
+		
+		Set<String> winHandle = driver.getWindowHandles();
+        for (String winodow : winHandle) {
+        	
+            driver.switchTo().window(winodow);
+            if(driver.getCurrentUrl().contains("SECURITY/LogoutConfirmation."))
+            {
+            	switchToWindowAndFrame();
+        		click(By.xpath("//a[@title='Yes']/span"), "Confirmation Yes button");
+        		switchToWindow(driver, "TCS BÎ±NCS Insurance");
+        		driver.close();
+        		break;
+        		
+            }
+        }
+	    driver.switchTo().window(newTab.get(0));
+	    Reporter.log("<B>parent window Name is : <Font color=\"Yellow\"> '"+driver.getTitle()+"'</Font> </B>");
+	    System.out.println("Page title of parent window: " + driver.getTitle());
+	    
+	    if(!dataRow.getProperty("AccountingTab").equalsIgnoreCase("") && dataRow.getProperty("AccountingTab").equalsIgnoreCase("Yes")) {
+	    	driver.navigate().refresh();
+			Thread.sleep(2000);
+			driver.navigate().refresh();
+			Thread.sleep(1000);
+			
+			TCSLogout tcsLogout = new TCSLogout(driver);
+			tcsLogout.UserIDRelease(testScenarioID,"BOPS");
+			
+			SBIlogin SBIlogin = new SBIlogin(driver);
+			SBIlogin.fillAndSubmitNewTCSLogin(driver, testScenarioID, workbook, conn, stepGroup, "TCS_LoginPage",customAssert,assertFlagForScenarios,assignRoleToScenariosID);
+	    }
+	    
+//	    Calling to Home Page
+	    HomePage homePage = new HomePage(driver);
+		homePage.fillAndSubmitHomePage(driver, testScenarioID, workbook, conn, stepGroup, "HomePage",customAssert,assertFlagForScenarios);
+	    
+		String qouteNumber = ExcelDatabase.getValueFromSheet(conn,dataRow.getProperty("GetQuoteNumber") , "Quote Number", testScenarioID, "VPActualData");
+		
+		if (dataRow.getProperty("QuoteSearch")!=null) {
+			
+			if (dataRow.getProperty("QuoteSearch")!="" && dataRow.getProperty("QuoteSearch").equalsIgnoreCase("Yes")) {
+				SearchEntityPolicyPage searchEntityPolicyPage = new SearchEntityPolicyPage(driver);
+				searchEntityPolicyPage.searchQuoteNumber(driver, qouteNumber);
+			}
+			
+			waitForPageLoader();
+			switchToWindow(driver, "TCS BÎ±NCS Insurance");
+			switchtodefaultframe(driver);
+			switchtoframe(driver, "display");
+			switchtoframe(driver, "containerFrame");
+			
+		}
+	}
+	
+	public void fillAndSubmitAccounting(WebDriver driver, String testScenarioID, XSSFWorkbook workbook,
+			Connection conn, String stepGroup, Properties dataRow, CustomAssert customAssert, ConcurrentHashMap<String, String> assertFlagForScenarios, ConcurrentHashMap<String, String> vPAssertFlagForScenarios, ConcurrentHashMap<String, String> scenariosFailureReason,ConcurrentHashMap<String, String> assignRoleToScenariosID) throws Exception
+	{
+		Properties AccountingData = ExcelRead.readRowDataInProperties(workbook, dataRow.getProperty("CollectionSheetName"), testScenarioID, stepGroup);
+		
+		String fetchPartyCode = ExcelDatabase.getValueFromSheet(conn,AccountingData.getProperty("GetPartyCode") , "Party Code", testScenarioID, "VPActualData");
+		
+		if((AccountingData.getProperty("ExecuteType").equalsIgnoreCase("add") || AccountingData.getProperty("ExecuteType").equalsIgnoreCase("edit")) && stepGroup.equalsIgnoreCase(AccountingData.getProperty("GroupName")))
+		{
+
+			fillAndSubmitCommonDetails(driver, testScenarioID, workbook, conn, stepGroup, AccountingData,customAssert,assertFlagForScenarios,scenariosFailureReason,assignRoleToScenariosID);
+
+//			For Cash Deposit Bank Guarantee
+			if(!AccountingData.getProperty("CashDepositBankGuarantee").equalsIgnoreCase("") && AccountingData.getProperty("CashDepositBankGuarantee").equalsIgnoreCase("Yes"))
+			{
+				if(!AccountingData.getProperty("CreateCDAccount").equalsIgnoreCase("") && AccountingData.getProperty("CreateCDAccount").equalsIgnoreCase("Yes"))
+				{
+					fillAndSubmitCDAccountingDetails(driver, testScenarioID, workbook, conn, stepGroup, AccountingData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,fetchPartyCode,scenariosFailureReason,assignRoleToScenariosID);
+				}
+				
+				if(!AccountingData.getProperty("CreateBGAccount").equalsIgnoreCase("") && AccountingData.getProperty("CreateBGAccount").equalsIgnoreCase("Yes"))
+				{
+					fillAndSubmitCDAccountingDetails(driver, testScenarioID, workbook, conn, stepGroup, AccountingData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,fetchPartyCode,scenariosFailureReason,assignRoleToScenariosID);
+
+				}
+			}
+			
+//			For Collection
+			if(!AccountingData.getProperty("AccoutingCollection").equalsIgnoreCase("") && AccountingData.getProperty("AccoutingCollection").equalsIgnoreCase("Yes"))
+			{
+				if(!AccountingData.getProperty("CreateCollection").equalsIgnoreCase("") && AccountingData.getProperty("CreateCollection").equalsIgnoreCase("Yes"))
+				{
+					fillAndSubmitAccoutingCollection(driver, testScenarioID, workbook, conn, stepGroup, AccountingData,customAssert,assertFlagForScenarios,vPAssertFlagForScenarios,fetchPartyCode,assignRoleToScenariosID);
+				}
+					
+			}
+		}
+			
+	}
+
+}

@@ -1,0 +1,146 @@
+package commonPages;
+
+import java.util.Properties;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Reporter;
+
+import com.codoid.products.fillo.Connection;
+
+import util.CustomAssert;
+import util.ExcelRead;
+import util.GenericMethods;
+import util.WaitTime;
+
+public class SBIGCommonPages extends GenericMethods {
+
+	private By quickQuote = By.xpath("//a[contains(text(),'Quick Quote')]");
+	private By ApplicationDataCapture = By.xpath("//a[contains(text(),'Application Data Capture')]");
+	private By lob = By.xpath("//select[@id='pLOB1']");
+	private By Product = By.xpath("//select[@id='pProduct']");
+	private By ProceedBtn = By.xpath("//a[contains(text(),'Proceed')]");
+
+	WebDriverWait wait;
+
+	public SBIGCommonPages(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		wait = new WebDriverWait(driver, 30);
+	}
+
+	public void navigateToQuote(WebDriver driver, String testCaseName, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, String referenceStepKeywordSheetName, CustomAssert customAssert) throws Exception {
+
+		String sheetName = referenceStepKeywordSheetName;
+		Properties dataRow = ExcelRead.readRowDataInProperties(workbook, sheetName, testCaseName, stepGroup);
+
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "head");
+
+		Reporter.log("<B>Traverse To CommonPage</B>");
+		if (!dataRow.getProperty("ClickOnApplicationDataCapture").equalsIgnoreCase("")
+				&& dataRow.getProperty("ClickOnApplicationDataCapture") != null) {
+			if (dataRow.getProperty("ClickOnApplicationDataCapture").equalsIgnoreCase("Yes")) {
+				
+				clickForLogin(ApplicationDataCapture, "Application Data Capture");
+				for (int i = 0; i < 4; i++) {
+					
+					switchtodefaultframe(driver);
+					switchtoframe(driver, "display");
+					
+					try {
+						if (driver.findElement(By.xpath("//a[contains(text(),'Proceed')]")).isDisplayed()) {
+							
+							break;
+						}
+					} catch (Exception e) {
+						switchtodefaultframe(driver);
+						switchtoframe(driver, "head");
+						clickForLogin(ApplicationDataCapture, "Application Data Capture");
+						continue;
+					}
+				}
+			}
+
+			for (int i = 0; i < 4; i++) {
+				switchtodefaultframe(driver);
+				switchtoframe(driver, "display");
+				Reporter.log("<B><Font color=\"Yellow\">Application Data Capture Page is Displayed</Font></B>");
+
+				// LOB DropDown
+				selectFromDropdownByVisibleText(lob, dataRow.getProperty("LOB"),
+						"Selected LOB " + dataRow.getProperty("LOB"));
+				// Product DropDown
+				selectFromDropdownByVisibleText(Product, dataRow.getProperty("Product"),
+						"Selected Product " + dataRow.getProperty("Product"));
+
+				Thread.sleep(WaitTime.low);
+				if (dataRow.getProperty("ProccedButton").equalsIgnoreCase("yes")) {
+					click(ProceedBtn, "Proceed Botton");
+					waitForPageLoader();
+				}
+
+				try {
+					if (driver.findElement(By.xpath("//a[@title='Basic Details']")).isDisplayed()) {
+						break;
+					}
+				} catch (Exception e) {
+					switchtodefaultframe(driver);
+					switchtoframe(driver, "head");
+					clickForLogin(ApplicationDataCapture, "Application Data Capture");
+					continue;
+				}
+			}
+		} 
+		else {
+			clickForLogin(quickQuote, "Quick Quote");
+			for (int i = 0; i < 5; i++) {
+				switchtodefaultframe(driver);
+				switchtoframe(driver, "display");
+				Reporter.log("<B><Font color=\"Yellow\">Quick Quote Page is Displayed</Font></B>");
+
+				try {
+					if (driver.findElement(By.xpath("//a[contains(text(),'Proceed')]")).isDisplayed()) {
+						break;
+					}
+				} catch (Exception e) {
+					switchtodefaultframe(driver);
+					switchtoframe(driver, "head");
+					clickForLogin(quickQuote, "Quick Quote");
+					continue;
+				}
+
+				// LOB DropDown
+				selectFromDropdownByVisibleText(lob, dataRow.getProperty("LOB"),
+						"Selected LOB " + dataRow.getProperty("LOB"));
+				// Product DropDown
+				selectFromDropdownByVisibleText(Product, dataRow.getProperty("Product"),
+						"Selected Product " + dataRow.getProperty("Product"));
+
+				Thread.sleep(WaitTime.low);
+				if (dataRow.getProperty("ProccedButton").equalsIgnoreCase("yes")) {
+					click(ProceedBtn, "Proceed Botton");
+					waitForPageLoader();
+				}
+
+			}
+
+			// LOB DropDown
+			selectFromDropdownByVisibleText(lob, dataRow.getProperty("LOB"),
+					"Selected LOB " + dataRow.getProperty("LOB"));
+			// Product DropDown
+			selectFromDropdownByVisibleText(Product, dataRow.getProperty("Product"),
+					"Selected Product " + dataRow.getProperty("Product"));
+			if (dataRow.getProperty("ProccedButton").equalsIgnoreCase("yes")) {
+				click(ProceedBtn, "Proceed Botton");
+				waitForPageLoader();
+			}
+			Thread.sleep(WaitTime.low);
+		}
+
+	}
+}

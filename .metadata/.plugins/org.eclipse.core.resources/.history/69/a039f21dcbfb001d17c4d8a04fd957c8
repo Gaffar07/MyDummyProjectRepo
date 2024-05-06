@@ -1,0 +1,74 @@
+#It will Change According LOB Wise Value
+ReportForWhichLOB=Health_
+
+Status=10
+ScripterNameIndex=3
+upadateExcel="D\:\\"
+
+NodePath=/GRID/Node.bat
+Low=1000
+Medium=3000
+ChromedriverEXEPath=/drivers/chromedriver.exe
+TestDataSuitePath=
+BrowserNameIndex=5
+Browser=Chrome
+DefectTool=True
+IEdriverEXEPath=/Lib/IEDriverServer.exe
+PrandyaMachine=http\://172.16.4.54\:5566/wd/hub
+GSTNode=C\:\\GSTNewReturnsOffline\\winstaller\\startnode.bat
+TCSuatLogin=https://uat2-udaan.sbigen.in/BaNCS/
+FirefoxdriverEXEPath=/drivers/geckodriver.exe
+AutomationScriptName_MasterTestScript_Index=1
+TestDataFolder=D:\\SBI_TestData
+ExecutionSpeed=fast
+ExecuteFlag=8
+ReferenceIndexForTestScript=0
+GridPath=/GRID
+CustomExceptionMessage="Scenario Must be Passed"
+TestScenario_RepositoryFileIndex=4
+HubPath=/GRID/Hub.bat
+StepGroupIndex=3
+KillPID=/drivers
+GridURL=http\://localhost\:4444/wd/hub
+TestData_RepositoryFileIndex=3
+ThreadCount=2
+ScreenShotFolder=/screenshot
+
+##For Taking backup File of Test data so we set the Name Of Folder.
+TestDataBackupFolderName=SBIGBackupTestData
+AssertionTestDataSheetName=VPAssertTestData
+AllLogFolderName=D:\\ALLExecutionReport
+ExcelReport=Automation Execution Report
+ScenarioSuite=D:\\SBI_TestData\\TestScenarioSuite\\0003_LOBScenarioSuite_SBI.xlsx
+TestDataSuite=D:\\SBI_TestData\\TestDataSuite\\0002_LOBTestDataSuite_SBI.xlsx
+
+##Login User 
+#MyuserId=70353,70353_1
+#PPMCMyuserId=70352_9,70352_10
+##UWRMyuserId=70358_3,70352_2,70352_3,70352_4,70352_13,70352_14,70352_15,70352_16
+#UWRMyuserId=70352_14,70352_15
+#
+##For Motor UWR Log Id7
+#MotorUWRR5LogId=70353_2,70353_3
+#MotorUWRR6LogId=70353_4,70353_5
+#MotorUWRR7LogId=70353_6,70353_7
+#MotorUWRR8LogId=70353_8,70353_9
+
+#Login User 
+MyuserId=70353_11,70353_12
+PPMCMyuserId=70352_9,70352_10
+#UWRMyuserId=70358_3,70352_2,70352_3,70352_4,70352_13,70352_14,70352_15,70352_16
+UWRMyuserId=70352_14,70352_15
+
+#For Motor UWR Log Id7
+MotorUWRR5LogId=70367_2,70367_3
+MotorUWRR6LogId=70367_4,70367_5
+MotorUWRR7LogId=70367_6,70367_7
+MotorUWRR8LogId=70367_8,70367_9
+
+##For Extends Report
+EnvironmentInRunning=UAT
+Printlog=true
+SkipStep=4
+
+DownloadFolder=D:\\SBIGDownloadedFiles

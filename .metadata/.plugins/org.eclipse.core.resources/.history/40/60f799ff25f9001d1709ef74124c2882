@@ -1,0 +1,109 @@
+package HealthPages;
+
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.testng.Reporter;
+
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.Status;
+import com.codoid.products.fillo.Connection;
+
+import commonPages.SearchEntityPolicyPage;
+import util.CustomAssert;
+import util.ExcelDatabase;
+import util.ExcelRead;
+import util.GenericMethods;
+
+//Ankush for Home page 26-07-2022
+public class HomePage extends GenericMethods {
+
+	WebDriverWait webdwait;
+	CustomAssert cusAsst;
+	SearchEntityPolicyPage searchPage;
+	
+	private By selectRole = By.xpath("//i[@id='roleIcon']");
+	private By accountingTabField = By.xpath("//a[@name='Accounting']/p[normalize-space(@text() = 'Accounting')]");
+	private By policyManagementTabField = By.xpath("//a[@name='Policy Management']/p[normalize-space(@text() = 'Policy Management')]");
+	private By itOperationTabField = By.xpath("//a[@name='IT Operations']/p[normalize-space(@text() = 'IT Operations')]");
+	private By businessPartnersTabField = By.xpath("//a[@name='IT Operations']/p[normalize-space(@text() = 'IT Operations')]");
+	private By providerTabField = By.xpath("//a[@name='Provider']/p[normalize-space(@text() = 'Provider')]");
+
+	public HomePage(WebDriver driver) {
+		super(driver);
+		PageFactory.initElements(driver, this);
+		webdwait = new WebDriverWait(driver, 30);
+		cusAsst = new CustomAssert(driver);
+	}
+
+	public void fillAndSubmitHomePage(WebDriver driver, String testCaseName, XSSFWorkbook workbook, Connection conn,
+			String stepGroup, String referenceStepKeywordSheetName, CustomAssert customAssert, ConcurrentHashMap<String, String> assertFlagForScenarios) throws Exception {
+		
+		String sheetName = referenceStepKeywordSheetName;
+		Properties dataRow = ExcelRead.readRowDataInProperties(workbook, sheetName, testCaseName, stepGroup);
+		
+		Reporter.log("<B><Font color=\"Yellow\">Home Page is Displayed</Font></B>");
+		switchtoframe(driver, "head");
+		click(selectRole, "Role");
+h 		click(By.xpath("//div[@id='roleDiv']//div[contains(text(),'" + dataRow.getProperty("Role") + "')]"), dataRow.getProperty("Role"));
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "display");
+		
+		// clicking on Accounting tab
+		if (dataRow.getProperty("AccountingTab")!=null) {
+			
+			if (!dataRow.getProperty("AccountingTab").equalsIgnoreCase("") && dataRow.getProperty("AccountingTab").equalsIgnoreCase("Yes")) {
+				click(accountingTabField,"Accounting Tab");
+			}
+		}
+		
+		// clicking on policy management tab
+		if (dataRow.getProperty("PolicyManagmentTab")!=null) {
+			
+			if (!dataRow.getProperty("PolicyManagmentTab").equalsIgnoreCase("") && dataRow.getProperty("PolicyManagmentTab").equalsIgnoreCase("Yes")) {
+				click(policyManagementTabField,"Policy management Tab");
+				
+				if(!dataRow.getProperty("SearchQuoteNumber").equalsIgnoreCase("") && dataRow.getProperty("SearchQuoteNumber").equalsIgnoreCase("Yes"))
+				{
+					String qouteNumber = ExcelDatabase.getValueFromSheet(conn,"VPAssertTestData" , "Quote Number", testCaseName, "VPActualData");
+					searchPage= new SearchEntityPolicyPage(driver);
+					searchPage.searchQuoteNumber(driver, qouteNumber);
+				}
+			}
+		}
+		
+		// clicking on ITOperation tab
+		if (dataRow.getProperty("ITOperationTab")!=null) {
+			
+			if (!dataRow.getProperty("ITOperationTab").equalsIgnoreCase("") && dataRow.getProperty("ITOperationTab").equalsIgnoreCase("Yes")) {
+				click(itOperationTabField,"ITOperation Tab");
+			}
+		}
+		
+		// clicking on Business Partner tab
+		if (dataRow.getProperty("BusinessPartnersTab")!=null) {
+			
+			if (!dataRow.getProperty("BusinessPartnersTab").equalsIgnoreCase("") && dataRow.getProperty("BusinessPartnersTab").equalsIgnoreCase("Yes")) {
+				click(businessPartnersTabField,"Business Partner Tab");
+			}
+		}
+		
+		// clicking on Providers tab
+		if (dataRow.getProperty("ProvidersTab")!=null) {
+			
+			if (!dataRow.getProperty("ProvidersTab").equalsIgnoreCase("") && dataRow.getProperty("ProvidersTab").equalsIgnoreCase("Yes")) {
+				click(providerTabField,"Providers Tab");
+			}
+		}
+		
+		switchtodefaultframe(driver);
+		switchtoframe(driver, "display");
+
+	}
+
+}
