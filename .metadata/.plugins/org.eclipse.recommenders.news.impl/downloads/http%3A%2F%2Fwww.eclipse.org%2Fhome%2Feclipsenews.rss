@@ -7,6 +7,28 @@
     <language>en</language>
     
     <item>
+  <title>Call for Papers: eSAAM 2024</title>
+  <link>https://newsroom.eclipse.org/news/announcements/call-papers-esaam-2024</link>
+  <description>
+&lt;span&gt;Call for Papers: eSAAM 2024&lt;/span&gt;
+
+&lt;span&gt;&lt;span&gt;Shanda Giacomoni&lt;/span&gt;&lt;/span&gt;
+
+&lt;span&gt;&lt;time datetime="2024-04-22T09:05:00-04:00" title="Monday, April 22, 2024 - 09:05"&gt;Mon, 2024-04-22 09:05&lt;/time&gt;
+&lt;/span&gt;
+
+            &lt;div class="field field--name-body field--type-text-with-summary field--label-hidden field--item"&gt;&lt;p&gt;Submit your papers for Eclipse SAAM on Data Spaces, a conference that will bring together practitioners and researchers working on innovative software and systems solutions for next-generation mobility. This year the conference is co-located with Open Community Experience and will focus on Security and Privacy, Artificial Intelligence, Architecture, Modelling and related challenges.&lt;/p&gt;&lt;/div&gt;
+      
+  &lt;div class="field field--name-field-news-url field--type-link field--label-above"&gt;
+    &lt;div class="field--label"&gt;URL&lt;/div&gt;
+              &lt;div class="field--item"&gt;&lt;a href="https://www.ocxconf.org/event/2024/websitePage:a42770e9-b32c-418b-8c08-a86d5c57ca61"&gt;https://www.ocxconf.org/event/2024/websitePage:a42770e9-b32c-418b-8c08-a86d5c57…&lt;/a&gt;&lt;/div&gt;
+          &lt;/div&gt;
+</description>
+  <pubDate>Mon, 22 Apr 2024 13:05:00 +0000</pubDate>
+    <dc:creator>Shanda Giacomoni</dc:creator>
+    <guid isPermaLink="false">40158 at https://newsroom.eclipse.org</guid>
+    </item>
+<item>
   <title>The Eclipse Foundation Unveils Open Community Experience (OCX), Europe’s Premier Event for Open Source Innovation</title>
   <link>https://newsroom.eclipse.org/news/announcements/eclipse-foundation-unveils-open-community-experience-ocx-europe%E2%80%99s-premier-event</link>
   <description>
@@ -335,76 +357,6 @@
   <pubDate>Wed, 06 Mar 2024 14:00:00 +0000</pubDate>
     <dc:creator>Gesine Freund</dc:creator>
     <guid isPermaLink="false">40001 at https://newsroom.eclipse.org</guid>
-    </item>
-<item>
-  <title>2023 in Review: Eclipse Software Defined Vehicle (SDV) Accelerates Automotive Tech Innovation through Open Source Collaboration</title>
-  <link>https://newsroom.eclipse.org/news/announcements/2023-review-eclipse-software-defined-vehicle-sdv-accelerates-automotive-tech</link>
-  <description>
-&lt;span&gt;2023 in Review: Eclipse Software Defined Vehicle (SDV) Accelerates Automotive Tech Innovation through Open Source Collaboration&lt;/span&gt;
-
-&lt;span&gt;&lt;span&gt;Jacob Harris&lt;/span&gt;&lt;/span&gt;
-
-&lt;span&gt;&lt;time datetime="2024-02-27T07:00:00-05:00" title="Tuesday, February 27, 2024 - 07:00"&gt;Tue, 2024-02-27 07:00&lt;/time&gt;
-&lt;/span&gt;
-
-            &lt;div class="field field--name-body field--type-text-with-summary field--label-hidden field--item"&gt;&lt;p dir="ltr"&gt;&lt;strong&gt;BRUSSELS – February 27, 2024 –&amp;nbsp;&lt;/strong&gt;&lt;a href="http://www.eclipse.org" rel="nofollow"&gt;&lt;u&gt;The Eclipse Foundation&lt;/u&gt;&lt;/a&gt;, one of the world’s largest open source foundations, in conjunction with the Eclipse Software Defined Vehicle (SDV) Working Group, today announced highlights of its many accomplishments and overall progress in 2023, along with a preview of what’s coming in 2024 and beyond. During the past year, Eclipse SDV launched more than a dozen new projects, hosted multiple events, and added leading OEMs like GM and Mercedes, while growing the overall membership by 14 new members. Most importantly, the working group began hosting code that is already planned for use in real-world production.&amp;nbsp;&lt;/p&gt;
-&lt;p dir="ltr"&gt;“The SDV Working Group experienced significant growth in 2023, and we anticipate this momentum to not only continue but also accelerate in 2024,” said Mike Milinkovich, executive director of the Eclipse Foundation. “Aligned with our community’s commitment to industry transformation, our primary objectives are twofold: first, establishing a code-first open source community dedicated to delivering production-ready software platforms; and second, cultivating a robust vendor-neutral ecosystem that is focused on delivering tangible value across the automotive value chain. To realise these ambitions, our focus is on crafting open source processes that ensure automotive-grade quality management, functional safety, and supply chain security.”&lt;/p&gt;
-&lt;p dir="ltr"&gt;Eclipse SDV enjoyed a notable surge in membership and experienced substantial project expansion throughout 2023. New members, including Cummins, DENSO, General Motors, HARMAN, LG Electronics, Mercedes-Benz Tech Innovation, and Qualcomm Innovation Center, demonstrate the quality and diversity of organisations that have recently joined the working group. Members currently contribute to and collaborate on&amp;nbsp;&lt;a href="https://sdv.eclipse.org/projects/" rel="nofollow"&gt;&lt;u&gt;26 different projects&lt;/u&gt;&lt;/a&gt;, including technologies focused on fleet management, software orchestration and other real-world applications.&lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;strong&gt;Building the SDV Ecosystem&lt;/strong&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;In 2023, Eclipse SDV was dedicated to fostering collaboration and community growth, evident through numerous community events, strategic project additions, and alliances with automotive-focused organisations. The year marked several noteworthy highlights, showcasing our unwavering commitment to innovation in the automotive tech landscape:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li dir="ltr"&gt;&lt;strong&gt;Inaugural Automotive Open Source Summit Success:&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p dir="ltr"&gt;In early June, Eclipse SDV successfully launched its first-ever&amp;nbsp;&lt;a href="https://www.automotive-oss.org/event/222cbfb1-46da-4f1a-8837-026d57706c24/summary" rel="nofollow"&gt;&lt;u&gt;Automotive Open Source Summit&lt;/u&gt;&lt;/a&gt;. The event attracted industry leaders from over 30 organisations including Bosch, Cariad (VW Group), the European Commission, Microsoft, Mercedes-Benz Tech Innovation, and ZF Group. Geared towards automotive tech executives, thought leaders and senior managers, the summit showcased speakers from Eclipse automotive initiatives and beyond. Due to its resounding success, a second summit is scheduled for May 14, 2024, in Starnberg, Germany.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li dir="ltr"&gt;&lt;strong&gt;Eclipse Foundation Joins FEDERATE for Auto Ecosystem Growth:&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p dir="ltr"&gt;Demonstrating its commitment to the EU auto ecosystem, the Eclipse Foundation joined FEDERATE, a project funded by Chips Joint Undertaking. This public-private partnership, supported by the Horizon Europe Framework Programme, unites major automotive players and industrial SDV initiatives. FEDERATE aims to accelerate the development of a future vehicle ecosystem, fostering collaboration, and supporting Research, Development and Innovation activities, aligning both software and hardware for the Software Defined Vehicle of the Future.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li dir="ltr"&gt;&lt;strong&gt;Global Expansion and Community Day Engagement:&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p dir="ltr"&gt;Following successful SDV Community Days in Lisbon (hosted by Microsoft) and Friedrichshafen (hosted by ZF Group), the SDV Working Group hosted another community event at EclipseCon in October, drawing over 100 attendees. The subsequent month saw an expanded global presence with appearances at events like SFCON 2023 in Bolzano, AutoTech: Europe in Berlin, SDVCON in Heilbronn, and Automotive IQ SDV week in Munich. Marking another milestone, the SDV Working Group participated in its inaugural event in Asia, EdgeTech + in Japan, connecting with major OEMs and hosting a local meet &amp;amp; greet at LG Electronics in Korea.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li dir="ltr"&gt;&lt;strong&gt;Successful Munich Hackathon Showcases SDV Innovation:&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p dir="ltr"&gt;In late November, Eclipse SDV organised a hackathon in Munich, Germany, held at&amp;nbsp; Accenture’s Munich office. The event brought together automotive software enthusiasts to experiment with SDV tools and blueprints, build new features, and explore new ideas in vehicle development. With over 100 registrants organised into 15 teams, the hackathon yielded impressive results, drawing participants from across the globe and fostering collaboration and innovation in automotive software development.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li dir="ltr"&gt;&lt;strong&gt;A Safety-Certified Open Source RTOS Now Under Eclipse Foundation Governance:&amp;nbsp;&lt;/strong&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p dir="ltr"&gt;In a groundbreaking move, Microsoft unveiled plans to transition Azure RTOS, along with all its components, to the&amp;nbsp;&lt;a href="https://threadx.io/" rel="nofollow"&gt;&lt;u&gt;Eclipse ThreadX&lt;/u&gt;&lt;/a&gt; open source project under Eclipse Foundation governance. The Eclipse ThreadX project will be under the purview of the Eclipse SDV Working Group. With a staggering 12 billion devices already deployed, this well-established technology takes centre stage, especially in the automotive sector. As the sole open source Real-Time Operating System (RTOS) boasting multiple safety and reliability certifications, including IEC 61508, IEC 62304, ISO 26262, and EN 50128, the transition to open source will mark a significant industry milestone. The added EAL4+ Common Criteria security certification further solidifies its position in the automotive technology landscape.&lt;/p&gt;
-&lt;p dir="ltr"&gt;Looking ahead, a primary objective in this new year is to enhance collaboration within the Eclipse SDV Working Group and foster stronger connections across our diverse projects. Additionally, we are committed to achieving more seamless integration of communication protocols such as&amp;nbsp;&lt;a href="https://projects.eclipse.org/projects/automotive.uprotocol" rel="nofollow"&gt;&lt;u&gt;Eclipse uProtocol&lt;/u&gt;&lt;/a&gt; and&amp;nbsp;&lt;a href="https://zenoh.io/" rel="nofollow"&gt;&lt;u&gt;Eclipse Zenoh&lt;/u&gt;&lt;/a&gt; within the SDV ecosystem. Another key initiative is the introduction of Eclipse SDV Blueprints, aimed at showcasing the capabilities of SDV projects targeting real-world use cases such as fleet management and software orchestration.  &lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;strong&gt;Join the Eclipse SDV Working Group&lt;/strong&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;Discover opportunities to actively contribute to the global centre of gravity for software defined vehicle innovation and collaboration. Our diverse membership of industry leaders, united by a code-first approach, drives innovation that is actively being adopted by the industry today. We offer an inclusive platform for companies of all sizes to contribute, ensuring a level playing field. Explore detailed membership information&amp;nbsp;&lt;a href="https://sdv.eclipse.org/membership/" rel="nofollow"&gt;&lt;u&gt;here&lt;/u&gt;&lt;/a&gt;.&lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;strong&gt;Explore Our Vision Paper&lt;/strong&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;To delve deeper into the Eclipse SDV Working Group's vision for the industry, we encourage you to&amp;nbsp;&lt;a href="https://outreach.eclipse.foundation/oss-auto-vision" rel="nofollow"&gt;&lt;u&gt;download the SDV Vision Paper&lt;/u&gt;&lt;/a&gt;. This comprehensive document provides a detailed overview of the organisation's goals and predictions for the future of vehicle design.&lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;strong&gt;Upcoming Events and Opportunities&lt;/strong&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;Get to know the Eclipse SDV Community by attending our upcoming&amp;nbsp;&lt;a href="https://eclipsecon.regfox.com/sdv-community-day-graz-2024" rel="nofollow"&gt;&lt;u&gt;SDV Community Day in Graz&lt;/u&gt;&lt;/a&gt; on February 28-29, 2024. This event promises valuable insights into SDV Working Group projects and offers opportunities to connect with other members of the automotive tech community.&lt;/p&gt;
-&lt;p dir="ltr"&gt;For a firsthand look at SDV projects and to network with other members, consider joining us at the annual&amp;nbsp;&lt;a href="https://bosch-connected-world.com/conference/" rel="nofollow"&gt;&lt;u&gt;Bosch Connected World&lt;/u&gt;&lt;/a&gt; event in Berlin from February 28-29, 2024. Register for the event to access the Eclipse SDV and Eclipse Foundation exhibitor's space on-site. See us in&amp;nbsp;&lt;strong&gt;Booth G6.&lt;/strong&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;Later this year, the Eclipse Foundation will be hosting its inaugural event focused on automotive open source at the Open Code for Automotive conference, co-located with its newest global event for open source software, the&amp;nbsp;&lt;a href="https://opencode-x.org/" rel="nofollow"&gt;&lt;u&gt;Open Code Experience (OCX)&lt;/u&gt;&lt;/a&gt;, taking place on 22-24 October 2024 in Mainz, Germany.&lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;strong&gt;About the Eclipse Foundation&lt;/strong&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;The Eclipse Foundation provides our global community of individuals and organisations with a business-friendly environment for open source software collaboration and innovation. We host the Eclipse IDE, Adoptium, Software Defined Vehicle, Jakarta EE, and over 415 open source projects, including runtimes, tools, specifications, and frameworks for cloud and edge applications, IoT, AI, automotive, systems engineering, open processor designs, and many others. Headquartered in Brussels, Belgium, the Eclipse Foundation is an international non-profit association supported by over 360 members. Come visit us at this year’s&amp;nbsp;&lt;a href="https://opencode-x.org/" rel="nofollow"&gt;&lt;u&gt;Open Code Experience (OCX)&lt;/u&gt;&lt;/a&gt; conference, taking place on 22-24 October 2024 in Mainz, Germany. To learn more, follow us on social media&amp;nbsp;&lt;a href="https://twitter.com/EclipseFdn" rel="nofollow"&gt;&lt;u&gt;@EclipseFdn&lt;/u&gt;&lt;/a&gt;,&amp;nbsp;&lt;a href="https://www.linkedin.com/company/34093/" rel="nofollow"&gt;&lt;u&gt;LinkedIn&lt;/u&gt;&lt;/a&gt;, or visit&amp;nbsp;&lt;a href="http://eclipse.org" rel="nofollow"&gt;&lt;u&gt;eclipse.org&lt;/u&gt;&lt;/a&gt;.&lt;/p&gt;
-&lt;p dir="ltr"&gt;Third-party trademarks mentioned are the property of their respective owners.&lt;/p&gt;
-&lt;p class="text-align-center" dir="ltr"&gt;###&lt;/p&gt;
-&lt;p&gt;&amp;nbsp;&lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;strong&gt;Media contacts:&lt;/strong&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;u&gt;Schwartz Public Relations for the Eclipse Foundation, AISBL (Germany)&lt;/u&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;Gloria Huppert, Franziska Wenzl&lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;a href="mailto:EclipseFoundation@schwartzpr.de" rel="nofollow"&gt;EclipseFoundation@schwartzpr.de&lt;/a&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;+49 (89) 211 871 - 70 / - 58&lt;/p&gt;
-&lt;p dir="ltr"&gt;&amp;nbsp;&lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;u&gt;Nichols Communications for the Eclipse Foundation, AISBL&lt;/u&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;Jay Nichols&lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;a href="mailto:jay@nicholscomm.com" rel="nofollow"&gt;jay@nicholscomm.com&lt;/a&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;+1 408-772-1551&lt;/p&gt;
-&lt;p&gt;&amp;nbsp;&lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;u&gt;514 Media Ltd&amp;nbsp;for the Eclipse Foundation, AISBL (France, Italy, Spain)&lt;/u&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;Benoit Simoneau&lt;/p&gt;
-&lt;p dir="ltr"&gt;&lt;a href="mailto:benoit@514-media.com" rel="nofollow"&gt;benoit@514-media.com&lt;/a&gt;&lt;/p&gt;
-&lt;p dir="ltr"&gt;M:&amp;nbsp;+44 (0) 7891 920 370&lt;/p&gt;&lt;/div&gt;
-      </description>
-  <pubDate>Tue, 27 Feb 2024 12:00:00 +0000</pubDate>
-    <dc:creator>Jacob Harris</dc:creator>
-    <guid isPermaLink="false">39968 at https://newsroom.eclipse.org</guid>
     </item>
 
   </channel>
